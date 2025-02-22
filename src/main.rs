@@ -5,13 +5,20 @@ use embedded_hal::delay::DelayNs;
 use panic_halt as _;
 
 // Define core clock. This can be used in the rest of the project.
-type CoreClock = atmega_hal::clock::MHz1; // FIXME: teensy2 default is 2MHz
+type CoreClock = atmega_hal::clock::MHz8;
 type Delay = atmega_hal::delay::Delay<crate::CoreClock>;
 
 #[avr_device::entry]
 fn main() -> ! {
     let dp = atmega_hal::Peripherals::take().unwrap();
     let pins = atmega_hal::pins!(dp);
+
+    // Set clock speed at 8MHz
+    // FIXME: disable interrupts & enable back afterwards
+    let clkpr = &dp.CPU.clkpr;
+    use atmega_hal::pac::cpu::clkpr::CLKPS_A;
+    clkpr.write(|w| w.clkpce().set_bit().clkps().variant(CLKPS_A::VAL_0X00));
+    clkpr.write(|w| w.clkps().variant(CLKPS_A::VAL_0X01));
 
     let mut led = pins.pd6.into_output();
 
