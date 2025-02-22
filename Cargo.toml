@@ -15,11 +15,17 @@ panic-halt = "0.2.0"
 ufmt = "0.2.0"
 nb = "1.1.0"
 embedded-hal = "1.0"
+avr-device = { version = "0.7", features = ["rt"] }
 
-[dependencies.arduino-hal]
+[dependencies.embedded-hal-v0]
+# TODO: what's this and do we need it and why? copied from avr-hal/examples/atmega2560/Cargo.toml
+version = "0.2.3"
+package = "embedded-hal"
+
+[dependencies.atmega-hal]
 git = "https://github.com/rahix/avr-hal"
 rev = "3c089795cadbbc7fa83f45958128689fee7ba1e4"
-features = ["arduino-leonardo"]
+features = ["atmega32u4"]
 
 # The latest releases of `proc-macro2` do not support the rust toolchain that
 # we use.  Thus, we must fix this dependency to an older version where our

@@ -3,20 +3,6 @@
 version = 3
 
 [[package]]
-name = "arduino-hal"
-version = "0.1.0"
-source = "git+https://github.com/rahix/avr-hal?rev=3c089795cadbbc7fa83f45958128689fee7ba1e4#3c089795cadbbc7fa83f45958128689fee7ba1e4"
-dependencies = [
- "atmega-hal",
- "avr-device",
- "avr-hal-generic",
- "cfg-if",
- "embedded-hal 0.2.7",
- "embedded-hal 1.0.0",
- "ufmt",
-]
-
-[[package]]
 name = "atmega-hal"
 version = "0.1.0"
 source = "git+https://github.com/rahix/avr-hal?rev=3c089795cadbbc7fa83f45958128689fee7ba1e4#3c089795cadbbc7fa83f45958128689fee7ba1e4"
@@ -80,7 +66,9 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 name = "chordite-rust"
 version = "0.1.0"
 dependencies = [
- "arduino-hal",
+ "atmega-hal",
+ "avr-device",
+ "embedded-hal 0.2.7",
  "embedded-hal 1.0.0",
  "nb 1.1.0",
  "panic-halt",

@@ -1,27 +1,22 @@
 #![no_std]
 #![no_main]
 
+use embedded_hal::delay::DelayNs;
 use panic_halt as _;
 
-#[arduino_hal::entry]
+// Define core clock. This can be used in the rest of the project.
+type CoreClock = atmega_hal::clock::MHz1;
+type Delay = atmega_hal::delay::Delay<crate::CoreClock>;
+
+#[avr_device::entry]
 fn main() -> ! {
-    let dp = arduino_hal::Peripherals::take().unwrap();
-    let pins = arduino_hal::pins!(dp);
+    let dp = atmega_hal::Peripherals::take().unwrap();
+    let pins = atmega_hal::pins!(dp);
 
-    /*
-     * For examples (and inspiration), head to
-     *
-     *     https://github.com/Rahix/avr-hal/tree/main/examples
-     *
-     * NOTE: Not all examples were ported to all boards!  There is a good chance though, that code
-     * for a different board can be adapted for yours.  The Arduino Uno currently has the most
-     * examples available.
-     */
-
-    let mut led = pins.d13.into_output();
+    let mut led = pins.pd6.into_output();
 
     loop {
         led.toggle();
-        arduino_hal::delay_ms(1000);
+        Delay::new().delay_ms(1000u32);
     }
 }
