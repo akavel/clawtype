@@ -5,7 +5,7 @@ use embedded_hal::delay::DelayNs;
 use panic_halt as _;
 
 // Define core clock. This can be used in the rest of the project.
-type CoreClock = atmega_hal::clock::MHz1;
+type CoreClock = atmega_hal::clock::MHz1; // FIXME: teensy2 default is 2MHz
 type Delay = atmega_hal::delay::Delay<crate::CoreClock>;
 
 #[avr_device::entry]
