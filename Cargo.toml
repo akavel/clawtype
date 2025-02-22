@@ -19,7 +19,7 @@ embedded-hal = "1.0"
 [dependencies.arduino-hal]
 git = "https://github.com/rahix/avr-hal"
 rev = "3c089795cadbbc7fa83f45958128689fee7ba1e4"
-features = ["arduino-mega1280"]
+features = ["arduino-leonardo"]
 
 # The latest releases of `proc-macro2` do not support the rust toolchain that
 # we use.  Thus, we must fix this dependency to an older version where our
