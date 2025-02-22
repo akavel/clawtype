@@ -1,8 +1,9 @@
 [build]
 target = "avr-specs/avr-atmega32u4.json"
 
-[target.'cfg(target_arch = "avr")']
-runner = "ravedude leonardo"
+#[target.'cfg(target_arch = "avr")']
+#runner = "ravedude leonardo"
+#runner = "ravedude -cb 57600 mega2560"
 
 [unstable]
 build-std = ["core"]
