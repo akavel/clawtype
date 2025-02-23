@@ -28,11 +28,22 @@ fn main() -> ! {
     let mut led = pins.pd6.into_output();
 
     let switch0 = pins.pb0.into_pull_up_input();
+    let mut switch0_last = false;
 
     unsafe { usb_init(); }
 
     loop {
         led.toggle();
+
+        let switch0_low = switch0.is_low();
+        if switch0_low != switch0_last {
+            switch0_last = switch0_low;
+            println(if switch0_low {
+                "KEY PRESS"
+            } else {
+                "Key release"
+            });
+        }
 
         if switch0.is_low() {
             Delay::new().delay_ms(100u32);
@@ -40,8 +51,13 @@ fn main() -> ! {
         }
 
         Delay::new().delay_ms(1000u32);
-        print("Hello new :)\r\n");
+        println("Hello keys :)");
     }
+}
+
+fn println(s: &str) {
+    print(s);
+    print("\r\n");
 }
 
 fn print(s: &str) {
@@ -49,3 +65,4 @@ fn print(s: &str) {
         unsafe { usb_debug_putchar(c); }
     }
 }
+
