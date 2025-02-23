@@ -30,9 +30,6 @@ fn main() -> ! {
     let switch0 = pins.pb0.into_pull_up_input();
 
     unsafe { usb_init(); }
-    for c in "Hello chordy!\r\n".bytes() {
-        unsafe { usb_debug_putchar(c); }
-    }
 
     loop {
         led.toggle();
@@ -43,8 +40,12 @@ fn main() -> ! {
         }
 
         Delay::new().delay_ms(1000u32);
-        for c in "Hello next!\r\n".bytes() {
-            unsafe { usb_debug_putchar(c); }
-        }
+        print("Hello new :)\r\n");
+    }
+}
+
+fn print(s: &str) {
+    for c in s.bytes() {
+        unsafe { usb_debug_putchar(c); }
     }
 }
