@@ -27,18 +27,6 @@ git = "https://github.com/rahix/avr-hal"
 rev = "3c089795cadbbc7fa83f45958128689fee7ba1e4"
 features = ["atmega32u4"]
 
-[dependencies.atmega32u4-usb-serial]
-# git = "https://github.com/mogenson/atmega32u4-usb-serial"
-# TODO: try "https://github.com/ryancwicks/atmega32u4-usb-serial/tree/update_usb_serial_version"
-path = "../atmega32u4-usb-serial"
-# git = "https://github.com/ryancwicks/atmega32u4-usb-serial"
-# branch = "update_usb_serial_version"
-
-# [patch.crates-io]
-# avr-device = { git = "https://github.com/Rahix/avr-device", tag = "v0.7.0" }
-# [replace]
-# "avr-device:0.5.4" = { version = "0.7" }
-
 # The latest releases of `proc-macro2` do not support the rust toolchain that
 # we use.  Thus, we must fix this dependency to an older version where our
 # toolchain is still supported.  See https://github.com/Rahix/avr-hal/issues/537

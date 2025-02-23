@@ -1,7 +1,6 @@
 #![no_std]
 #![no_main]
 
-use atmega32u4_usb_serial::UsbSerial;
 use embedded_hal::delay::DelayNs;
 use panic_halt as _;
 
@@ -21,10 +20,10 @@ fn main() -> ! {
     clkpr.write(|w| w.clkpce().set_bit().clkps().variant(CLKPS_A::VAL_0X00));
     clkpr.write(|w| w.clkps().variant(CLKPS_A::VAL_0X01));
 
-    let mut usb = UsbSerial::new(dp.USB_DEVICE);
-    usb.init(&dp.PLL);
+    // let mut usb = UsbSerial::new(dp.USB_DEVICE);
+    // usb.init(&dp.PLL);
 
-    ufmt::uwriteln!(usb, "Hello ATmega!\r").unwrap();
+    // ufmt::uwriteln!(usb, "Hello ATmega!\r").unwrap();
     // ufmt::uwriteln!(&mut serial, "Hello from ATmega!\r").unwrap();
 
     let mut led = pins.pd6.into_output();
