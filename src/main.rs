@@ -27,6 +27,8 @@ fn main() -> ! {
 
     let mut led = pins.pd6.into_output();
 
+    let switch0 = pins.pb0.into_pull_up_input();
+
     unsafe { usb_init(); }
     for c in "Hello chordy!\r\n".bytes() {
         unsafe { usb_debug_putchar(c); }
@@ -34,6 +36,12 @@ fn main() -> ! {
 
     loop {
         led.toggle();
+
+        if switch0.is_low() {
+            Delay::new().delay_ms(100u32);
+            continue;
+        }
+
         Delay::new().delay_ms(1000u32);
         for c in "Hello next!\r\n".bytes() {
             unsafe { usb_debug_putchar(c); }
