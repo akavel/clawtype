@@ -41,5 +41,8 @@ fn main() -> ! {
     loop {
         led.toggle();
         Delay::new().delay_ms(1000u32);
+        for c in "Hello next!\r\n".bytes() {
+            unsafe { usb_debug_putchar(c); }
+        }
     }
 }
