@@ -4,6 +4,11 @@
 use embedded_hal::delay::DelayNs;
 use panic_halt as _;
 
+extern "C" {
+    fn usb_init();
+    fn usb_debug_putchar(c: u8) -> i8;
+}
+
 // Define core clock. This can be used in the rest of the project.
 type CoreClock = atmega_hal::clock::MHz8;
 type Delay = atmega_hal::delay::Delay<crate::CoreClock>;
@@ -27,6 +32,11 @@ fn main() -> ! {
     // ufmt::uwriteln!(&mut serial, "Hello from ATmega!\r").unwrap();
 
     let mut led = pins.pd6.into_output();
+
+    unsafe { usb_init(); }
+    for c in "Hello chordy!\r\n".bytes() {
+        unsafe { usb_debug_putchar(c); }
+    }
 
     loop {
         led.toggle();
