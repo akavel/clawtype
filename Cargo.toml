@@ -33,6 +33,9 @@ features = ["atmega32u4"]
 [build-dependencies.proc-macro2]
 version = "=1.0.79"
 
+[build-dependencies]
+cc = "1.0"
+
 # Configure the build for minimal size - AVRs have very little program memory
 [profile.dev]
 panic = "abort"
