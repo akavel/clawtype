@@ -11,11 +11,11 @@ test = false
 bench = false
 
 [dependencies]
+avr-device = { version = "0.7", features = ["rt"] }
+embedded-hal = "1.0"
+nb = "1.1.0"
 panic-halt = "0.2.0"
 ufmt = "0.2.0"
-nb = "1.1.0"
-embedded-hal = "1.0"
-avr-device = { version = "0.7", features = ["rt"] }
 
 [dependencies.embedded-hal-v0]
 # TODO: what's this and do we need it and why? copied from avr-hal/examples/atmega2560/Cargo.toml
