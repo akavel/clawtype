@@ -7,3 +7,6 @@ target = "avr-specs/avr-atmega32u4.json"
 
 [unstable]
 build-std = ["core"]
+# For some reason, __addsf3 from rust stdlib does not get overwritten by avr-gcc stdlib's (old rust?); hotfix:
+# https://github.com/rust-lang/rust/issues/108489#issuecomment-1445352014
+build-std-features = ["compiler-builtins-mangled-names"]
