@@ -4,12 +4,10 @@
 use embedded_hal::delay::DelayNs;
 use panic_halt as _;
 
-/*
 extern "C" {
-    fn usb_init();
-    fn usb_debug_putchar(c: u8) -> i8;
+    // fn usb_init();
+    fn usb_debug_putchar(c: u8);
 }
-*/
 
 // Define core clock. This can be used in the rest of the project.
 type CoreClock = atmega_hal::clock::MHz8;
@@ -40,11 +38,11 @@ fn main() -> ! {
         let switch0_low = switch0.is_low();
         if switch0_low != switch0_last {
             switch0_last = switch0_low;
-            // println(if switch0_low {
-            //     "KEY PRESS"
-            // } else {
-            //     "Key release"
-            // });
+            println(if switch0_low {
+                "KEY PRESS"
+            } else {
+                "Key release"
+            });
         }
 
         if switch0.is_low() {
@@ -53,7 +51,7 @@ fn main() -> ! {
         }
 
         Delay::new().delay_ms(1000u32);
-        // println("Hello keys :)");
+        println("Hello keys :)");
     }
 }
 
@@ -63,8 +61,8 @@ fn println(s: &str) {
 }
 
 fn print(s: &str) {
-    // for c in s.bytes() {
-    //     unsafe { usb_debug_putchar(c); }
-    // }
+    for c in s.bytes() {
+        unsafe { usb_debug_putchar(c); }
+    }
 }
 

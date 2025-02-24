@@ -1,12 +1,14 @@
 // Inspired by:
 // - https://friendlyuser.github.io/posts/tech/rust/rust_ffi_with_c_and_cplusplus
 
-#ifdef __cplusplus
+#include <inttypes.h>
+
+//#ifdef __cplusplus
 extern "C" {
-#endif
+//#endif
 
-/* int multiply(int a, int b); */
+void usb_debug_putchar(uint8_t c);
 
-#ifdef __cplusplus
+//#ifdef __cplusplus
 }
-#endif
+//#endif
