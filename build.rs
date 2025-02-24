@@ -31,20 +31,53 @@ fn main() {
             .compile(basename);
     }
 
+    /*
+     * TODO: try to mimic:
+  "arguments": [
+   "C:\\Users\\Mateusz\\AppData\\Local\\Arduino15\\packages\\teensy\\tools\\teensy-compile\\11.3.1/avr/bin/avr-g++",
+   "-c",
+   "-Os",
+   "-g",
+   "-Wall",
+   "-ffunction-sections",
+   "-fdata-sections",
+   "-MMD",
+   "-fno-exceptions",
+   "-fpermissive",
+   "-felide-constructors",
+   "-std=gnu++11",
+   "-mmcu=atmega32u4",
+   "-DTEENSYDUINO=159",
+   "-DARDUINO_ARCH_AVR",
+   "-DARDUINO=10607",
+   "-DARDUINO_TEENSY2",
+   "-DF_CPU=16000000L",
+   "-DUSB_SERIAL_HID",
+   "-DLAYOUT_US_ENGLISH",
+   "-IC:\\Users\\Mateusz\\AppData\\Local\\arduino\\sketches\\55DEF8E976DC8F46FAE695DEF032A07E/pch",
+   "-IC:\\Users\\Mateusz\\AppData\\Local\\Arduino15\\packages\\teensy\\hardware\\avr\\1.59.0\\cores\\teensy",
+   "C:\\Users\\Mateusz\\AppData\\Local\\Arduino15\\packages\\teensy\\hardware\\avr\\1.59.0\\cores\\teensy\\usb_api.cpp",
+   "-o",
+   "C:\\Users\\Mateusz\\AppData\\Local\\arduino\\sketches\\55DEF8E976DC8F46FAE695DEF032A07E\\core\\usb_api.cpp.o"
+  ],
+     */
+
     for basename in ["rust_wrapper", "usb_api", "Print", "Stream", "WString", "new"] {
         let path = format!("src/{basename}.cpp");
         println!("cargo::rerun-if-changed={path}");
         // Use the `cc` crate to build a C file and statically link it.
         cc::Build::new()
             .cpp(true)
+            // .no_default_flags(true)
+            .force_frame_pointer(false)
             .pic(false)
             .warnings(false) // ??
             .flag("-mmcu=atmega32u4")
             .flag("-Os")
-.flag("-funsigned-char")
-.flag("-funsigned-bitfields")
-.flag("-fpack-struct")
-.flag("-fshort-enums")
+// .flag("-funsigned-char")
+// .flag("-funsigned-bitfields")
+// .flag("-fpack-struct")
+// .flag("-fshort-enums")
 .flag("-fno-exceptions")
             .define("LAYOUT_US_INTERNATIONAL", None)
             // .define("LAYOUT_US_ENGLISH", None)
@@ -53,7 +86,7 @@ fn main() {
             // .define("USB_SERIAL_HID", None)
             // .define("MCU", "atmega32u4")
             // .opt_level_str("s")
-            .compiler("avr-gcc")
+            .compiler("avr-g++")
             .archiver("avr-ar")
             .file(path)
             .compile(basename);
