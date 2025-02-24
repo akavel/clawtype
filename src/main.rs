@@ -5,7 +5,7 @@ use embedded_hal::delay::DelayNs;
 use panic_halt as _;
 
 extern "C" {
-    // fn usb_init();
+    fn usb_try_init();
     fn usb_debug_putchar(c: u8);
 }
 
@@ -30,7 +30,7 @@ fn main() -> ! {
     let switch0 = pins.pb0.into_pull_up_input();
     let mut switch0_last = false;
 
-    // unsafe { usb_init(); }
+    unsafe { usb_try_init(); }
 
     loop {
         led.toggle();
@@ -51,7 +51,7 @@ fn main() -> ! {
         }
 
         Delay::new().delay_ms(1000u32);
-        println("Hello keys :)");
+        println("Hello cpp :)");
     }
 }
 

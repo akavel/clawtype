@@ -7,3 +7,8 @@ void usb_debug_putchar(uint8_t c) {
     // void send_now(void); ??
     // virtual void flush(); ??
 }
+
+void usb_try_init() {
+    Serial.begin(0);
+
+}

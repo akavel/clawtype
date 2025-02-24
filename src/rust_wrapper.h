@@ -8,6 +8,7 @@ extern "C" {
 //#endif
 
 void usb_debug_putchar(uint8_t c);
+void usb_try_init();
 
 //#ifdef __cplusplus
 }
