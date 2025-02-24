@@ -63,8 +63,8 @@ fn println(s: &str) {
 }
 
 fn print(s: &str) {
-    for c in s.bytes() {
-        unsafe { usb_debug_putchar(c); }
-    }
+    // for c in s.bytes() {
+    //     unsafe { usb_debug_putchar(c); }
+    // }
 }
 

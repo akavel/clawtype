@@ -62,12 +62,17 @@ fn main() {
   ],
      */
 
-    for basename in ["rust_wrapper", "usb_api", "Print", "Stream", "WString", "new"] {
+    for basename in [
+        "rust_wrapper", "usb_api",
+        "Print", "Stream", "WString", "new", "HardwareSerial",
+        "CrashReport",
+    ] {
         let path = format!("src/{basename}.cpp");
         println!("cargo::rerun-if-changed={path}");
         // Use the `cc` crate to build a C file and statically link it.
         cc::Build::new()
-            .cpp(true)
+            // .cpp(true)
+            .includes(&["src"])
             // .no_default_flags(true)
             .force_frame_pointer(false)
             .pic(false)
@@ -78,7 +83,7 @@ fn main() {
 // .flag("-funsigned-bitfields")
 // .flag("-fpack-struct")
 // .flag("-fshort-enums")
-.flag("-fno-exceptions")
+            .flag("-fno-exceptions")
             .define("LAYOUT_US_INTERNATIONAL", None)
             // .define("LAYOUT_US_ENGLISH", None)
             .define("ARDUINO", "100")
