@@ -1,7 +1,7 @@
 chordite-rust
 =============
 
-Rust project for the _Arduino Leonardo_.
+Rust project for the _Teensy 2.0_.
 
 ## Build Instructions
 1. Install prerequisites as described in the [`avr-hal` README] (`avr-gcc`, `avr-libc`, `avrdude`, [`ravedude`]).
