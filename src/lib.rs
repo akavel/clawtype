@@ -1,5 +1,23 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
+#![cfg_attr(not(test), no_std)]
+
+#[derive(Default)]
+pub struct SwitchSet(u8);
+
+#[cfg_attr(test, derive(Debug, PartialEq))]
+pub enum UsbOutcome {
+    Nothing,
+    KeyHit { teensy_keycode: u16 },
+}
+
+#[derive(Default)]
+pub struct Chordite {
+    most: SwitchSet,
+}
+
+impl Chordite {
+    pub fn handle(&mut self, switches: SwitchSet) -> UsbOutcome {
+        UsbOutcome::Nothing
+    }
 }
 
 #[cfg(test)]
@@ -7,8 +25,9 @@ mod tests {
     use super::*;
 
     #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
+    fn zero() {
+        let mut ch = Chordite::default();
+        assert_eq!(ch.handle(SwitchSet(0)), UsbOutcome::Nothing);
     }
 }
+

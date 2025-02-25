@@ -1,6 +1,8 @@
 [package]
 name = "chordite-chords"
 version = "0.1.0"
+authors = ["Mateusz Czapliński <czapkofan@gmail.com>"]
 edition = "2024"
+license = "AGPL-3.0-or-later"
 
 [dependencies]
