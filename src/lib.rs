@@ -35,7 +35,19 @@ use UsbOutcome::KeyHit as Hit;
 
 impl Chordite {
     pub fn handle(&mut self, switches: SwitchSet) -> UsbOutcome {
-        UsbOutcome::Nothing
+        // some switches are pressed?
+        if switches.0 != 0 {
+            self.most.0 |= switches.0;
+            return UsbOutcome::Nothing;
+        }
+
+        // all switches released
+        let most = self.most.0;
+        self.most = SwitchSet::default();
+        match Self::lookup0(most) {
+            Some(Emit(v)) => return v,
+            None => return UsbOutcome::Nothing,
+        }
     }
 
     const_map!(
