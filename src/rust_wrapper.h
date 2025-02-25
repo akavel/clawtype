@@ -9,6 +9,7 @@ extern "C" {
 
 void usb_debug_putchar(uint8_t c);
 void usb_try_init();
+void usb_simple_send_key(uint16_t k);
 
 //#ifdef __cplusplus
 }

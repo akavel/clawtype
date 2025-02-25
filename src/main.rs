@@ -7,6 +7,7 @@ use panic_halt as _;
 extern "C" {
     fn usb_try_init();
     fn usb_debug_putchar(c: u8);
+    fn usb_simple_send_key(k: u16);
 }
 
 // Define core clock. This can be used in the rest of the project.
@@ -38,11 +39,15 @@ fn main() -> ! {
         let switch0_low = switch0.is_low();
         if switch0_low != switch0_last {
             switch0_last = switch0_low;
-            println(if switch0_low {
-                "KEY PRESS"
+            if switch0_low {
+                println("KEY PRESS");
+                const KEY_A: u16 = 4 | 0xF000;
+                unsafe { usb_simple_send_key(KEY_A); }
             } else {
-                "Key release"
-            });
+                println("Key release");
+                const KEY_B: u16 = 5 | 0xF000;
+                unsafe { usb_simple_send_key(KEY_B); }
+            }
         }
 
         if switch0.is_low() {
