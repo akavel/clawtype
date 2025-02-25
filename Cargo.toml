@@ -6,3 +6,4 @@ edition = "2024"
 license = "AGPL-3.0-or-later"
 
 [dependencies]
+const_map = "0.1.0"
