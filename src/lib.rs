@@ -50,9 +50,23 @@ impl Chordite {
 mod tests {
     use super::*;
 
+    use UsbOutcome::Nothing;
+
     #[test]
     fn zero() {
         let mut ch = Chordite::default();
-        assert_eq!(ch.handle(SwitchSet(0)), UsbOutcome::Nothing);
+        assert_eq!(ch.handle(SwitchSet(0)), Nothing);
+    }
+
+    #[test]
+    fn key_up_incremental_then_decremental() {
+        let mut ch = Chordite::default();
+        use SwitchSet as S;
+        assert_eq!(ch.handle(S(0b00_10_00_00)), Nothing);
+        assert_eq!(ch.handle(S(0b00_10_00_10)), Nothing);
+        assert_eq!(ch.handle(S(0b00_10_00_11)), Nothing);
+        assert_eq!(ch.handle(S(0b00_10_00_01)), Nothing);
+        assert_eq!(ch.handle(S(0b00_00_00_01)), Nothing);
+        assert_eq!(ch.handle(S(0)), Hit(UP));
     }
 }
