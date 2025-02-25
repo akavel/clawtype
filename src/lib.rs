@@ -44,6 +44,9 @@ impl Chordite {
         // all switches released
         let most = self.most.0;
         self.most = SwitchSet::default();
+        if most == 0 {
+            return UsbOutcome::Nothing;
+        }
         match Self::lookup0(most) {
             Some(Emit(v)) => return v,
             None => return UsbOutcome::Nothing,
@@ -53,7 +56,14 @@ impl Chordite {
     const_map!(
         LAYOUT0, lookup0(),
         (u8 => LayerOutcome) {
-            0b00_10_00_11 => Emit(Hit(UP)),
+            0b__00_10_00_11 => Emit(Hit(UP)),
+            0b__00_01_00_11 => Emit(Hit(DOWN)),
+            0b__10_00_00_11 => Emit(Hit(LEFT)),
+            0b__01_00_00_11 => Emit(Hit(RIGHT)),
+            0b__10_10_00_10 => Emit(Hit(PAGE_UP)),
+            0b__01_01_00_01 => Emit(Hit(PAGE_DOWN)),
+
+            // 0b__00_00_00_00 => Emit(Hit()),
         }
     );
 }
