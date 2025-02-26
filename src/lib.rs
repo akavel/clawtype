@@ -50,7 +50,7 @@ impl Chordite {
         if most == 0 {
             return UsbOutcome::Nothing;
         }
-        let layer = self.layer_temporary.unwrap_or(0);
+        let layer = self.layer_temporary.take().unwrap_or(0);
         let lookup = match layer {
             1 => Self::lookup1(most),
             _ => Self::lookup0(most),
@@ -199,8 +199,12 @@ mod tests {
         assert_eq!(ch.handle(S(chord!("_v__"))), Nothing);
         assert_eq!(ch.handle(S(chord!("_vv_"))), Nothing); // "shift"
         assert_eq!(ch.handle(S(0)), Nothing);
+        // "shifted" key
         assert_eq!(ch.handle(S(chord!("_^__"))), Nothing);
         assert_eq!(ch.handle(S(0)), Hit(DELETE));
+        // back to "unshifted" key
+        assert_eq!(ch.handle(S(chord!("_^__"))), Nothing);
+        assert_eq!(ch.handle(S(0)), Hit(BACKSPACE));
     }
 
     #[test]
