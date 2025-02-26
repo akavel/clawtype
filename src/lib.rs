@@ -6,12 +6,12 @@ use macros::chord;
 pub mod keycodes;
 use keycodes::*;
 
-#[derive(Default)]
 /// Currently, the most significant bit is the pinky finger's tip switch,
 /// then pinky finger's base switch. Subsequent bits represent tip & base
 /// of ring finger, middle finger, and index finger.
 ///
 /// E.g.: `0b10_00_00_01` is: pinky tip + index base pressed.
+#[derive(Default)]
 pub struct SwitchSet(u8);
 
 #[derive(Copy, Clone)]
