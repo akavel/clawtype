@@ -21,10 +21,22 @@ pub enum UsbOutcome {
     KeyHit(KeyWithModifiers),
 }
 
+impl core::ops::BitOr<KeyWithModifiers> for UsbOutcome {
+    type Output = Self;
+    fn bitor(self, mask: KeyWithModifiers) -> Self {
+        use UsbOutcome::*;
+        match self {
+            Nothing => Nothing,
+            KeyHit(k) => KeyHit(k | mask),
+        }
+    }
+}
+
 #[derive(Copy, Clone)]
 pub enum LayerOutcome {
     Emit(UsbOutcome),
     LayerSwitchTemporary { layer: i32 },
+    FromOtherWithMask { layer: i32, mask: u16 },
 }
 
 #[derive(Default)]
@@ -51,15 +63,23 @@ impl Chordite {
             return UsbOutcome::Nothing;
         }
         let layer = self.layer_temporary.take().unwrap_or(0);
-        let lookup = match layer {
+        self.lookup(layer, most)
+    }
+
+    fn lookup(&mut self, layer: i32, most: u8) -> UsbOutcome {
+        let layer_outcome = match layer {
             1 => Self::lookup1(most),
             _ => Self::lookup0(most),
         };
-        match lookup {
+        match layer_outcome {
             Some(Emit(v)) => v,
             Some(LayerSwitchTemporary { layer }) => {
                 self.layer_temporary = Some(layer);
                 UsbOutcome::Nothing
+            }
+            Some(FromOtherWithMask { layer, mask }) => {
+                // FIXME: protect against infinite recursion
+                self.lookup(layer, most) | mask
             }
             None => UsbOutcome::Nothing,
         }
@@ -137,6 +157,8 @@ impl Chordite {
     const_map!(
         LAYOUT1, lookup1(),
         (u8 => LayerOutcome) {
+            chord!("___^") => FromOtherWithMask { layer: 0, mask: SHIFT_MASK },
+
             chord!("_^%_") => Emit(Hit(KEY_5)), // S-0 5
             chord!("v_v_") => Emit(Hit(KEY_6)), // S-1 6
             chord!("%_%_") => Emit(Hit(KEY_7)), // S-2 7
@@ -214,6 +236,11 @@ mod tests {
         assert_eq!(ch.handle(S(chord!("_v__"))), Nothing);
         assert_eq!(ch.handle(S(chord!("_vv_"))), Nothing); // "shift"
         assert_eq!(ch.handle(S(0)), Nothing);
-        assert_eq!(ch.handle(S(chord!("___^"))), Hit(E | SHIFT_MASK));
+        // "shifted" key
+        assert_eq!(ch.handle(S(chord!("___^"))), Nothing);
+        assert_eq!(ch.handle(S(0)), Hit(E | SHIFT_MASK));
+        // back to "unshifted" key
+        assert_eq!(ch.handle(S(chord!("___^"))), Nothing);
+        assert_eq!(ch.handle(S(0)), Hit(E));
     }
 }
