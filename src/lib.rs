@@ -14,41 +14,35 @@ use keycodes::*;
 #[derive(Default)]
 pub struct SwitchSet(u8);
 
-/// UsbShort can represent most of the basic 101-keyboard keys
-/// and their combos with Shift and/or Right Alt.
 #[derive(Copy, Clone)]
 #[cfg_attr(test, derive(Debug, PartialEq))]
-pub enum UsbShort {
+pub enum UsbOutcome {
     Nothing,
-    SimpleKey(KeyWithModifiers),
+    KeyHit(KeyWithFlags),
 }
 
-pub enum UsbLong {
-
+impl core::ops::BitOr<KeyWithFlags> for UsbOutcome {
+    type Output = Self;
+    fn bitor(self, mask: KeyWithFlags) -> Self {
+        use UsbOutcome::*;
+        match self {
+            Nothing => Nothing,
+            KeyHit(k) => KeyHit(k | mask),
+        }
+    }
 }
-
-// pub enum UsbOutcome {
-//     Nothing,
-//     KeyHit(KeyWithModifiers),
-// }
-
-// impl core::ops::BitOr<KeyWithModifiers> for UsbOutcome {
-//     type Output = Self;
-//     fn bitor(self, mask: KeyWithModifiers) -> Self {
-//         use UsbOutcome::*;
-//         match self {
-//             Nothing => Nothing,
-//             KeyHit(k) => KeyHit(k | mask),
-//         }
-//     }
-// }
 
 #[derive(Copy, Clone)]
 pub enum LayerOutcome {
-    Emit(UsbShort),
-    LayerSwitchTemporary { layer: i32 },
-    /// With USB flag key, like Alt, Shift, GUI, RAlt, etc.
-    FromOtherWithFlag { layer: i32, flag: u8 },
+    Emit(UsbOutcome),
+    LayerSwitchTemporary {
+        layer: i32,
+    },
+    /// Intended for adding USB flag key, like Alt, Shift, GUI, RAlt, etc.
+    FromOtherPlusMask {
+        layer: i32,
+        mask: KeyWithFlags,
+    },
 }
 
 #[derive(Default)]
@@ -95,7 +89,7 @@ impl Chordite {
                 self.layer_temporary = Some(layer);
                 UsbOutcome::Nothing
             }
-            FromOtherWithMask { layer, mask } => {
+            FromOtherPlusMask { layer, mask } => {
                 // FIXME: protect against infinite recursion
                 self.resolve(layer, chord) | mask
             }
@@ -155,27 +149,27 @@ impl Chordite {
             chord!("vvvv") => Emit(Hit(ESC)),
             chord!("^__v") => Emit(Hit(K)),
             chord!("%__%") => Emit(Hit(QUOTE)),
-            chord!("%__v") => Emit(Hit(QUOTE | SHIFT_MASK)), // "
+            chord!("%__v") => Emit(Hit(QUOTE | SHIFT_FLAG)), // "
             chord!("vvv_") => Emit(Hit(MINUS)),
             chord!("__v%") => Emit(Hit(X)),
             chord!("_%%%") => Emit(Hit(J)),
             chord!("_%_v") => Emit(Hit(SEMICOLON)),
-            chord!("^^^_") => Emit(Hit(KEY_9 | SHIFT_MASK)), // (
-            chord!("^_^_") => Emit(Hit(KEY_0 | SHIFT_MASK)), // )
+            chord!("^^^_") => Emit(Hit(KEY_9 | SHIFT_FLAG)), // (
+            chord!("^_^_") => Emit(Hit(KEY_0 | SHIFT_FLAG)), // )
             chord!("^^^^") => Emit(Hit(Q)),
             chord!("_^^v") => Emit(Hit(SLASH)),
             chord!("_^^%") => Emit(Hit(Z)),
-            chord!("^^_v") => Emit(Hit(SEMICOLON | SHIFT_MASK)), // :
+            chord!("^^_v") => Emit(Hit(SEMICOLON | SHIFT_FLAG)), // :
             chord!("_^%_") => Emit(Hit(KEY_0)),
             chord!("v_v_") => Emit(Hit(KEY_1)),
             chord!("%_%_") => Emit(Hit(KEY_2)),
             chord!("%%%_") => Emit(Hit(KEY_3)),
             chord!("^^^%") => Emit(Hit(KEY_4)),
             chord!("_vv%") => Emit(Hit(EQUAL)),
-            chord!("%^__") => Emit(Hit(KEY_4 | SHIFT_MASK)), // $
-            chord!("^^_%") => Emit(Hit(KEY_8 | SHIFT_MASK)), // *
-            chord!("^_%_") => Emit(Hit(LEFT_BRACE | SHIFT_MASK)), // {
-            chord!("v_%_") => Emit(Hit(RIGHT_BRACE | SHIFT_MASK)), // }
+            chord!("%^__") => Emit(Hit(KEY_4 | SHIFT_FLAG)), // $
+            chord!("^^_%") => Emit(Hit(KEY_8 | SHIFT_FLAG)), // *
+            chord!("^_%_") => Emit(Hit(LEFT_BRACE | SHIFT_FLAG)), // {
+            chord!("v_%_") => Emit(Hit(RIGHT_BRACE | SHIFT_FLAG)), // }
         }
     );
 
@@ -183,7 +177,7 @@ impl Chordite {
     const_map!(
         LAYOUT1, lookup1(),
         (u8 => LayerOutcome) {
-            0 => FromOtherWithMask { layer: 0, mask: SHIFT_MASK },
+            0 => FromOtherPlusMask { layer: 0, mask: SHIFT_FLAG },
             chord!("_^^_") => LayerSwitchTemporary { layer: 3 }, // CTRL
 
             chord!("_^%_") => Emit(Hit(KEY_5)), // S-0 5
@@ -191,21 +185,21 @@ impl Chordite {
             chord!("%_%_") => Emit(Hit(KEY_7)), // S-2 7
             chord!("%%%_") => Emit(Hit(KEY_8)), // S-3 8
             chord!("^^^%") => Emit(Hit(KEY_9)), // S-4 9
-            chord!("^__^") => Emit(Hit(SLASH | SHIFT_MASK)), // S-, ?
-            chord!("_^^^") => Emit(Hit(KEY_1 | SHIFT_MASK)), // S-. !
-            chord!("vvv_") => Emit(Hit(MINUS | SHIFT_MASK)), // S-- _
+            chord!("^__^") => Emit(Hit(SLASH | SHIFT_FLAG)), // S-, ?
+            chord!("_^^^") => Emit(Hit(KEY_1 | SHIFT_FLAG)), // S-. !
+            chord!("vvv_") => Emit(Hit(MINUS | SHIFT_FLAG)), // S-- _
             chord!("%__%") => Emit(Hit(TILDE)), // S-' `
             chord!("^^^_") => Emit(Hit(LEFT_BRACE)), // S-( [
             chord!("^_^_") => Emit(Hit(RIGHT_BRACE)), // S-) ]
-            chord!("_vv%") => Emit(Hit(EQUAL | SHIFT_MASK)), // S-= +
-            chord!("^_%_") => Emit(Hit(COMMA | SHIFT_MASK)), // S-{ <
-            chord!("v_%_") => Emit(Hit(PERIOD | SHIFT_MASK)), // S-} >
-            chord!("%__v") => Emit(Hit(KEY_7 | SHIFT_MASK)), // S-" &
-            chord!("_%_v") => Emit(Hit(KEY_2 | SHIFT_MASK)), // S-; @
+            chord!("_vv%") => Emit(Hit(EQUAL | SHIFT_FLAG)), // S-= +
+            chord!("^_%_") => Emit(Hit(COMMA | SHIFT_FLAG)), // S-{ <
+            chord!("v_%_") => Emit(Hit(PERIOD | SHIFT_FLAG)), // S-} >
+            chord!("%__v") => Emit(Hit(KEY_7 | SHIFT_FLAG)), // S-" &
+            chord!("_%_v") => Emit(Hit(KEY_2 | SHIFT_FLAG)), // S-; @
             chord!("_^^v") => Emit(Hit(BACKSLASH)), // S-/ \
-            chord!("^^_v") => Emit(Hit(BACKSLASH | SHIFT_MASK)), // S-: |
-            chord!("%^__") => Emit(Hit(TILDE | SHIFT_MASK)), // S-$ ~
-            chord!("^^_%") => Emit(Hit(KEY_6 | SHIFT_MASK)), // S-* ^
+            chord!("^^_v") => Emit(Hit(BACKSLASH | SHIFT_FLAG)), // S-: |
+            chord!("%^__") => Emit(Hit(TILDE | SHIFT_FLAG)), // S-$ ~
+            chord!("^^_%") => Emit(Hit(KEY_6 | SHIFT_FLAG)), // S-* ^
 
             chord!("_^__") => Emit(Hit(DELETE)), // S-Backspace KEY_DELETE
             chord!("_^_%") => Emit(Hit(HOME)), // S-Up KEY_HOME
@@ -217,7 +211,7 @@ impl Chordite {
     const_map!(
         LAYOUT2, lookup2(),
         (u8 => LayerOutcome) {
-            0 => FromOtherWithMod { layer: 0, modifier: CTRL_MASK },
+            0 => FromOtherPlusMask { layer: 0, mask: CTRL_FLAG },
             chord!("_vv_") => LayerSwitchTemporary { layer: 3 }, // SHIFT
         }
     );
@@ -226,7 +220,7 @@ impl Chordite {
     const_map!(
         LAYOUT3, lookup3(),
         (u8 => LayerOutcome) {
-            0 => FromOtherWithMod { layer: 1, modifier: CTRL_MASK },
+            0 => FromOtherPlusMask { layer: 1, mask: CTRL_FLAG },
         }
     );
 }
@@ -282,7 +276,7 @@ mod tests {
         assert_eq!(ch.handle(S(0)), Nothing);
         // "shifted" key
         assert_eq!(ch.handle(S(chord!("___^"))), Nothing);
-        assert_eq!(ch.handle(S(0)), Hit(E | SHIFT_MASK));
+        assert_eq!(ch.handle(S(0)), Hit(E | SHIFT_FLAG));
         // back to "unshifted" key
         assert_eq!(ch.handle(S(chord!("___^"))), Nothing);
         assert_eq!(ch.handle(S(0)), Hit(E));
@@ -294,7 +288,7 @@ mod tests {
         assert_eq!(ch.handle(S(0)), Nothing);
         // "shifted" key
         assert_eq!(ch.handle(S(chord!("__vv"))), Nothing);
-        assert_eq!(ch.handle(S(0)), Hit(C | SHIFT_MASK));
+        assert_eq!(ch.handle(S(0)), Hit(C | SHIFT_FLAG));
         // back to "unshifted" key
         assert_eq!(ch.handle(S(chord!("__vv"))), Nothing);
         assert_eq!(ch.handle(S(0)), Hit(C));
