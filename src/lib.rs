@@ -14,29 +14,41 @@ use keycodes::*;
 #[derive(Default)]
 pub struct SwitchSet(u8);
 
+/// UsbShort can represent most of the basic 101-keyboard keys
+/// and their combos with Shift and/or Right Alt.
 #[derive(Copy, Clone)]
 #[cfg_attr(test, derive(Debug, PartialEq))]
-pub enum UsbOutcome {
+pub enum UsbShort {
     Nothing,
-    KeyHit(KeyWithModifiers),
+    SimpleKey(KeyWithModifiers),
 }
 
-impl core::ops::BitOr<KeyWithModifiers> for UsbOutcome {
-    type Output = Self;
-    fn bitor(self, mask: KeyWithModifiers) -> Self {
-        use UsbOutcome::*;
-        match self {
-            Nothing => Nothing,
-            KeyHit(k) => KeyHit(k | mask),
-        }
-    }
+pub enum UsbLong {
+
 }
+
+// pub enum UsbOutcome {
+//     Nothing,
+//     KeyHit(KeyWithModifiers),
+// }
+
+// impl core::ops::BitOr<KeyWithModifiers> for UsbOutcome {
+//     type Output = Self;
+//     fn bitor(self, mask: KeyWithModifiers) -> Self {
+//         use UsbOutcome::*;
+//         match self {
+//             Nothing => Nothing,
+//             KeyHit(k) => KeyHit(k | mask),
+//         }
+//     }
+// }
 
 #[derive(Copy, Clone)]
 pub enum LayerOutcome {
-    Emit(UsbOutcome),
+    Emit(UsbShort),
     LayerSwitchTemporary { layer: i32 },
-    FromOtherWithMask { layer: i32, mask: u16 },
+    /// With USB flag key, like Alt, Shift, GUI, RAlt, etc.
+    FromOtherWithFlag { layer: i32, flag: u8 },
 }
 
 #[derive(Default)]
@@ -93,6 +105,8 @@ impl Chordite {
     fn lookup(&self, layer: i32, chord: u8) -> Option<LayerOutcome> {
         match layer {
             1 => Self::lookup1(chord),
+            2 => Self::lookup2(chord),
+            3 => Self::lookup3(chord),
             _ => Self::lookup0(chord),
         }
     }
@@ -124,7 +138,7 @@ impl Chordite {
             chord!("__^v") => Emit(Hit(U)),
             chord!("^^__") => Emit(Hit(M)),
             chord!("_vv_") => LayerSwitchTemporary { layer: 1 }, // SHIFT
-            // _^^_ CTRL
+            chord!("_^^_") => LayerSwitchTemporary { layer: 2 }, // CTRL
             // _%%_ WIN
             // %%__ ALT
             chord!("_^_^") => Emit(Hit(TAB)),
@@ -165,11 +179,12 @@ impl Chordite {
         }
     );
 
-    // "Shift" layer
+    // "SHIFT" layer
     const_map!(
         LAYOUT1, lookup1(),
         (u8 => LayerOutcome) {
             0 => FromOtherWithMask { layer: 0, mask: SHIFT_MASK },
+            chord!("_^^_") => LayerSwitchTemporary { layer: 3 }, // CTRL
 
             chord!("_^%_") => Emit(Hit(KEY_5)), // S-0 5
             chord!("v_v_") => Emit(Hit(KEY_6)), // S-1 6
@@ -195,6 +210,23 @@ impl Chordite {
             chord!("_^__") => Emit(Hit(DELETE)), // S-Backspace KEY_DELETE
             chord!("_^_%") => Emit(Hit(HOME)), // S-Up KEY_HOME
             chord!("_v_%") => Emit(Hit(END)), // S-Down KEY_END
+        }
+    );
+
+    // "CTRL" layer
+    const_map!(
+        LAYOUT2, lookup2(),
+        (u8 => LayerOutcome) {
+            0 => FromOtherWithMod { layer: 0, modifier: CTRL_MASK },
+            chord!("_vv_") => LayerSwitchTemporary { layer: 3 }, // SHIFT
+        }
+    );
+
+    // "SHIFT+CTRL" layer
+    const_map!(
+        LAYOUT3, lookup3(),
+        (u8 => LayerOutcome) {
+            0 => FromOtherWithMod { layer: 1, modifier: CTRL_MASK },
         }
     );
 }
