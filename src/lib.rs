@@ -201,5 +201,4 @@ mod tests {
         assert_eq!(ch.handle(S(0)), Nothing);
         assert_eq!(ch.handle(S(chord!("___^"))), Hit(E | SHIFT_MASK));
     }
-
 }
