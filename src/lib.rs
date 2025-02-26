@@ -136,7 +136,7 @@ mod tests {
     }
 
     #[test]
-    fn key_up_incremental_then_decremental() {
+    fn key_up_incremental_then_decremental_then_esc_instant() {
         let mut ch = Chordite::default();
         use SwitchSet as S;
         assert_eq!(ch.handle(S(0b00_10_00_00)), Nothing);
@@ -145,5 +145,9 @@ mod tests {
         assert_eq!(ch.handle(S(0b00_10_00_01)), Nothing);
         assert_eq!(ch.handle(S(0b00_00_00_01)), Nothing);
         assert_eq!(ch.handle(S(0)), Hit(UP));
+
+        assert_eq!(ch.handle(S(0b01_01_01_01)), Nothing);
+        assert_eq!(ch.handle(S(0)), Hit(ESC));
     }
+
 }
