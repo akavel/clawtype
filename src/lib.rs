@@ -98,7 +98,7 @@ impl Chordite {
             chord!("vvvv") => Emit(Hit(ESC)),
             chord!("^__v") => Emit(Hit(K)),
             chord!("%__%") => Emit(Hit(QUOTE)),
-            chord!("%__v") => Emit(Hit(QUOTE | SHIFT_MASK)),
+            chord!("%__v") => Emit(Hit(QUOTE | SHIFT_MASK)), // "
             chord!("vvv_") => Emit(Hit(MINUS)),
             chord!("__v%") => Emit(Hit(X)),
             chord!("_%%%") => Emit(Hit(J)),
@@ -119,6 +119,37 @@ impl Chordite {
             chord!("^^_%") => Emit(Hit(KEY_8 | SHIFT_MASK)), // *
             chord!("^_%_") => Emit(Hit(LEFT_BRACE | SHIFT_MASK)), // {
             chord!("v_%_") => Emit(Hit(RIGHT_BRACE | SHIFT_MASK)), // }
+        }
+    );
+
+    // "Shift" layer
+    const_map!(
+        LAYOUT1, lookup1(),
+        (u8 => LayerOutcome) {
+            chord!("_^%_") => Emit(Hit(KEY_5)), // S-0 5
+            chord!("v_v_") => Emit(Hit(KEY_6)), // S-1 6
+            chord!("%_%_") => Emit(Hit(KEY_7)), // S-2 7
+            chord!("%%%_") => Emit(Hit(KEY_8)), // S-3 8
+            chord!("^^^%") => Emit(Hit(KEY_9)), // S-4 9
+            chord!("^__^") => Emit(Hit(SLASH | SHIFT_MASK)), // S-, ?
+            chord!("_^^^") => Emit(Hit(KEY_1 | SHIFT_MASK)), // S-. !
+            chord!("vvv_") => Emit(Hit(MINUS | SHIFT_MASK)), // S-- _
+            chord!("%__%") => Emit(Hit(TILDE)), // S-' `
+            chord!("^^^_") => Emit(Hit(LEFT_BRACE)), // S-( [
+            chord!("^_^_") => Emit(Hit(RIGHT_BRACE)), // S-) ]
+            chord!("_vv%") => Emit(Hit(EQUAL | SHIFT_MASK)), // S-= +
+            chord!("^_%_") => Emit(Hit(COMMA | SHIFT_MASK)), // S-{ <
+            chord!("v_%_") => Emit(Hit(PERIOD | SHIFT_MASK)), // S-} >
+            chord!("%__v") => Emit(Hit(KEY_7 | SHIFT_MASK)), // S-" &
+            chord!("_%_v") => Emit(Hit(KEY_2 | SHIFT_MASK)), // S-; @
+            chord!("_^^v") => Emit(Hit(BACKSLASH)), // S-/ \
+            chord!("^^_v") => Emit(Hit(BACKSLASH | SHIFT_MASK)), // S-: |
+            chord!("%^__") => Emit(Hit(TILDE | SHIFT_MASK)), // S-$ ~
+            chord!("^^_%") => Emit(Hit(KEY_6 | SHIFT_MASK)), // S-* ^
+
+            chord!("_^__") => Emit(Hit(DELETE)), // S-Backspace KEY_DELETE
+            chord!("_^_%") => Emit(Hit(HOME)), // S-Up KEY_HOME
+            chord!("_v_%") => Emit(Hit(END)), // S-Down KEY_END
         }
     );
 }
