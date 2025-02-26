@@ -2,7 +2,6 @@ extern crate proc_macro;
 
 use proc_macro::TokenStream;
 use proc_macro2::{TokenStream as TokenStream2, TokenTree as TT2};
-use quote::quote;
 
 /// Convert string like: `"v^_%"` to byte, by translating
 /// each of the 4 characters to a crumb (i.e. 2 bits) as follows:

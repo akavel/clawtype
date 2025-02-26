@@ -9,5 +9,4 @@ license.workspace = true
 proc-macro = true
 
 [dependencies]
-quote = "1.0.7"
 proc-macro2 = "1.0.19"
