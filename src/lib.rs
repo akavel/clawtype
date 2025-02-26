@@ -98,9 +98,17 @@ impl Chordite {
 
     fn lookup(&self, layer: i32, chord: u8) -> Option<LayerOutcome> {
         match layer {
-            1 => Self::lookup1(chord),
-            2 => Self::lookup2(chord),
-            3 => Self::lookup3(chord),
+            1 => Self::lookup1(chord), // "SHIFT"
+            2 => Self::lookup2(chord), // "CTRL"
+            3 => Self::lookup3(chord), // "ALT"
+            4 => Self::lookup4(chord), // "GUI"
+
+            5 => Self::lookup5(chord), // "SHIFT+CTRL"
+            6 => Self::lookup6(chord), // "SHIFT+ALT"
+            7 => Self::lookup7(chord), // "SHIFT+GUI"
+
+            7 => Self::lookup7(chord), // "SHIFT+GUI"
+
             _ => Self::lookup0(chord),
         }
     }
@@ -133,8 +141,9 @@ impl Chordite {
             chord!("^^__") => Emit(Hit(M)),
             chord!("_vv_") => LayerSwitchTemporary { layer: 1 }, // SHIFT
             chord!("_^^_") => LayerSwitchTemporary { layer: 2 }, // CTRL
-            // _%%_ WIN
-            // %%__ ALT
+            chord!("%%__") => LayerSwitchTemporary { layer: 3 }, // ALT
+            // chord!("%%_^") => LayerSwitchTemporary { layer: ? }, // R-ALT
+            chord!("_%%_") => LayerSwitchTemporary { layer: 4 }, // GUI
             chord!("_^_^") => Emit(Hit(TAB)),
             chord!("__^%") => Emit(Hit(W)),
             chord!("_^_v") => Emit(Hit(G)),
@@ -178,7 +187,6 @@ impl Chordite {
         LAYOUT1, lookup1(),
         (u8 => LayerOutcome) {
             0 => FromOtherPlusMask { layer: 0, mask: SHIFT_FLAG },
-            chord!("_^^_") => LayerSwitchTemporary { layer: 3 }, // CTRL
 
             chord!("_^%_") => Emit(Hit(KEY_5)), // S-0 5
             chord!("v_v_") => Emit(Hit(KEY_6)), // S-1 6
@@ -212,10 +220,26 @@ impl Chordite {
         LAYOUT2, lookup2(),
         (u8 => LayerOutcome) {
             0 => FromOtherPlusMask { layer: 0, mask: CTRL_FLAG },
-            chord!("_vv_") => LayerSwitchTemporary { layer: 3 }, // SHIFT
         }
     );
 
+    // "ALT" layer
+    const_map!(
+        LAYOUT3, lookup3(),
+        (u8 => LayerOutcome) {
+            0 => FromOtherPlusMask { layer: 0, mask: ALT_FLAG },
+        }
+    );
+
+    // "GUI" layer
+    const_map!(
+        LAYOUT4, lookup4(),
+        (u8 => LayerOutcome) {
+            0 => FromOtherPlusMask { layer: 0, mask: GUI_FLAG },
+        }
+    );
+
+    /*
     // "SHIFT+CTRL" layer
     const_map!(
         LAYOUT3, lookup3(),
@@ -223,6 +247,7 @@ impl Chordite {
             0 => FromOtherPlusMask { layer: 1, mask: CTRL_FLAG },
         }
     );
+    */
 }
 
 #[cfg(test)]
