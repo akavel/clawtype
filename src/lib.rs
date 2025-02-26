@@ -1,6 +1,7 @@
 #![cfg_attr(not(test), no_std)]
 
 use const_map::const_map;
+use macros::chord;
 
 pub mod keycodes;
 use keycodes::*;
@@ -56,14 +57,68 @@ impl Chordite {
     const_map!(
         LAYOUT0, lookup0(),
         (u8 => LayerOutcome) {
-            0b__00_10_00_11 => Emit(Hit(UP)),
-            0b__00_01_00_11 => Emit(Hit(DOWN)),
-            0b__10_00_00_11 => Emit(Hit(LEFT)),
-            0b__01_00_00_11 => Emit(Hit(RIGHT)),
-            0b__10_10_00_10 => Emit(Hit(PAGE_UP)),
-            0b__01_01_00_01 => Emit(Hit(PAGE_DOWN)),
+            chord!("_^_%") => Emit(Hit(UP)),
+            chord!("_v_%") => Emit(Hit(DOWN)),
+            chord!("^__%") => Emit(Hit(LEFT)),
+            chord!("v__%") => Emit(Hit(RIGHT)),
+            chord!("^^_%") => Emit(Hit(PAGE_UP)),
+            chord!("vv_v") => Emit(Hit(PAGE_DOWN)),
 
-            // 0b__00_00_00_00 => Emit(Hit()),
+            chord!("__^_") => Emit(Hit(SPACE)),
+            chord!("_^__") => Emit(Hit(BACKSPACE)),
+            chord!("___^") => Emit(Hit(E)),
+            chord!("___v") => Emit(Hit(T)),
+            chord!("__v_") => Emit(Hit(A)),
+            chord!("___%") => Emit(Hit(I)),
+            chord!("__%_") => Emit(Hit(O)),
+            chord!("_v__") => Emit(Hit(N)),
+            chord!("^___") => Emit(Hit(S)),
+            chord!("_%__") => Emit(Hit(H)),
+            chord!("v___") => Emit(Hit(R)),
+            chord!("%___") => Emit(Hit(L)),
+            chord!("__^^") => Emit(Hit(D)),
+            chord!("__vv") => Emit(Hit(C)),
+            chord!("__^v") => Emit(Hit(U)),
+            chord!("^^__") => Emit(Hit(M)),
+            // _vv_ SHIFT
+            // _^^_ CTRL
+            // _%%_ WIN
+            // %%__ ALT
+            chord!("_^_^") => Emit(Hit(TAB)),
+            chord!("__^%") => Emit(Hit(W)),
+            chord!("_^_v") => Emit(Hit(G)),
+            chord!("__%v") => Emit(Hit(F)),
+            chord!("__%%") => Emit(Hit(Y)),
+            chord!("_v_v") => Emit(Hit(P)),
+            chord!("v__v") => Emit(Hit(B)),
+            chord!("^__^") => Emit(Hit(COMMA)),
+            chord!("_^^^") => Emit(Hit(PERIOD)),
+            chord!("_vvv") => Emit(Hit(V)),
+            chord!("_%_%") => Emit(Hit(ENTER)),
+            chord!("vvvv") => Emit(Hit(ESC)),
+            chord!("^__v") => Emit(Hit(K)),
+            chord!("%__%") => Emit(Hit(QUOTE)),
+            chord!("%__v") => Emit(Hit(QUOTE | SHIFT_MASK)),
+            chord!("vvv_") => Emit(Hit(MINUS)),
+            chord!("__v%") => Emit(Hit(X)),
+            chord!("_%%%") => Emit(Hit(J)),
+            chord!("_%_v") => Emit(Hit(SEMICOLON)),
+            chord!("^^^_") => Emit(Hit(KEY_9 | SHIFT_MASK)), // (
+            chord!("^_^_") => Emit(Hit(KEY_0 | SHIFT_MASK)), // )
+            chord!("^^^^") => Emit(Hit(Q)),
+            chord!("_^^v") => Emit(Hit(SLASH)),
+            chord!("_^^%") => Emit(Hit(Z)),
+            chord!("^^_v") => Emit(Hit(SEMICOLON | SHIFT_MASK)), // :
+            chord!("_^%_") => Emit(Hit(KEY_0)),
+            chord!("v_v_") => Emit(Hit(KEY_1)),
+            chord!("%_%_") => Emit(Hit(KEY_2)),
+            chord!("%%%_") => Emit(Hit(KEY_3)),
+            chord!("^^^%") => Emit(Hit(KEY_4)),
+            chord!("_vv%") => Emit(Hit(EQUAL)),
+            chord!("%^__") => Emit(Hit(KEY_4 | SHIFT_MASK)), // $
+            chord!("^^_%") => Emit(Hit(KEY_8 | SHIFT_MASK)), // *
+            chord!("^_%_") => Emit(Hit(LEFT_BRACE | SHIFT_MASK)), // {
+            chord!("v_%_") => Emit(Hit(RIGHT_BRACE | SHIFT_MASK)), // }
         }
     );
 }

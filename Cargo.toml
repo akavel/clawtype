@@ -1,9 +1,21 @@
 [package]
 name = "chordite-chords"
 version = "0.1.0"
-authors = ["Mateusz Czapliński <czapkofan@gmail.com>"]
+authors.workspace = true
 edition = "2024"
+license.workspace = true
+
+[workspace]
+
+[workspace.dependencies]
+macros = { path = "macros", package = "chordite-macros", version = "0.0.1" }
+const_map = "0.1.0"
+
+[workspace.package]
+authors = ["Mateusz Czapliński <czapkofan@gmail.com>"]
 license = "AGPL-3.0-or-later"
 
 [dependencies]
-const_map = "0.1.0"
+const_map.workspace = true
+macros.workspace = true
+

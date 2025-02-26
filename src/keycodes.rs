@@ -1,6 +1,8 @@
 /// Assumes Teensy keycode with modifiers.
 pub type KeyWithModifiers = u16;
 
+pub const SHIFT_MASK: KeyWithModifiers = 0x40;
+
 pub const A: KeyWithModifiers = 4 | 0xF000;
 pub const B: KeyWithModifiers = 5 | 0xF000;
 pub const C: KeyWithModifiers = 6 | 0xF000;
