@@ -177,8 +177,29 @@ mod tests {
         assert_eq!(ch.handle(S(0b00_00_00_01)), Nothing);
         assert_eq!(ch.handle(S(0)), Hit(UP));
 
-        assert_eq!(ch.handle(S(0b01_01_01_01)), Nothing);
+        assert_eq!(ch.handle(S(chord!("vvvv"))), Nothing);
         assert_eq!(ch.handle(S(0)), Hit(ESC));
+    }
+
+    #[test]
+    fn key_from_shift_layer() {
+        let mut ch = Chordite::default();
+        use SwitchSet as S;
+        assert_eq!(ch.handle(S(chord!("_v__"))), Nothing);
+        assert_eq!(ch.handle(S(chord!("_vv_"))), Nothing); // "shift"
+        assert_eq!(ch.handle(S(0)), Nothing);
+        assert_eq!(ch.handle(S(chord!("_^__"))), Nothing);
+        assert_eq!(ch.handle(S(0)), Hit(DELETE));
+    }
+
+    #[test]
+    fn upper_case_letter_from_shift_layer() {
+        let mut ch = Chordite::default();
+        use SwitchSet as S;
+        assert_eq!(ch.handle(S(chord!("_v__"))), Nothing);
+        assert_eq!(ch.handle(S(chord!("_vv_"))), Nothing); // "shift"
+        assert_eq!(ch.handle(S(0)), Nothing);
+        assert_eq!(ch.handle(S(chord!("___^"))), Hit(E | SHIFT_MASK));
     }
 
 }
