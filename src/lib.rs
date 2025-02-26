@@ -24,14 +24,16 @@ pub enum UsbOutcome {
 #[derive(Copy, Clone)]
 pub enum LayerOutcome {
     Emit(UsbOutcome),
+    LayerSwitchTemporary { layer: i32 },
 }
 
 #[derive(Default)]
 pub struct Chordite {
     most: SwitchSet,
+    layer_temporary: Option<i32>,
 }
 
-use LayerOutcome::Emit;
+use LayerOutcome::*;
 use UsbOutcome::KeyHit as Hit;
 
 impl Chordite {
@@ -48,9 +50,18 @@ impl Chordite {
         if most == 0 {
             return UsbOutcome::Nothing;
         }
-        match Self::lookup0(most) {
-            Some(Emit(v)) => return v,
-            None => return UsbOutcome::Nothing,
+        let layer = self.layer_temporary.unwrap_or(0);
+        let lookup = match layer {
+            1 => Self::lookup1(most),
+            _ => Self::lookup0(most),
+        };
+        match lookup {
+            Some(Emit(v)) => v,
+            Some(LayerSwitchTemporary { layer }) => {
+                self.layer_temporary = Some(layer);
+                UsbOutcome::Nothing
+            }
+            None => UsbOutcome::Nothing,
         }
     }
 
@@ -80,7 +91,7 @@ impl Chordite {
             chord!("__vv") => Emit(Hit(C)),
             chord!("__^v") => Emit(Hit(U)),
             chord!("^^__") => Emit(Hit(M)),
-            // _vv_ SHIFT
+            chord!("_vv_") => LayerSwitchTemporary { layer: 1 }, // SHIFT
             // _^^_ CTRL
             // _%%_ WIN
             // %%__ ALT
