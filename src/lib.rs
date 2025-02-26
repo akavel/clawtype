@@ -63,25 +63,37 @@ impl Chordite {
             return UsbOutcome::Nothing;
         }
         let layer = self.layer_temporary.take().unwrap_or(0);
-        self.lookup(layer, most)
+        self.resolve(layer, most)
     }
 
-    fn lookup(&mut self, layer: i32, most: u8) -> UsbOutcome {
-        let layer_outcome = match layer {
-            1 => Self::lookup1(most),
-            _ => Self::lookup0(most),
+    fn resolve(&mut self, layer: i32, chord: u8) -> UsbOutcome {
+        let lookup = match self.lookup(layer, chord) {
+            Some(v) => v,
+            // As a fallback, try if we can find default action on an empty
+            // chord 0 (this chord can't be ever selected as a combination
+            // so we hackily reuse it as a "default" action for a layer)
+            None => match self.lookup(layer, 0) {
+                Some(v) => v,
+                None => return UsbOutcome::Nothing,
+            },
         };
-        match layer_outcome {
-            Some(Emit(v)) => v,
-            Some(LayerSwitchTemporary { layer }) => {
+        match lookup {
+            Emit(v) => v,
+            LayerSwitchTemporary { layer } => {
                 self.layer_temporary = Some(layer);
                 UsbOutcome::Nothing
             }
-            Some(FromOtherWithMask { layer, mask }) => {
+            FromOtherWithMask { layer, mask } => {
                 // FIXME: protect against infinite recursion
-                self.lookup(layer, most) | mask
+                self.resolve(layer, chord) | mask
             }
-            None => UsbOutcome::Nothing,
+        }
+    }
+
+    fn lookup(&self, layer: i32, chord: u8) -> Option<LayerOutcome> {
+        match layer {
+            1 => Self::lookup1(chord),
+            _ => Self::lookup0(chord),
         }
     }
 
@@ -157,7 +169,7 @@ impl Chordite {
     const_map!(
         LAYOUT1, lookup1(),
         (u8 => LayerOutcome) {
-            chord!("___^") => FromOtherWithMask { layer: 0, mask: SHIFT_MASK },
+            0 => FromOtherWithMask { layer: 0, mask: SHIFT_MASK },
 
             chord!("_^%_") => Emit(Hit(KEY_5)), // S-0 5
             chord!("v_v_") => Emit(Hit(KEY_6)), // S-1 6
@@ -242,5 +254,17 @@ mod tests {
         // back to "unshifted" key
         assert_eq!(ch.handle(S(chord!("___^"))), Nothing);
         assert_eq!(ch.handle(S(0)), Hit(E));
+
+        // another try
+
+        assert_eq!(ch.handle(S(chord!("_v__"))), Nothing);
+        assert_eq!(ch.handle(S(chord!("_vv_"))), Nothing); // "shift"
+        assert_eq!(ch.handle(S(0)), Nothing);
+        // "shifted" key
+        assert_eq!(ch.handle(S(chord!("__vv"))), Nothing);
+        assert_eq!(ch.handle(S(0)), Hit(C | SHIFT_MASK));
+        // back to "unshifted" key
+        assert_eq!(ch.handle(S(chord!("__vv"))), Nothing);
+        assert_eq!(ch.handle(S(0)), Hit(C));
     }
 }
