@@ -4,12 +4,14 @@ use macros::chord;
 
 use crate::LayerOutcome::{self, *};
 use crate::UsbOutcome::KeyHit as Hit;
-use crate::keycodes::*;
+use crate::keycodes::{self, *};
 
 pub struct SampleLayers {}
 
-impl super::Lookup<KeyWithFlags> for SampleLayers {
-    fn lookup(layer: i32, chord: u8) -> Option<LayerOutcome<KeyWithFlags>> {
+impl super::Lookup for SampleLayers {
+    type KeyWithFlags = keycodes::KeyWithFlags;
+
+    fn lookup(layer: i32, chord: u8) -> Option<LayerOutcome<Self::KeyWithFlags>> {
         match layer {
             1 => Self::lookup1(chord), // "SHIFT"
             _ => Self::lookup0(chord),
