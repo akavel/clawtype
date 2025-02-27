@@ -26,7 +26,7 @@ pub fn chord(input: TokenStream) -> TokenStream {
         _ => panic!("wanted 4 chars in string, got: {:?}", s),
     };
 
-    let tree: TT2 = proc_macro2::Literal::u8_unsuffixed(bits).into();
+    let tree: TT2 = proc_macro2::Literal::u8_suffixed(bits).into();
     let output: TokenStream2 = Some(tree).into_iter().collect();
     TokenStream::from(output)
 }
