@@ -90,8 +90,8 @@ fn print(s: &str) {
 
 fn usb_send_new_key(k: new_keys::KeyWithFlags) {
     let bytes = k.to_be_bytes();
-    let key = bytes[0];
-    let modifier = bytes[1];
+    let modifier = bytes[0];
+    let key = bytes[1];
     unsafe { usb_send_key_with_mod(key, modifier) };
 }
 
