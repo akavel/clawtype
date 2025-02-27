@@ -1,5 +1,6 @@
 #![cfg_attr(not(test), no_std)]
 
+use core::marker;
 use core::mem;
 
 pub mod keycodes;
@@ -49,21 +50,30 @@ pub enum LayerOutcome {
     },
 }
 
-#[derive(Default)]
-pub struct Chordite {
+pub struct Chordite<L> {
     most: SwitchSet,
     temporary_layer: Option<i32>,
     temporary_plus_mask: KeyWithFlags,
+    _layers: marker::PhantomData<L>,
 }
 
-use LayerOutcome::*;
+impl<L> Default for Chordite<L> {
+    fn default() -> Self {
+        Self {
+            most: SwitchSet::default(),
+            temporary_layer: None,
+            temporary_plus_mask: KeyWithFlags::default(),
+            _layers: marker::PhantomData::<L>::default(),
+        }
+    }
+}
 
 pub trait Lookup {
     fn lookup(layer: i32, chord: u8) -> Option<LayerOutcome>;
 }
 
-impl Chordite {
-    pub fn handle<L: Lookup>(&mut self, switches: SwitchSet) -> UsbOutcome {
+impl<L: Lookup> Chordite<L> {
+    pub fn handle(&mut self, switches: SwitchSet) -> UsbOutcome {
         // some switches are pressed?
         if switches.0 != 0 {
             self.most.0 |= switches.0;
@@ -77,10 +87,10 @@ impl Chordite {
             return UsbOutcome::Nothing;
         }
         let layer = self.temporary_layer.take().unwrap_or(0);
-        self.resolve::<L>(layer, most)
+        self.resolve(layer, most)
     }
 
-    fn resolve<L: Lookup>(&mut self, layer: i32, chord: u8) -> UsbOutcome {
+    fn resolve(&mut self, layer: i32, chord: u8) -> UsbOutcome {
         let lookup = match L::lookup(layer, chord) {
             Some(v) => v,
             // As a fallback, try if we can find default action on an empty
@@ -91,6 +101,7 @@ impl Chordite {
                 None => return UsbOutcome::Nothing,
             },
         };
+        use LayerOutcome::*;
         match lookup {
             Emit(v) => v | mem::take(&mut self.temporary_plus_mask),
             TemporaryPlusMask { mask } => {
@@ -103,7 +114,7 @@ impl Chordite {
             }
             FromOtherPlusMask { layer, mask } => {
                 // FIXME: protect against infinite recursion
-                self.resolve::<L>(layer, chord) | mask
+                self.resolve(layer, chord) | mask
             }
         }
     }
@@ -113,6 +124,7 @@ impl Chordite {
 mod tests {
     use super::*;
 
+    use SwitchSet as S;
     use UsbOutcome::KeyHit as Hit;
     use UsbOutcome::Nothing;
     use keycodes::*;
@@ -121,91 +133,84 @@ mod tests {
 
     #[test]
     fn zero() {
-        let mut ch = Chordite::default();
-        assert_eq!(ch.handle::<L>(SwitchSet(0)), Nothing);
+        let mut ch = Chordite::<L>::default();
+        assert_eq!(ch.handle(S(0)), Nothing);
     }
 
     #[test]
     fn key_up_incremental_then_decremental_then_esc_instant() {
-        let mut ch = Chordite::default();
-        use SwitchSet as S;
-        assert_eq!(ch.handle::<L>(S(0b00_10_00_00)), Nothing);
-        assert_eq!(ch.handle::<L>(S(0b00_10_00_10)), Nothing);
-        assert_eq!(ch.handle::<L>(S(0b00_10_00_11)), Nothing);
-        assert_eq!(ch.handle::<L>(S(0b00_10_00_01)), Nothing);
-        assert_eq!(ch.handle::<L>(S(0b00_00_00_01)), Nothing);
-        assert_eq!(ch.handle::<L>(S(0)), Hit(UP));
+        let mut ch = Chordite::<L>::default();
+        assert_eq!(ch.handle(S(0b00_10_00_00)), Nothing);
+        assert_eq!(ch.handle(S(0b00_10_00_10)), Nothing);
+        assert_eq!(ch.handle(S(0b00_10_00_11)), Nothing);
+        assert_eq!(ch.handle(S(0b00_10_00_01)), Nothing);
+        assert_eq!(ch.handle(S(0b00_00_00_01)), Nothing);
+        assert_eq!(ch.handle(S(0)), Hit(UP));
 
-        assert_eq!(ch.handle::<L>(S(chord!("vvvv"))), Nothing);
-        assert_eq!(ch.handle::<L>(S(0)), Hit(ESC));
+        assert_eq!(ch.handle(S(chord!("vvvv"))), Nothing);
+        assert_eq!(ch.handle(S(0)), Hit(ESC));
     }
 
     #[test]
     fn key_from_shift_layer() {
-        let mut ch = Chordite::default();
-        use SwitchSet as S;
-        assert_eq!(ch.handle::<L>(S(chord!("_v__"))), Nothing);
-        assert_eq!(ch.handle::<L>(S(chord!("_vv_"))), Nothing); // "shift"
-        assert_eq!(ch.handle::<L>(S(0)), Nothing);
+        let mut ch = Chordite::<L>::default();
+        assert_eq!(ch.handle(S(chord!("_v__"))), Nothing);
+        assert_eq!(ch.handle(S(chord!("_vv_"))), Nothing); // "shift"
+        assert_eq!(ch.handle(S(0)), Nothing);
         // "shifted" key
-        assert_eq!(ch.handle::<L>(S(chord!("_^__"))), Nothing);
-        assert_eq!(ch.handle::<L>(S(0)), Hit(DELETE));
+        assert_eq!(ch.handle(S(chord!("_^__"))), Nothing);
+        assert_eq!(ch.handle(S(0)), Hit(DELETE));
         // back to "unshifted" key
-        assert_eq!(ch.handle::<L>(S(chord!("_^__"))), Nothing);
-        assert_eq!(ch.handle::<L>(S(0)), Hit(BACKSPACE));
+        assert_eq!(ch.handle(S(chord!("_^__"))), Nothing);
+        assert_eq!(ch.handle(S(0)), Hit(BACKSPACE));
     }
 
     #[test]
     fn upper_case_letter_from_shift_layer() {
-        let mut ch = Chordite::default();
-        use SwitchSet as S;
-        assert_eq!(ch.handle::<L>(S(chord!("_v__"))), Nothing);
-        assert_eq!(ch.handle::<L>(S(chord!("_vv_"))), Nothing); // "shift"
-        assert_eq!(ch.handle::<L>(S(0)), Nothing);
+        let mut ch = Chordite::<L>::default();
+        assert_eq!(ch.handle(S(chord!("_v__"))), Nothing);
+        assert_eq!(ch.handle(S(chord!("_vv_"))), Nothing); // "shift"
+        assert_eq!(ch.handle(S(0)), Nothing);
         // "shifted" key
-        assert_eq!(ch.handle::<L>(S(chord!("___^"))), Nothing);
-        assert_eq!(ch.handle::<L>(S(0)), Hit(E | SHIFT_FLAG));
+        assert_eq!(ch.handle(S(chord!("___^"))), Nothing);
+        assert_eq!(ch.handle(S(0)), Hit(E | SHIFT_FLAG));
         // back to "unshifted" key
-        assert_eq!(ch.handle::<L>(S(chord!("___^"))), Nothing);
-        assert_eq!(ch.handle::<L>(S(0)), Hit(E));
+        assert_eq!(ch.handle(S(chord!("___^"))), Nothing);
+        assert_eq!(ch.handle(S(0)), Hit(E));
 
         // another try
 
-        assert_eq!(ch.handle::<L>(S(chord!("_v__"))), Nothing);
-        assert_eq!(ch.handle::<L>(S(chord!("_vv_"))), Nothing); // "shift"
-        assert_eq!(ch.handle::<L>(S(0)), Nothing);
+        assert_eq!(ch.handle(S(chord!("_v__"))), Nothing);
+        assert_eq!(ch.handle(S(chord!("_vv_"))), Nothing); // "shift"
+        assert_eq!(ch.handle(S(0)), Nothing);
         // "shifted" key
-        assert_eq!(ch.handle::<L>(S(chord!("__vv"))), Nothing);
-        assert_eq!(ch.handle::<L>(S(0)), Hit(C | SHIFT_FLAG));
+        assert_eq!(ch.handle(S(chord!("__vv"))), Nothing);
+        assert_eq!(ch.handle(S(0)), Hit(C | SHIFT_FLAG));
         // back to "unshifted" key
-        assert_eq!(ch.handle::<L>(S(chord!("__vv"))), Nothing);
-        assert_eq!(ch.handle::<L>(S(0)), Hit(C));
+        assert_eq!(ch.handle(S(chord!("__vv"))), Nothing);
+        assert_eq!(ch.handle(S(0)), Hit(C));
     }
 
     #[test]
     fn masking_keys() {
-        let mut ch = Chordite::default();
-        use SwitchSet as S;
+        let mut ch = Chordite::<L>::default();
 
         // ctrl-alt-del
-        assert_eq!(ch.handle::<L>(S(chord!("_^^_"))), Nothing); // Ctrl
-        assert_eq!(ch.handle::<L>(S(0)), Nothing);
-        assert_eq!(ch.handle::<L>(S(chord!("%%__"))), Nothing); // Alt
-        assert_eq!(ch.handle::<L>(S(0)), Nothing);
-        assert_eq!(ch.handle::<L>(S(chord!("_vv_"))), Nothing); // SHIFT layer
-        assert_eq!(ch.handle::<L>(S(0)), Nothing);
-        assert_eq!(ch.handle::<L>(S(chord!("_^__"))), Nothing); // DEL
-        assert_eq!(ch.handle::<L>(S(0)), Hit(DELETE | CTRL_FLAG | ALT_FLAG));
+        assert_eq!(ch.handle(S(chord!("_^^_"))), Nothing); // Ctrl
+        assert_eq!(ch.handle(S(0)), Nothing);
+        assert_eq!(ch.handle(S(chord!("%%__"))), Nothing); // Alt
+        assert_eq!(ch.handle(S(0)), Nothing);
+        assert_eq!(ch.handle(S(chord!("_vv_"))), Nothing); // SHIFT layer
+        assert_eq!(ch.handle(S(0)), Nothing);
+        assert_eq!(ch.handle(S(chord!("_^__"))), Nothing); // DEL
+        assert_eq!(ch.handle(S(0)), Hit(DELETE | CTRL_FLAG | ALT_FLAG));
 
         // Win-shift-s = Snippet tool on Windows
-        assert_eq!(ch.handle::<L>(S(chord!("_%%_"))), Nothing); // Gui
-        assert_eq!(ch.handle::<L>(S(0)), Nothing);
-        assert_eq!(ch.handle::<L>(S(chord!("_vv_"))), Nothing); // SHIFT layer
-        assert_eq!(ch.handle::<L>(S(0)), Nothing);
-        assert_eq!(ch.handle::<L>(S(chord!("^___"))), Nothing); // S
-        assert_eq!(
-            ch.handle::<L>(S(0)),
-            Hit(keycodes::S | SHIFT_FLAG | GUI_FLAG)
-        );
+        assert_eq!(ch.handle(S(chord!("_%%_"))), Nothing); // Gui
+        assert_eq!(ch.handle(S(0)), Nothing);
+        assert_eq!(ch.handle(S(chord!("_vv_"))), Nothing); // SHIFT layer
+        assert_eq!(ch.handle(S(0)), Nothing);
+        assert_eq!(ch.handle(S(chord!("^___"))), Nothing); // S
+        assert_eq!(ch.handle(S(0)), Hit(keycodes::S | SHIFT_FLAG | GUI_FLAG));
     }
 }
