@@ -128,4 +128,3 @@ pub const F21: KeyWithFlags = 112;
 pub const F22: KeyWithFlags = 113;
 pub const F23: KeyWithFlags = 114;
 pub const F24: KeyWithFlags = 115;
-
