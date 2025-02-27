@@ -16,6 +16,7 @@ embedded-hal = "1.0"
 nb = "1.1.0"
 panic-halt = "0.2.0"
 ufmt = "0.2.0"
+chordite-chords = { path = "../chordite-chords" }
 
 [dependencies.embedded-hal-v0]
 # TODO: what's this and do we need it and why? copied from avr-hal/examples/atmega2560/Cargo.toml
