@@ -9,7 +9,7 @@ license.workspace = true
 
 [workspace.dependencies]
 macros = { path = "macros", package = "chordite-macros", version = "0.0.1" }
-const_map = "0.1.0"
+const_map = { git = "https://github.com/akavel/const_map", branch = "master" }
 
 [workspace.package]
 authors = ["Mateusz Czapliński <czapkofan@gmail.com>"]
