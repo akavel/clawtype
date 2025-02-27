@@ -2,9 +2,9 @@
 
 use core::marker;
 use core::mem;
+use core::ops::{BitOr, BitOrAssign};
 
 pub mod keycodes;
-use keycodes::KeyWithFlags;
 pub mod sample_layers;
 
 /// Currently, the most significant bit is the pinky finger's tip switch,
@@ -17,14 +17,14 @@ pub struct SwitchSet(u8);
 
 #[derive(Copy, Clone)]
 #[cfg_attr(test, derive(Debug, PartialEq))]
-pub enum UsbOutcome {
+pub enum UsbOutcome<KeyWithFlags> {
     Nothing,
     KeyHit(KeyWithFlags),
 }
 
-impl core::ops::BitOr<KeyWithFlags> for UsbOutcome {
+impl<K: BitOr<Output = K>> BitOr<K> for UsbOutcome<K> {
     type Output = Self;
-    fn bitor(self, mask: KeyWithFlags) -> Self {
+    fn bitor(self, mask: K) -> Self {
         use UsbOutcome::*;
         match self {
             Nothing => Nothing,
@@ -34,8 +34,8 @@ impl core::ops::BitOr<KeyWithFlags> for UsbOutcome {
 }
 
 #[derive(Copy, Clone)]
-pub enum LayerOutcome {
-    Emit(UsbOutcome),
+pub enum LayerOutcome<KeyWithFlags> {
+    Emit(UsbOutcome<KeyWithFlags>),
     /// Intended for adding USB flag key, like Alt, Shift, GUI, RAlt, etc.
     TemporaryPlusMask {
         mask: KeyWithFlags,
@@ -50,30 +50,34 @@ pub enum LayerOutcome {
     },
 }
 
-pub struct Chordite<L> {
+pub struct Chordite<Lookup, KeyWithFlags> {
     most: SwitchSet,
     temporary_layer: Option<i32>,
     temporary_plus_mask: KeyWithFlags,
-    _layers: marker::PhantomData<L>,
+    _layers_lookup: marker::PhantomData<Lookup>,
 }
 
-impl<L> Default for Chordite<L> {
+impl<L, K: Default> Default for Chordite<L, K> {
     fn default() -> Self {
         Self {
             most: SwitchSet::default(),
             temporary_layer: None,
-            temporary_plus_mask: KeyWithFlags::default(),
-            _layers: marker::PhantomData::<L>::default(),
+            temporary_plus_mask: K::default(),
+            _layers_lookup: marker::PhantomData::<L>::default(),
         }
     }
 }
 
-pub trait Lookup {
-    fn lookup(layer: i32, chord: u8) -> Option<LayerOutcome>;
+pub trait Lookup<K> {
+    fn lookup(layer: i32, chord: u8) -> Option<LayerOutcome<K>>;
 }
 
-impl<L: Lookup> Chordite<L> {
-    pub fn handle(&mut self, switches: SwitchSet) -> UsbOutcome {
+impl<L, K> Chordite<L, K>
+where
+    L: Lookup<K>,
+    K: Default + BitOr<Output = K> + BitOrAssign,
+{
+    pub fn handle(&mut self, switches: SwitchSet) -> UsbOutcome<K> {
         // some switches are pressed?
         if switches.0 != 0 {
             self.most.0 |= switches.0;
@@ -90,7 +94,7 @@ impl<L: Lookup> Chordite<L> {
         self.resolve(layer, most)
     }
 
-    fn resolve(&mut self, layer: i32, chord: u8) -> UsbOutcome {
+    fn resolve(&mut self, layer: i32, chord: u8) -> UsbOutcome<K> {
         let lookup = match L::lookup(layer, chord) {
             Some(v) => v,
             // As a fallback, try if we can find default action on an empty
@@ -133,13 +137,13 @@ mod tests {
 
     #[test]
     fn zero() {
-        let mut ch = Chordite::<L>::default();
+        let mut ch = Chordite::<L, KeyWithFlags>::default();
         assert_eq!(ch.handle(S(0)), Nothing);
     }
 
     #[test]
     fn key_up_incremental_then_decremental_then_esc_instant() {
-        let mut ch = Chordite::<L>::default();
+        let mut ch = Chordite::<L, KeyWithFlags>::default();
         assert_eq!(ch.handle(S(0b00_10_00_00)), Nothing);
         assert_eq!(ch.handle(S(0b00_10_00_10)), Nothing);
         assert_eq!(ch.handle(S(0b00_10_00_11)), Nothing);
@@ -153,7 +157,7 @@ mod tests {
 
     #[test]
     fn key_from_shift_layer() {
-        let mut ch = Chordite::<L>::default();
+        let mut ch = Chordite::<L, KeyWithFlags>::default();
         assert_eq!(ch.handle(S(chord!("_v__"))), Nothing);
         assert_eq!(ch.handle(S(chord!("_vv_"))), Nothing); // "shift"
         assert_eq!(ch.handle(S(0)), Nothing);
@@ -167,7 +171,7 @@ mod tests {
 
     #[test]
     fn upper_case_letter_from_shift_layer() {
-        let mut ch = Chordite::<L>::default();
+        let mut ch = Chordite::<L, KeyWithFlags>::default();
         assert_eq!(ch.handle(S(chord!("_v__"))), Nothing);
         assert_eq!(ch.handle(S(chord!("_vv_"))), Nothing); // "shift"
         assert_eq!(ch.handle(S(0)), Nothing);
@@ -193,7 +197,7 @@ mod tests {
 
     #[test]
     fn masking_keys() {
-        let mut ch = Chordite::<L>::default();
+        let mut ch = Chordite::<L, KeyWithFlags>::default();
 
         // ctrl-alt-del
         assert_eq!(ch.handle(S(chord!("_^^_"))), Nothing); // Ctrl

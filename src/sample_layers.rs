@@ -8,8 +8,8 @@ use crate::keycodes::*;
 
 pub struct SampleLayers {}
 
-impl super::Lookup for SampleLayers {
-    fn lookup(layer: i32, chord: u8) -> Option<LayerOutcome> {
+impl super::Lookup<KeyWithFlags> for SampleLayers {
+    fn lookup(layer: i32, chord: u8) -> Option<LayerOutcome<KeyWithFlags>> {
         match layer {
             1 => Self::lookup1(chord), // "SHIFT"
             _ => Self::lookup0(chord),
@@ -20,7 +20,7 @@ impl super::Lookup for SampleLayers {
 impl SampleLayers {
     const_map!(
         LAYOUT0, lookup0(),
-        (u8 => LayerOutcome) {
+        (u8 => LayerOutcome<KeyWithFlags>) {
             chord!("_^_%") => Emit(Hit(UP)),
             chord!("_v_%") => Emit(Hit(DOWN)),
             chord!("^__%") => Emit(Hit(LEFT)),
@@ -90,7 +90,7 @@ impl SampleLayers {
     // "SHIFT" layer
     const_map!(
         LAYOUT1, lookup1(),
-        (u8 => LayerOutcome) {
+        (u8 => LayerOutcome<KeyWithFlags>) {
             0 => FromOtherPlusMask { layer: 0, mask: SHIFT_FLAG },
 
             chord!("_^%_") => Emit(Hit(KEY_5)), // S-0 5
