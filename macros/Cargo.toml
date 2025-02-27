@@ -2,7 +2,7 @@
 name = "chordite-macros"
 version = "0.0.1"
 authors.workspace = true
-edition = "2024"
+edition.workspace = true
 license.workspace = true
 
 [lib]
