@@ -1,6 +1,7 @@
 #![cfg_attr(not(test), no_std)]
 
 use const_map::const_map;
+use core::mem;
 use macros::chord;
 
 pub mod keycodes;
@@ -35,7 +36,11 @@ impl core::ops::BitOr<KeyWithFlags> for UsbOutcome {
 #[derive(Copy, Clone)]
 pub enum LayerOutcome {
     Emit(UsbOutcome),
-    LayerSwitchTemporary {
+    /// Intended for adding USB flag key, like Alt, Shift, GUI, RAlt, etc.
+    TemporaryPlusMask {
+        mask: KeyWithFlags,
+    },
+    TemporaryLayerSwitch {
         layer: i32,
     },
     /// Intended for adding USB flag key, like Alt, Shift, GUI, RAlt, etc.
@@ -48,7 +53,8 @@ pub enum LayerOutcome {
 #[derive(Default)]
 pub struct Chordite {
     most: SwitchSet,
-    layer_temporary: Option<i32>,
+    temporary_layer: Option<i32>,
+    temporary_plus_mask: KeyWithFlags,
 }
 
 use LayerOutcome::*;
@@ -68,7 +74,7 @@ impl Chordite {
         if most == 0 {
             return UsbOutcome::Nothing;
         }
-        let layer = self.layer_temporary.take().unwrap_or(0);
+        let layer = self.temporary_layer.take().unwrap_or(0);
         self.resolve(layer, most)
     }
 
@@ -84,9 +90,13 @@ impl Chordite {
             },
         };
         match lookup {
-            Emit(v) => v,
-            LayerSwitchTemporary { layer } => {
-                self.layer_temporary = Some(layer);
+            Emit(v) => v | mem::take(&mut self.temporary_plus_mask),
+            TemporaryPlusMask { mask } => {
+                self.temporary_plus_mask |= mask;
+                UsbOutcome::Nothing
+            }
+            TemporaryLayerSwitch { layer } => {
+                self.temporary_layer = Some(layer);
                 UsbOutcome::Nothing
             }
             FromOtherPlusMask { layer, mask } => {
@@ -99,16 +109,6 @@ impl Chordite {
     fn lookup(&self, layer: i32, chord: u8) -> Option<LayerOutcome> {
         match layer {
             1 => Self::lookup1(chord), // "SHIFT"
-            2 => Self::lookup2(chord), // "CTRL"
-            3 => Self::lookup3(chord), // "ALT"
-            4 => Self::lookup4(chord), // "GUI"
-
-            5 => Self::lookup5(chord), // "SHIFT+CTRL"
-            6 => Self::lookup6(chord), // "SHIFT+ALT"
-            7 => Self::lookup7(chord), // "SHIFT+GUI"
-
-            7 => Self::lookup7(chord), // "SHIFT+GUI"
-
             _ => Self::lookup0(chord),
         }
     }
@@ -139,11 +139,11 @@ impl Chordite {
             chord!("__vv") => Emit(Hit(C)),
             chord!("__^v") => Emit(Hit(U)),
             chord!("^^__") => Emit(Hit(M)),
-            chord!("_vv_") => LayerSwitchTemporary { layer: 1 }, // SHIFT
-            chord!("_^^_") => LayerSwitchTemporary { layer: 2 }, // CTRL
-            chord!("%%__") => LayerSwitchTemporary { layer: 3 }, // ALT
-            // chord!("%%_^") => LayerSwitchTemporary { layer: ? }, // R-ALT
-            chord!("_%%_") => LayerSwitchTemporary { layer: 4 }, // GUI
+            chord!("_vv_") => TemporaryLayerSwitch { layer: 1 }, // SHIFT
+            chord!("_^^_") => TemporaryPlusMask { mask: CTRL_FLAG }, // CTRL
+            chord!("%%__") => TemporaryPlusMask { mask: ALT_FLAG }, // ALT
+            // chord!("%%_^") => TemporaryPlusMask { mask: RIGHT_ALT_FLAG }, // R-ALT
+            chord!("_%%_") => TemporaryPlusMask { mask: GUI_FLAG }, // GUI
             chord!("_^_^") => Emit(Hit(TAB)),
             chord!("__^%") => Emit(Hit(W)),
             chord!("_^_v") => Emit(Hit(G)),
@@ -214,40 +214,6 @@ impl Chordite {
             chord!("_v_%") => Emit(Hit(END)), // S-Down KEY_END
         }
     );
-
-    // "CTRL" layer
-    const_map!(
-        LAYOUT2, lookup2(),
-        (u8 => LayerOutcome) {
-            0 => FromOtherPlusMask { layer: 0, mask: CTRL_FLAG },
-        }
-    );
-
-    // "ALT" layer
-    const_map!(
-        LAYOUT3, lookup3(),
-        (u8 => LayerOutcome) {
-            0 => FromOtherPlusMask { layer: 0, mask: ALT_FLAG },
-        }
-    );
-
-    // "GUI" layer
-    const_map!(
-        LAYOUT4, lookup4(),
-        (u8 => LayerOutcome) {
-            0 => FromOtherPlusMask { layer: 0, mask: GUI_FLAG },
-        }
-    );
-
-    /*
-    // "SHIFT+CTRL" layer
-    const_map!(
-        LAYOUT3, lookup3(),
-        (u8 => LayerOutcome) {
-            0 => FromOtherPlusMask { layer: 1, mask: CTRL_FLAG },
-        }
-    );
-    */
 }
 
 #[cfg(test)]
@@ -317,5 +283,29 @@ mod tests {
         // back to "unshifted" key
         assert_eq!(ch.handle(S(chord!("__vv"))), Nothing);
         assert_eq!(ch.handle(S(0)), Hit(C));
+    }
+
+    #[test]
+    fn masking_keys() {
+        let mut ch = Chordite::default();
+        use SwitchSet as S;
+
+        // ctrl-alt-del
+        assert_eq!(ch.handle(S(chord!("_^^_"))), Nothing); // Ctrl
+        assert_eq!(ch.handle(S(0)), Nothing);
+        assert_eq!(ch.handle(S(chord!("%%__"))), Nothing); // Alt
+        assert_eq!(ch.handle(S(0)), Nothing);
+        assert_eq!(ch.handle(S(chord!("_vv_"))), Nothing); // SHIFT layer
+        assert_eq!(ch.handle(S(0)), Nothing);
+        assert_eq!(ch.handle(S(chord!("_^__"))), Nothing); // DEL
+        assert_eq!(ch.handle(S(0)), Hit(DELETE | CTRL_FLAG | ALT_FLAG));
+
+        // Win-shift-s = Snippet tool on Windows
+        assert_eq!(ch.handle(S(chord!("_%%_"))), Nothing); // Gui
+        assert_eq!(ch.handle(S(0)), Nothing);
+        assert_eq!(ch.handle(S(chord!("_vv_"))), Nothing); // SHIFT layer
+        assert_eq!(ch.handle(S(0)), Nothing);
+        assert_eq!(ch.handle(S(chord!("^___"))), Nothing); // S
+        assert_eq!(ch.handle(S(0)), Hit(keycodes::S | SHIFT_FLAG | GUI_FLAG));
     }
 }
