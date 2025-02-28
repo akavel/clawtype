@@ -94,6 +94,7 @@ dependencies = [
  "avr-device",
  "cc",
  "chordite-chords",
+ "debouncr",
  "embedded-hal 0.2.7",
  "embedded-hal 1.0.0",
  "nb 1.1.0",
@@ -112,6 +113,21 @@ name = "critical-section"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "790eea4361631c5e7d22598ecd5723ff611904e3344ce8720784c93e3d83d40b"
+
+[[package]]
+name = "debouncr"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "78d141ae1bf4aa25e3d1981ef8426c60d0087b4417ad891bbf762e45f173906b"
+dependencies = [
+ "doc-comment",
+]
+
+[[package]]
+name = "doc-comment"
+version = "0.3.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fea41bba32d969b513997752735605054bc0dfa92b4c56bf1189f2e174be7a10"
 
 [[package]]
 name = "embedded-hal"

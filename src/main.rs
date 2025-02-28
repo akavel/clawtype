@@ -1,6 +1,7 @@
 #![no_std]
 #![no_main]
 
+use debouncr::debounce_8 as debouncer;
 use embedded_hal::delay::DelayNs;
 use panic_halt as _;
 use chordite_chords::{
@@ -47,20 +48,29 @@ fn main() -> ! {
 
     let mut cho = Chordite::<sample_layers::SampleLayers>::default();
 
+    let mut i0 = debouncer(false);
+    let mut i1 = debouncer(false);
+    let mut i2 = debouncer(false);
+    let mut i3 = debouncer(false);
+    let mut i4 = debouncer(false);
+    let mut i5 = debouncer(false);
+    let mut i6 = debouncer(false);
+    let mut i7 = debouncer(false);
+
     led.toggle();
 
     loop {
         // led.toggle();
 
         let switches =
-            bit(0b01_00_00_00, p0.is_low()) | // pinky base
-            bit(0b10_00_00_00, p1.is_low()) | // pinky tip
-            bit(0b00_01_00_00, p2.is_low()) | // ring base
-            bit(0b00_10_00_00, p3.is_low()) | // ring tip
-            bit(0b00_00_01_00, p4.is_low()) | // middle base
-            bit(0b00_00_10_00, p5.is_low()) | // middle tip
-            bit(0b00_00_00_01, p6.is_low()) | // index base
-            bit(0b00_00_00_10, p7.is_low());  // index tip
+            debit(0b01_00_00_00, &mut i0, p0.is_low()) | // pinky base
+            debit(0b10_00_00_00, &mut i1, p1.is_low()) | // pinky tip
+            debit(0b00_01_00_00, &mut i2, p2.is_low()) | // ring base
+            debit(0b00_10_00_00, &mut i3, p3.is_low()) | // ring tip
+            debit(0b00_00_01_00, &mut i4, p4.is_low()) | // middle base
+            debit(0b00_00_10_00, &mut i5, p5.is_low()) | // middle tip
+            debit(0b00_00_00_01, &mut i6, p6.is_low()) | // index base
+            debit(0b00_00_00_10, &mut i7, p7.is_low());  // index tip
 
         let outcome = cho.handle(SwitchSet(switches));
         match outcome {
@@ -115,6 +125,12 @@ fn usb_send_new_key(k: new_keys::KeyWithFlags) {
     let modifier = bytes[0];
     let key = bytes[1];
     unsafe { usb_send_key_with_mod(key, modifier) };
+}
+
+// debit means a debounced bit
+fn debit(mask: u8, debouncer: &mut debouncr::Debouncer<u8, debouncr::Repeat8>, switch_pressed: bool) -> u8 {
+    debouncer.update(switch_pressed);
+    bit(mask, debouncer.is_high())
 }
 
 fn bit(mask: u8, apply: bool) -> u8 {
