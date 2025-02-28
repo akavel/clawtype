@@ -105,6 +105,7 @@ dependencies = [
 [[package]]
 name = "const_map"
 version = "0.1.0"
+source = "git+https://github.com/akavel/const_map?branch=master#f7b8b993899a872d432a919826ed332f7a1f16da"
 
 [[package]]
 name = "critical-section"

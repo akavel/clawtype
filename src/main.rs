@@ -3,7 +3,11 @@
 
 use embedded_hal::delay::DelayNs;
 use panic_halt as _;
-use chordite_chords::keycodes as new_keys;
+use chordite_chords::{
+    keycodes as new_keys, sample_layers,
+    Chordite, SwitchSet,
+    UsbOutcome::*
+};
 
 extern "C" {
     fn usb_try_init();
@@ -30,17 +34,46 @@ fn main() -> ! {
 
     let mut led = pins.pd6.into_output();
 
-    let switch0 = pins.pb0.into_pull_up_input();
-    let mut switch0_last = false;
-
-    let switch1 = pins.pb1.into_pull_up_input();
-    let mut switch1_last = false;
+    let p0 = pins.pb0.into_pull_up_input();
+    let p1 = pins.pb1.into_pull_up_input();
+    let p2 = pins.pb2.into_pull_up_input();
+    let p3 = pins.pb3.into_pull_up_input();
+    let p4 = pins.pb7.into_pull_up_input();
+    let p5 = pins.pd0.into_pull_up_input();
+    let p6 = pins.pd1.into_pull_up_input();
+    let p7 = pins.pd2.into_pull_up_input();
 
     unsafe { usb_try_init(); }
 
-    loop {
-        led.toggle();
+    let mut cho = Chordite::<sample_layers::SampleLayers>::default();
 
+    led.toggle();
+
+    loop {
+        // led.toggle();
+
+        let switches =
+            bit(0b01_00_00_00, p0.is_low()) | // pinky base
+            bit(0b10_00_00_00, p1.is_low()) | // pinky tip
+            bit(0b00_01_00_00, p2.is_low()) | // ring base
+            bit(0b00_10_00_00, p3.is_low()) | // ring tip
+            bit(0b00_00_01_00, p4.is_low()) | // middle base
+            bit(0b00_00_10_00, p5.is_low()) | // middle tip
+            bit(0b00_00_00_01, p6.is_low()) | // index base
+            bit(0b00_00_00_10, p7.is_low());  // index tip
+
+        let outcome = cho.handle(SwitchSet(switches));
+        match outcome {
+            Nothing => (),
+            KeyHit(key_with_flags) => {
+                println("Sending!");
+                led.toggle();
+                usb_send_new_key(key_with_flags);
+            }
+        }
+
+
+        /*
         let switch0_low = switch0.is_low();
         if switch0_low != switch0_last {
             switch0_last = switch0_low;
@@ -55,18 +88,6 @@ fn main() -> ! {
             }
         }
 
-        let switch1_low = switch1.is_low();
-        if switch1_low != switch1_last {
-            switch1_last = switch1_low;
-            if switch1_low {
-                println("KEY PRESS 1");
-                usb_send_new_key(new_keys::C | new_keys::SHIFT_FLAG);
-            } else {
-                println("Key release 1");
-                usb_send_new_key(new_keys::C);
-            }
-        }
-
         if switch0.is_low() {
             Delay::new().delay_ms(100u32);
             continue;
@@ -74,6 +95,7 @@ fn main() -> ! {
 
         Delay::new().delay_ms(1000u32);
         println("Hello cpp :)");
+        */
     }
 }
 
@@ -95,3 +117,6 @@ fn usb_send_new_key(k: new_keys::KeyWithFlags) {
     unsafe { usb_send_key_with_mod(key, modifier) };
 }
 
+fn bit(mask: u8, apply: bool) -> u8 {
+    if apply { mask } else { 0 }
+}
