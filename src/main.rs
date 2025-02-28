@@ -81,6 +81,7 @@ fn main() -> ! {
                 usb_send_new_key(key_with_flags);
             }
         }
+        Delay::new().delay_ms(2u32);
 
 
         /*
