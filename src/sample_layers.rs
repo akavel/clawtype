@@ -49,7 +49,7 @@ impl SampleLayers {
             chord!("_vv_") => TemporaryLayerSwitch { layer: 1 }, // SHIFT
             chord!("_^^_") => TemporaryPlusMask { mask: CTRL_FLAG }, // CTRL
             chord!("%%__") => TemporaryPlusMask { mask: ALT_FLAG }, // ALT
-            // chord!("%%_^") => TemporaryPlusMask { mask: RIGHT_ALT_FLAG }, // R-ALT
+            chord!("%%_^") => TemporaryPlusMask { mask: RIGHT_ALT_FLAG }, // R-ALT
             chord!("_%%_") => TemporaryPlusMask { mask: GUI_FLAG }, // GUI
             chord!("_^_^") => Emit(Hit(TAB)),
             chord!("__^%") => Emit(Hit(W)),

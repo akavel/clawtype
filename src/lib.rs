@@ -119,8 +119,9 @@ where
                 UsbOutcome::Nothing
             }
             FromOtherPlusMask { layer, mask } => {
+                self.temporary_plus_mask |= mask;
                 // FIXME: protect against infinite recursion
-                self.resolve(layer, chord) | mask
+                self.resolve(layer, chord)
             }
         }
     }
@@ -218,5 +219,26 @@ mod tests {
         assert_eq!(ch.handle(S(0)), Nothing);
         assert_eq!(ch.handle(S(chord!("^___"))), Nothing); // S
         assert_eq!(ch.handle(S(0)), Hit(keycodes::S | SHIFT_FLAG | GUI_FLAG));
+    }
+
+    #[test]
+    fn shift_with_other_modifier_and_letter() {
+        let mut ch = Chordite::<L>::default();
+
+        // shift-r_alt-e => Ę
+        assert_eq!(ch.handle(S(chord!("_vv_"))), Nothing);
+        assert_eq!(ch.handle(S(0)), Nothing);
+        assert_eq!(ch.handle(S(chord!("%%_^"))), Nothing);
+        assert_eq!(ch.handle(S(0)), Nothing);
+        assert_eq!(ch.handle(S(chord!("___^"))), Nothing);
+        assert_eq!(ch.handle(S(0)), Hit(keycodes::E | SHIFT_FLAG | RIGHT_ALT_FLAG));
+
+        // r_alt-shift-e => also Ę
+        assert_eq!(ch.handle(S(chord!("%%_^"))), Nothing);
+        assert_eq!(ch.handle(S(0)), Nothing);
+        assert_eq!(ch.handle(S(chord!("_vv_"))), Nothing);
+        assert_eq!(ch.handle(S(0)), Nothing);
+        assert_eq!(ch.handle(S(chord!("___^"))), Nothing);
+        assert_eq!(ch.handle(S(0)), Hit(keycodes::E | SHIFT_FLAG | RIGHT_ALT_FLAG));
     }
 }
