@@ -12,7 +12,7 @@ pub mod sample_layers;
 ///
 /// E.g.: `0b10_00_00_01` is: pinky tip + index base pressed.
 #[derive(Default)]
-pub struct SwitchSet(u8);
+pub struct SwitchSet(pub u8);
 
 #[derive(Copy, Clone)]
 #[cfg_attr(test, derive(Debug, PartialEq))]
