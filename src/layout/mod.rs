@@ -40,6 +40,9 @@ impl Layout {
     const_map!(
         LAYOUT0, lookup0(),
         (u8 => LayerOutcome<KeyWithFlags>) {
+
+            chord!("%%%%") => ClearState,
+
             chord!("__^_") => Emit(Hit(SPACE)),
             chord!("_^__") => Emit(Hit(BACKSPACE)),
             chord!("___^") => Emit(Hit(E)),
@@ -135,7 +138,6 @@ impl Layout {
 
             chord!("%%_v") => LayerSwitch { layer: 2 }, // "Nav / Fn" layer
             chord!("v_^v") => LayerSwitch { layer: 2 }, // "Nav / Fn" layer
-            chord!("%%%%") => ClearState,
             chord!("%_^^") => Emit(Hit(CAPS_LOCK)),
 
             // chord!("%%v_") => Emit(Hit(INSERT -- already defined)),
@@ -155,7 +157,9 @@ impl Layout {
     const_map!(
         LAYOUT2, lookup2(),
         (u8 => LayerOutcome<KeyWithFlags>) {
-            0 => FromOtherPlusMask { layer: 0, mask: 0 }, // fallback
+            // 0 => FromOtherPlusMask { layer: 0, mask: 0 }, // fallback
+
+            chord!("%%%%") => ClearState,
 
             chord!("%%_v") => ClearState, // quit to base layer
             chord!("v_^v") => ClearState, // quit to base layer
@@ -184,6 +188,26 @@ impl Layout {
             chord!("_%_^") => Emit(Hit(F9)),
             chord!("__%v") => Emit(Hit(F11)),
             chord!("__%^") => Emit(Hit(F12)),
+
+            // transparent to layer 0:
+
+            chord!("%__%") => FromOtherPlusMask { layer: 0, mask: 0 },
+            chord!("%_%_") => FromOtherPlusMask { layer: 0, mask: 0 },
+            chord!("%%%_") => FromOtherPlusMask { layer: 0, mask: 0 },
+            chord!("_%%%") => FromOtherPlusMask { layer: 0, mask: 0 },
+            chord!("%%_%") => FromOtherPlusMask { layer: 0, mask: 0 },
+            chord!("%_%%") => FromOtherPlusMask { layer: 0, mask: 0 },
+
+            chord!("_%_%") => FromOtherPlusMask { layer: 0, mask: 0 },
+            chord!("_%%_") => FromOtherPlusMask { layer: 0, mask: 0 },
+            chord!("_v_%") => FromOtherPlusMask { layer: 0, mask: 0 },
+            chord!("^^__") => FromOtherPlusMask { layer: 0, mask: 0 },
+            chord!("v%%_") => FromOtherPlusMask { layer: 0, mask: 0 },
+
+            chord!("__%%") => FromOtherPlusMask { layer: 0, mask: 0 },
+            chord!("%%__") => FromOtherPlusMask { layer: 0, mask: 0 },
+            chord!("__%^") => FromOtherPlusMask { layer: 0, mask: 0 },
+            chord!("__%v") => FromOtherPlusMask { layer: 0, mask: 0 },
         }
     );
 }
