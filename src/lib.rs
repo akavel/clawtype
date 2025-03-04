@@ -17,7 +17,7 @@
 #![cfg_attr(not(test), no_std)]
 
 use core::mem;
-use core::ops::{BitOr, BitOrAssign};
+use core::ops::{BitAndAssign, BitOr, BitOrAssign, Not};
 
 pub mod keycodes;
 pub mod sample_layers;
@@ -52,12 +52,19 @@ impl<K: BitOr<Output = K>> BitOr<K> for UsbOutcome<K> {
 pub enum LayerOutcome<KeyWithFlags> {
     ClearState,
     Emit(UsbOutcome<KeyWithFlags>),
-    /// Intended for adding USB flag key, like Alt, Shift, GUI, RAlt, etc.
-    TemporaryPlusMask {
-        mask: KeyWithFlags,
+    LayerSwitch {
+        layer: i32,
     },
     TemporaryLayerSwitch {
         layer: i32,
+    },
+    /// Intended for adding USB flag key, like Alt, Shift, GUI, RAlt, etc.
+    TogglePlusMask {
+        mask: KeyWithFlags,
+    },
+    /// Intended for adding USB flag key, like Alt, Shift, GUI, RAlt, etc.
+    TemporaryPlusMask {
+        mask: KeyWithFlags,
     },
     /// Intended for adding USB flag key, like Alt, Shift, GUI, RAlt, etc.
     FromOtherPlusMask {
@@ -68,7 +75,9 @@ pub enum LayerOutcome<KeyWithFlags> {
 
 pub struct Chordite<L: Lookup> {
     most: SwitchSet,
+    layer: i32,
     temporary_layer: Option<i32>,
+    plus_mask: L::KeyWithFlags,
     temporary_plus_mask: L::KeyWithFlags,
 }
 
@@ -80,7 +89,9 @@ where
     fn default() -> Self {
         Self {
             most: SwitchSet::default(),
+            layer: 0,
             temporary_layer: None,
+            plus_mask: L::KeyWithFlags::default(),
             temporary_plus_mask: L::KeyWithFlags::default(),
         }
     }
@@ -94,7 +105,7 @@ pub trait Lookup {
 impl<L> Chordite<L>
 where
     L: Lookup,
-    L::KeyWithFlags: Default + BitOr<Output = L::KeyWithFlags> + BitOrAssign,
+    L::KeyWithFlags: Copy + Default + BitAndAssign + BitOr<Output = L::KeyWithFlags> + BitOrAssign + Not<Output = L::KeyWithFlags>,
 {
     pub fn handle(&mut self, switches: SwitchSet) -> UsbOutcome<L::KeyWithFlags> {
         // some switches are pressed?
@@ -109,7 +120,7 @@ where
         if most == 0 {
             return UsbOutcome::Nothing;
         }
-        let layer = self.temporary_layer.take().unwrap_or(0);
+        let layer = self.temporary_layer.take().unwrap_or(self.layer);
         self.resolve(layer, most)
     }
 
@@ -125,19 +136,31 @@ where
             },
         };
         use LayerOutcome::*;
+        use core::mem::take;
         match lookup {
             ClearState => {
-                core::mem::take(&mut self.temporary_layer);
-                core::mem::take(&mut self.temporary_plus_mask);
+                take(&mut self.layer);
+                take(&mut self.temporary_layer);
+                take(&mut self.plus_mask);
+                take(&mut self.temporary_plus_mask);
                 UsbOutcome::Nothing
             }
-            Emit(v) => v | mem::take(&mut self.temporary_plus_mask),
-            TemporaryPlusMask { mask } => {
-                self.temporary_plus_mask |= mask;
+            Emit(v) => v | mem::take(&mut self.temporary_plus_mask) | self.plus_mask,
+            LayerSwitch { layer } => {
+                self.layer = layer;
                 UsbOutcome::Nothing
             }
             TemporaryLayerSwitch { layer } => {
                 self.temporary_layer = Some(layer);
+                UsbOutcome::Nothing
+            }
+            TogglePlusMask { mask } => {
+                self.temporary_plus_mask &= !mask;
+                self.plus_mask |= mask;
+                UsbOutcome::Nothing
+            }
+            TemporaryPlusMask { mask } => {
+                self.temporary_plus_mask |= mask;
                 UsbOutcome::Nothing
             }
             FromOtherPlusMask { layer, mask } => {
