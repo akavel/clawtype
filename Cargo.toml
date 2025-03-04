@@ -1,44 +1,22 @@
-[package]
-name = "chordite-rust"
-version = "0.1.0"
-authors.workspace = true
-edition.workspace = true
-license.workspace = true
+[workspace]
+resolver = "2"
+members = ["main"]
 
-[[bin]]
-name = "chordite-rust"
-test = false
-bench = false
+[workspace.dependencies]
+avr-device = { version = "0.7", features = ["rt"] }
+chordite-chords = { path = "chords" }
+chordite-macros = { path = "macros" }
+const_map = { git = "https://github.com/akavel/const_map", branch = "master" }
+debouncr = "0.2.2"
+embedded-hal = "1.0"
+nb = "1.1.0"
+panic-halt = "0.2.0"
+ufmt = "0.2.0"
 
-[dependencies]
-avr-device.workspace = true
-chordite-chords.workspace = true
-chordite-macros.workspace = true
-const_map.workspace = true
-debouncr.workspace = true
-embedded-hal.workspace = true
-nb.workspace = true
-panic-halt.workspace = true
-ufmt.workspace = true
-
-[dependencies.embedded-hal-v0]
-# TODO: what's this and do we need it and why? copied from avr-hal/examples/atmega2560/Cargo.toml
-version = "0.2.3"
-package = "embedded-hal"
-
-[dependencies.atmega-hal]
-git = "https://github.com/rahix/avr-hal"
-rev = "3c089795cadbbc7fa83f45958128689fee7ba1e4"
-features = ["atmega32u4"]
-
-# The latest releases of `proc-macro2` do not support the rust toolchain that
-# we use.  Thus, we must fix this dependency to an older version where our
-# toolchain is still supported.  See https://github.com/Rahix/avr-hal/issues/537
-[build-dependencies.proc-macro2]
-version = "=1.0.79"
-
-[build-dependencies]
-cc = "1.0"
+[workspace.package]
+authors = ["Mateusz Czapliński <czapkofan@gmail.com>"]
+license = "AGPL-3.0-or-later"
+edition = "2021"
 
 # Configure the build for minimal size - AVRs have very little program memory
 [profile.dev]
@@ -53,20 +31,4 @@ debug = true
 lto = true
 opt-level = "s"
 
-[workspace]
 
-[workspace.dependencies]
-avr-device = { version = "0.7", features = ["rt"] }
-chordite-chords = { path = "wip" }
-chordite-macros = { path = "wip/macros", package = "chordite-macros", version = "0.0.1" }
-const_map = { git = "https://github.com/akavel/const_map", branch = "master" }
-debouncr = "0.2.2"
-embedded-hal = "1.0"
-nb = "1.1.0"
-panic-halt = "0.2.0"
-ufmt = "0.2.0"
-
-[workspace.package]
-authors = ["Mateusz Czapliński <czapkofan@gmail.com>"]
-license = "AGPL-3.0-or-later"
-edition = "2021"
