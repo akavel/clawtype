@@ -40,14 +40,6 @@ impl Layout {
     const_map!(
         LAYOUT0, lookup0(),
         (u8 => LayerOutcome<KeyWithFlags>) {
-            // chord!("%__v") => Emit(Hit(QUOTE | SHIFT_FLAG)), // "
-            // chord!("^^__") => Emit(Hit(M)),
-            // chord!("_vv_") => TemporaryLayerSwitch { layer: 1 }, // SHIFT
-            // chord!("_^^_") => TemporaryPlusMask { mask: CTRL_FLAG }, // CTRL
-            // chord!("%%__") => TemporaryPlusMask { mask: ALT_FLAG }, // ALT
-            // chord!("%%_^") => TemporaryPlusMask { mask: RIGHT_ALT_FLAG }, // R-ALT
-            // chord!("_%%_") => TemporaryPlusMask { mask: GUI_FLAG }, // GUI
-
             chord!("__^_") => Emit(Hit(SPACE)),
             chord!("_^__") => Emit(Hit(BACKSPACE)),
             chord!("___^") => Emit(Hit(E)),
@@ -76,28 +68,58 @@ impl Layout {
             chord!("_vv_") => Emit(Hit(X)),
             chord!("v__%") => Emit(Hit(Z)),
             chord!("__%_") => Emit(Hit(Q)),
+
             chord!("%__%") => TemporaryLayerSwitch { layer: 1 }, // SHIFT
-            chord!("^__v") => Emit(Hit(QUOTE)), // '
-            chord!("v__^") => Emit(Hit(QUOTE | SHIFT_FLAG)), // "
-            chord!("v_^_") => Emit(Hit(TILDE)), // `
+            chord!("%_%_") => TemporaryPlusMask { mask: CTRL_FLAG }, // CTRL
+            chord!("%%%_") => TemporaryPlusMask { mask: ALT_FLAG }, // ALT
+            chord!("_%%%") => TemporaryPlusMask { mask: RIGHT_ALT_FLAG }, // R-ALT
+            chord!("%%_%") => TemporaryPlusMask { mask: GUI_FLAG }, // GUI
+            chord!("%_%%") => TemporaryPlusMask { mask: RIGHT_GUI_FLAG }, // R_GUI
+
             chord!("_%_%") => Emit(Hit(ENTER)),
             chord!("_%%_") => Emit(Hit(ESC)),
-            chord!("vv__") => Emit(Hit(SLASH)), // /
-            chord!("vvv_") => Emit(Hit(BACKSLASH)), // \
+            chord!("^^__") => Emit(Hit(DELETE)),
+            chord!("v%%_") => Emit(Hit(INSERT)),
+
+            chord!("__%%") => Emit(Hit(HOME)),
+            chord!("%%__") => Emit(Hit(END)),
+            chord!("__%^") => Emit(Hit(PAGE_UP)),
+            chord!("__%v") => Emit(Hit(PAGE_DOWN)),
+
             chord!("^^^_") => Emit(Hit(PERIOD)), // .
             chord!("^^^^") => Emit(Hit(COMMA)), // ,
             chord!("^^_^") => Emit(Hit(SEMICOLON)), // ;
             chord!("vv_v") => Emit(Hit(SEMICOLON | SHIFT_FLAG)), // :
+            chord!("^__%") => Emit(Hit(KEY_1 | SHIFT_FLAG)), // !
+            chord!("^^_%") => Emit(Hit(SLASH | SHIFT_FLAG)), // ?
+
+            chord!("^__v") => Emit(Hit(QUOTE)), // '
+            chord!("v__^") => Emit(Hit(QUOTE | SHIFT_FLAG)), // "
+            chord!("v_^_") => Emit(Hit(TILDE)), // `
+            chord!("vv__") => Emit(Hit(SLASH)), // /
+            chord!("vvv_") => Emit(Hit(BACKSLASH)), // \
             chord!("_%%v") => Emit(Hit(KEY_7 | SHIFT_FLAG)), // &
             chord!("_vvv") => Emit(Hit(KEY_8 | SHIFT_FLAG)), // *
             chord!("_^^v") => Emit(Hit(EQUAL)), // =
             chord!("_^^%") => Emit(Hit(EQUAL | SHIFT_FLAG)), // +
             chord!("%^^_") => Emit(Hit(MINUS)), // -
             chord!("%^^^") => Emit(Hit(MINUS | SHIFT_FLAG)), // _
+            chord!("_v^_") => Emit(Hit(TILDE | SHIFT_FLAG)), // ~
+            chord!("v^__") => Emit(Hit(KEY_4 | SHIFT_FLAG)), // $
+            chord!("^^^%") => Emit(Hit(KEY_6 | SHIFT_FLAG)), // ^
+            chord!("%_%v") => Emit(Hit(KEY_5 | SHIFT_FLAG)), // %
+            chord!("vvvv") => Emit(Hit(BACKSLASH | SHIFT_FLAG)), // |
+            chord!("v^_v") => Emit(Hit(KEY_2 | SHIFT_FLAG)), // @
+            chord!("%^^%") => Emit(Hit(KEY_3 | SHIFT_FLAG)), // #
+
             chord!("v_vv") => Emit(Hit(KEY_9 | SHIFT_FLAG)), // (
             chord!("^_^^") => Emit(Hit(KEY_0 | SHIFT_FLAG)), // )
-            chord!("^^__") => Emit(Hit(DELETE)),
-            chord!("_v^_") => Emit(Hit(TILDE | SHIFT_FLAG)), // ~
+            chord!("_v%_") => Emit(Hit(LEFT_BRACE)), // [
+            chord!("_^%_") => Emit(Hit(RIGHT_BRACE)), // ]
+            chord!("v%__") => Emit(Hit(LEFT_BRACE | SHIFT_FLAG)), // {
+            chord!("^%__") => Emit(Hit(RIGHT_BRACE | SHIFT_FLAG)), // }
+            chord!("^^_v") => Emit(Hit(COMMA | SHIFT_FLAG)), // <
+            chord!("^^^v") => Emit(Hit(PERIOD | SHIFT_FLAG)), // >
 
             chord!("%__v") => Emit(Hit(KEY_0)),
             chord!("%__^") => Emit(Hit(KEY_1)),
@@ -110,39 +132,8 @@ impl Layout {
             chord!("_%_v") => Emit(Hit(KEY_8)),
             chord!("_%_^") => Emit(Hit(KEY_9)),
 
-            chord!("v^__") => Emit(Hit(KEY_4 | SHIFT_FLAG)), // $
-
-            chord!("^__%") => Emit(Hit(KEY_1 | SHIFT_FLAG)), // !
-            chord!("^^_%") => Emit(Hit(SLASH | SHIFT_FLAG)), // ?
-
-            chord!("_v%_") => Emit(Hit(LEFT_BRACE)), // [
-            chord!("_^%_") => Emit(Hit(RIGHT_BRACE)), // ]
-            chord!("v%__") => Emit(Hit(LEFT_BRACE | SHIFT_FLAG)), // {
-            chord!("^%__") => Emit(Hit(RIGHT_BRACE | SHIFT_FLAG)), // }
-
-            chord!("^^_v") => Emit(Hit(COMMA | SHIFT_FLAG)), // <
-            chord!("^^^v") => Emit(Hit(PERIOD | SHIFT_FLAG)), // >
-            chord!("__%v") => Emit(Hit(PAGE_DOWN)),
-            chord!("__%^") => Emit(Hit(PAGE_UP)),
-            chord!("%_%_") => TemporaryPlusMask { mask: CTRL_FLAG }, // CTRL
-            chord!("%%__") => Emit(Hit(END)),
-            chord!("__%%") => Emit(Hit(HOME)),
-            chord!("^^^%") => Emit(Hit(KEY_6 | SHIFT_FLAG)), // ^
-            chord!("%_%v") => Emit(Hit(KEY_5 | SHIFT_FLAG)), // %
-            chord!("%_%%") => TemporaryPlusMask { mask: RIGHT_GUI_FLAG }, // R_GUI
-            chord!("%%_%") => TemporaryPlusMask { mask: GUI_FLAG }, // GUI
-            chord!("vvvv") => Emit(Hit(BACKSLASH | SHIFT_FLAG)), // |
-            chord!("v^_v") => Emit(Hit(KEY_2 | SHIFT_FLAG)), // @
-            chord!("v%%_") => Emit(Hit(INSERT)),
-            chord!("%^^%") => Emit(Hit(KEY_3 | SHIFT_FLAG)), // #
-
             chord!("%%_v") => LayerSwitch { layer: 2 }, // "Nav / Fn" layer
-
-            chord!("_%%%") => TemporaryPlusMask { mask: RIGHT_ALT_FLAG }, // R-ALT
-
-            chord!("%%%_") => TemporaryPlusMask { mask: ALT_FLAG }, // ALT
             chord!("%%%%") => ClearState,
-
             chord!("%_^^") => Emit(Hit(CAPS_LOCK)),
 
             // chord!("%%v_") => Emit(Hit(INSERT -- already defined)),
