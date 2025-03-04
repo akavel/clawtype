@@ -133,6 +133,7 @@ impl Layout {
             chord!("_%_^") => Emit(Hit(KEY_9)),
 
             chord!("%%_v") => LayerSwitch { layer: 2 }, // "Nav / Fn" layer
+            chord!("v_^v") => LayerSwitch { layer: 2 }, // "Nav / Fn" layer
             chord!("%%%%") => ClearState,
             chord!("%_^^") => Emit(Hit(CAPS_LOCK)),
 
@@ -156,6 +157,7 @@ impl Layout {
             0 => FromOtherPlusMask { layer: 0, mask: 0 }, // fallback
 
             chord!("%%_v") => ClearState, // quit to base layer
+            chord!("v_^v") => ClearState, // quit to base layer
             chord!("%_^^") => TogglePlusMask { mask: ALT_FLAG }, // Fn-CAPSLOCK => sticky ALT
 
             chord!("_%__") => Emit(Hit(LEFT)), // Fn-H KEY_LEFT
