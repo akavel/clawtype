@@ -136,7 +136,7 @@ impl Layout {
             chord!("v%%_") => Emit(Hit(INSERT)),
             chord!("%^^%") => Emit(Hit(KEY_3 | SHIFT_FLAG)), // #
 
-            chord!("%%_v") => TemporaryLayerSwitch { layer: 2 }, // "Nav / Fn" layer
+            chord!("%%_v") => LayerSwitch { layer: 2 }, // "Nav / Fn" layer
 
             chord!("_%%%") => TemporaryPlusMask { mask: RIGHT_ALT_FLAG }, // R-ALT
 
@@ -164,6 +164,20 @@ impl Layout {
         (u8 => LayerOutcome<KeyWithFlags>) {
             0 => FromOtherPlusMask { layer: 0, mask: 0 }, // fallback
 
+            chord!("%%_v") => ClearState, // quit to base layer
+            chord!("%_^^") => TogglePlusMask { mask: ALT_FLAG }, // Fn-CAPSLOCK => sticky ALT
+
+            chord!("_%__") => Emit(Hit(LEFT)), // Fn-H KEY_LEFT
+            chord!("___%") => Emit(Hit(RIGHT)), // Fn-L KEY_RIGHT
+            chord!("v_v_") => Emit(Hit(DOWN)), // Fn-J KEY_DOWN
+            chord!("^_^_") => Emit(Hit(UP)), // Fn-K KEY_UP
+
+            chord!("__^_") => Emit(Hit(RIGHT)), // Fn-Space KEY_RIGHT
+            chord!("_^__") => Emit(Hit(LEFT)), // Fn-Bksp KEY_LEFT
+            chord!("___^") => Emit(Hit(UP)), // Fn-E KEY_UP
+            chord!("___v") => Emit(Hit(DOWN)), // Fn-T KEY_DOWN
+            chord!("^___") => Emit(Hit(DOWN)), // Fn-A KEY_DOWN
+
             chord!("%__v") => Emit(Hit(F10)),
             chord!("%__^") => Emit(Hit(F1)),
             chord!("%_v_") => Emit(Hit(F2)),
@@ -176,8 +190,6 @@ impl Layout {
             chord!("_%_^") => Emit(Hit(F9)),
             chord!("__%v") => Emit(Hit(F11)),
             chord!("__%^") => Emit(Hit(F12)),
-
-            // chord!("%_^^") => ToggleMask { mask: ALT_FLAG }, // Fn-CAPSLOCK => sticky ALT
         }
     );
 }
