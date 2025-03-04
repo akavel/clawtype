@@ -137,4 +137,13 @@ impl SampleLayers {
             chord!("_v_%") => Emit(Hit(END)), // S-Down KEY_END
         }
     );
+
+    //== TODO: ==
+    // '%'
+    // '#'
+    // F1-F12
+    // CapsLock
+    // Insert
+    // PrintScreen
+    // Alt-Tab & Alt-Shift-Tab
 }
