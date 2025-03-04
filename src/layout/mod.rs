@@ -78,6 +78,7 @@ impl Layout {
 
             chord!("_%_%") => Emit(Hit(ENTER)),
             chord!("_%%_") => Emit(Hit(ESC)),
+            chord!("_v_%") => Emit(Hit(TAB)),
             chord!("^^__") => Emit(Hit(DELETE)),
             chord!("v%%_") => Emit(Hit(INSERT)),
 
