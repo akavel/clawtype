@@ -21,10 +21,12 @@ use debouncr::debounce_8 as debouncer;
 use embedded_hal::delay::DelayNs;
 use panic_halt as _;
 use chordite_chords::{
-    keycodes as new_keys, sample_layers,
+    keycodes as new_keys,
     Chordite, SwitchSet,
     UsbOutcome::*
 };
+
+mod layout;
 
 extern "C" {
     fn usb_try_init();
@@ -62,7 +64,7 @@ fn main() -> ! {
 
     unsafe { usb_try_init(); }
 
-    let mut cho = Chordite::<sample_layers::SampleLayers>::default();
+    let mut cho = Chordite::<layout::Layout>::default();
 
     let mut i0 = debouncer(false);
     let mut i1 = debouncer(false);

@@ -12,12 +12,14 @@ bench = false
 
 [dependencies]
 avr-device = { version = "0.7", features = ["rt"] }
+chordite-chords = { path = "../chordite-chords" }
+chordite-macros = { path = "../chordite-chords/macros" }
+const_map = { git = "https://github.com/akavel/const_map", branch = "master" }
+debouncr = "0.2.2"
 embedded-hal = "1.0"
 nb = "1.1.0"
 panic-halt = "0.2.0"
 ufmt = "0.2.0"
-chordite-chords = { path = "../chordite-chords" }
-debouncr = "0.2.2"
 
 [dependencies.embedded-hal-v0]
 # TODO: what's this and do we need it and why? copied from avr-hal/examples/atmega2560/Cargo.toml
