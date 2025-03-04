@@ -16,7 +16,7 @@
 
 use const_map::const_map;
 
-use macros::chord;
+use chordite_macros::chord;
 
 use crate::LayerOutcome::{self, *};
 use crate::UsbOutcome::KeyHit as Hit;

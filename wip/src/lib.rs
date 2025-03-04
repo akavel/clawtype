@@ -180,7 +180,7 @@ mod tests {
     use UsbOutcome::KeyHit as Hit;
     use UsbOutcome::Nothing;
     use keycodes::*;
-    use macros::chord;
+    use chordite_macros::chord;
     use sample_layers::SampleLayers as L;
 
     #[test]

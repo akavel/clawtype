@@ -5,18 +5,7 @@ authors.workspace = true
 edition.workspace = true
 license.workspace = true
 
-[workspace]
-
-[workspace.dependencies]
-macros = { path = "macros", package = "chordite-macros", version = "0.0.1" }
-const_map = { git = "https://github.com/akavel/const_map", branch = "master" }
-
-[workspace.package]
-authors = ["Mateusz Czapliński <czapkofan@gmail.com>"]
-license = "AGPL-3.0-or-later"
-edition = "2021"
-
 [dependencies]
 const_map.workspace = true
-macros.workspace = true
+chordite-macros.workspace = true
 
