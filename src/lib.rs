@@ -50,6 +50,7 @@ impl<K: BitOr<Output = K>> BitOr<K> for UsbOutcome<K> {
 
 #[derive(Copy, Clone)]
 pub enum LayerOutcome<KeyWithFlags> {
+    ClearState,
     Emit(UsbOutcome<KeyWithFlags>),
     /// Intended for adding USB flag key, like Alt, Shift, GUI, RAlt, etc.
     TemporaryPlusMask {
@@ -125,6 +126,11 @@ where
         };
         use LayerOutcome::*;
         match lookup {
+            ClearState => {
+                core::mem::take(&mut self.temporary_layer);
+                core::mem::take(&mut self.temporary_plus_mask);
+                UsbOutcome::Nothing
+            }
             Emit(v) => v | mem::take(&mut self.temporary_plus_mask),
             TemporaryPlusMask { mask } => {
                 self.temporary_plus_mask |= mask;
