@@ -106,10 +106,12 @@ impl Layout {
             chord!("_%%v") => Emit(Hit(KEY_7 | SHIFT_FLAG)), // &
             chord!("_vvv") => Emit(Hit(KEY_8 | SHIFT_FLAG)), // *
             chord!("_^^v") => Emit(Hit(EQUAL)), // =
-            chord!("_^^%") => Emit(Hit(TILDE)), // `
+            chord!("_^^%") => Emit(Hit(EQUAL | SHIFT_FLAG)), // +
+            chord!("%%v_") => Emit(Hit(TILDE)), // `
             chord!("%^^_") => Emit(Hit(MINUS)), // -
             chord!("%^^^") => Emit(Hit(MINUS | SHIFT_FLAG)), // _
             chord!("_v^_") => Emit(Hit(QUOTE)), // '
+            chord!("__v%") => Emit(Hit(QUOTE | SHIFT_FLAG)), // "
             chord!("v^__") => Emit(Hit(KEY_4 | SHIFT_FLAG)), // $
             chord!("^^^%") => Emit(Hit(KEY_6 | SHIFT_FLAG)), // ^
             chord!("%_%v") => Emit(Hit(KEY_5 | SHIFT_FLAG)), // %
@@ -153,7 +155,7 @@ impl Layout {
             0 => FromOtherPlusMask { layer: 0, mask: SHIFT_FLAG },
 
             chord!("vvv_") => Emit(Hit(BACKSLASH)), // S-/ \
-            chord!("_^^%") => Emit(Hit(TILDE | SHIFT_FLAG)), // S-` ~
+            chord!("%%v_") => Emit(Hit(TILDE | SHIFT_FLAG)), // S-` ~
             chord!("_v^_") => Emit(Hit(QUOTE | SHIFT_FLAG)), // S-' "
         }
     );
