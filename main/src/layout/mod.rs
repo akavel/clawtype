@@ -172,6 +172,7 @@ impl Layout {
             chord!("v_^v") => ClearState, // quit to base layer
             chord!("%_^^") => TogglePlusMask { mask: ALT_FLAG }, // Fn-CAPSLOCK => sticky ALT
 
+            // F1-F12
             chord!("%__v") => Emit(Hit(F10)),
             chord!("%__^") => Emit(Hit(F1)),
             chord!("%_v_") => Emit(Hit(F2)),
@@ -184,6 +185,24 @@ impl Layout {
             chord!("_%_^") => Emit(Hit(F9)),
             chord!("__%v") => Emit(Hit(F11)),
             chord!("__%^") => Emit(Hit(F12)),
+
+            // Keypad - for mouse navigation on Windows / Mac
+            chord!("__^_") => Emit(Hit(KEYPAD_6)), // Right
+            chord!("_^__") => Emit(Hit(KEYPAD_4)), // Left
+            chord!("___^") => Emit(Hit(KEYPAD_8)), // Up
+            chord!("___v") => Emit(Hit(KEYPAD_2)), // Down
+            chord!("^___") => Emit(Hit(KEYPAD_7)), // Home / up-left
+            chord!("v___") => Emit(Hit(KEYPAD_1)), // End / down-left
+            chord!("_v__") => Emit(Hit(KEYPAD_3)), // PgDn / down-right
+            chord!("__v_") => Emit(Hit(KEYPAD_9)), // PgUp / up-right
+            chord!("__^%") => Emit(Hit(KEYPAD_5)), // 5 / click
+            chord!("^^^%") => Emit(Hit(KEYPAD_0)), // 0 / press&lock
+            // chord!("__v%") => Emit(Hit(KEYPAD_0)), // 0 / press&lock
+            // chord!("^^^^") => Emit(Hit(KEYPAD_0)), // 0 / press&lock
+            chord!("^^^_") => Emit(Hit(KEYPAD_PERIOD)), // . / drag release
+            chord!("___%") => Emit(Hit(KEYPAD_SLASH)), // / / left-click
+            chord!("__%_") => Emit(Hit(KEYPAD_ASTERIX)), // * / mid-click
+            chord!("_%__") => Emit(Hit(KEYPAD_MINUS)), // - / right-click
 
             // transparent to layer 0:
 
