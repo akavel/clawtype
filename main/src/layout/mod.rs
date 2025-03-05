@@ -43,34 +43,39 @@ impl Layout {
 
             chord!("%%%%") => ClearState,
 
-            chord!("__^_") => Emit(Hit(SPACE)),
-            chord!("_^__") => Emit(Hit(BACKSPACE)),
-            chord!("___^") => Emit(Hit(E)),
-            chord!("___v") => Emit(Hit(T)),
-            chord!("^___") => Emit(Hit(A)),
-            chord!("v___") => Emit(Hit(O)),
-            chord!("__v_") => Emit(Hit(I)),
-            chord!("_v__") => Emit(Hit(N)),
-            chord!("%___") => Emit(Hit(S)),
-            chord!("_%__") => Emit(Hit(H)),
-            chord!("_^^_") => Emit(Hit(R)),
-            chord!("__^v") => Emit(Hit(D)),
-            chord!("___%") => Emit(Hit(L)),
-            chord!("__^%") => Emit(Hit(U)),
-            chord!("_v_v") => Emit(Hit(C)),
-            chord!("_^_v") => Emit(Hit(M)),
-            chord!("_^^^") => Emit(Hit(W)),
-            chord!("_^_%") => Emit(Hit(F)),
-            chord!("^__^") => Emit(Hit(G)),
-            chord!("v__v") => Emit(Hit(Y)),
-            chord!("__^^") => Emit(Hit(P)),
-            chord!("__vv") => Emit(Hit(B)),
-            chord!("_^_^") => Emit(Hit(V)),
-            chord!("^_^_") => Emit(Hit(K)),
-            chord!("v_v_") => Emit(Hit(J)),
-            chord!("_vv_") => Emit(Hit(X)),
-            chord!("v__%") => Emit(Hit(Z)),
-            chord!("__%_") => Emit(Hit(Q)),
+            chord!("__^_") => Emit(Hit(RIGHT)),
+            chord!("_^__") => Emit(Hit(LEFT)),
+            chord!("___^") => Emit(Hit(UP)),
+            chord!("___v") => Emit(Hit(DOWN)),
+            chord!("^___") => Emit(Hit(SPACE)),
+            chord!("v___") => Emit(Hit(BACKSPACE)),
+
+            chord!("__v_") => Emit(Hit(E)),
+            chord!("_v__") => Emit(Hit(T)),
+            chord!("%___") => Emit(Hit(A)),
+            chord!("_%__") => Emit(Hit(O)),
+            chord!("_^^_") => Emit(Hit(I)),
+            chord!("__^v") => Emit(Hit(N)),
+            chord!("___%") => Emit(Hit(S)),
+            chord!("__^%") => Emit(Hit(H)),
+            chord!("_v_v") => Emit(Hit(R)),
+            chord!("_^_v") => Emit(Hit(D)),
+            chord!("_^^^") => Emit(Hit(L)),
+            chord!("_^_%") => Emit(Hit(U)),
+            chord!("^__^") => Emit(Hit(C)),
+            chord!("v__v") => Emit(Hit(M)),
+            chord!("__^^") => Emit(Hit(W)),
+            chord!("__vv") => Emit(Hit(F)),
+            chord!("_^_^") => Emit(Hit(G)),
+            chord!("^_^_") => Emit(Hit(Y)),
+            chord!("v_v_") => Emit(Hit(P)),
+            chord!("_vv_") => Emit(Hit(B)),
+            chord!("v__%") => Emit(Hit(V)),
+            chord!("__%_") => Emit(Hit(K)),
+            chord!("^__v") => Emit(Hit(J)),
+            chord!("v__^") => Emit(Hit(X)),
+            chord!("v_^_") => Emit(Hit(Z)),
+            chord!("vv__") => Emit(Hit(Q)),
 
             chord!("%__%") => TemporaryLayerSwitch { layer: 1 }, // SHIFT
             chord!("%_%_") => TemporaryPlusMask { mask: CTRL_FLAG }, // CTRL
@@ -85,8 +90,8 @@ impl Layout {
             chord!("^^__") => Emit(Hit(DELETE)),
             chord!("v%%_") => Emit(Hit(INSERT)),
 
-            chord!("__%%") => Emit(Hit(HOME)),
-            chord!("%%__") => Emit(Hit(END)),
+            chord!("%%__") => Emit(Hit(HOME)),
+            chord!("__%%") => Emit(Hit(END)),
             chord!("__%^") => Emit(Hit(PAGE_UP)),
             chord!("__%v") => Emit(Hit(PAGE_DOWN)),
 
@@ -97,18 +102,14 @@ impl Layout {
             chord!("^__%") => Emit(Hit(KEY_1 | SHIFT_FLAG)), // !
             chord!("^^_%") => Emit(Hit(SLASH | SHIFT_FLAG)), // ?
 
-            chord!("^__v") => Emit(Hit(QUOTE)), // '
-            chord!("v__^") => Emit(Hit(QUOTE | SHIFT_FLAG)), // "
-            chord!("v_^_") => Emit(Hit(TILDE)), // `
-            chord!("vv__") => Emit(Hit(SLASH)), // /
-            chord!("vvv_") => Emit(Hit(BACKSLASH)), // \
+            chord!("vvv_") => Emit(Hit(SLASH)), // /
             chord!("_%%v") => Emit(Hit(KEY_7 | SHIFT_FLAG)), // &
             chord!("_vvv") => Emit(Hit(KEY_8 | SHIFT_FLAG)), // *
             chord!("_^^v") => Emit(Hit(EQUAL)), // =
-            chord!("_^^%") => Emit(Hit(EQUAL | SHIFT_FLAG)), // +
+            chord!("_^^%") => Emit(Hit(TILDE)), // `
             chord!("%^^_") => Emit(Hit(MINUS)), // -
             chord!("%^^^") => Emit(Hit(MINUS | SHIFT_FLAG)), // _
-            chord!("_v^_") => Emit(Hit(TILDE | SHIFT_FLAG)), // ~
+            chord!("_v^_") => Emit(Hit(QUOTE)), // '
             chord!("v^__") => Emit(Hit(KEY_4 | SHIFT_FLAG)), // $
             chord!("^^^%") => Emit(Hit(KEY_6 | SHIFT_FLAG)), // ^
             chord!("%_%v") => Emit(Hit(KEY_5 | SHIFT_FLAG)), // %
@@ -150,6 +151,10 @@ impl Layout {
         LAYOUT1, lookup1(),
         (u8 => LayerOutcome<KeyWithFlags>) {
             0 => FromOtherPlusMask { layer: 0, mask: SHIFT_FLAG },
+
+            chord!("vvv_") => Emit(Hit(BACKSLASH)), // S-/ \
+            chord!("_^^%") => Emit(Hit(TILDE | SHIFT_FLAG)), // S-` ~
+            chord!("_v^_") => Emit(Hit(QUOTE | SHIFT_FLAG)), // S-' "
         }
     );
 
@@ -164,17 +169,6 @@ impl Layout {
             chord!("%%_v") => ClearState, // quit to base layer
             chord!("v_^v") => ClearState, // quit to base layer
             chord!("%_^^") => TogglePlusMask { mask: ALT_FLAG }, // Fn-CAPSLOCK => sticky ALT
-
-            chord!("_%__") => Emit(Hit(LEFT)), // Fn-H KEY_LEFT
-            chord!("___%") => Emit(Hit(RIGHT)), // Fn-L KEY_RIGHT
-            chord!("v_v_") => Emit(Hit(DOWN)), // Fn-J KEY_DOWN
-            chord!("^_^_") => Emit(Hit(UP)), // Fn-K KEY_UP
-
-            chord!("__^_") => Emit(Hit(RIGHT)), // Fn-Space KEY_RIGHT
-            chord!("_^__") => Emit(Hit(LEFT)), // Fn-Bksp KEY_LEFT
-            chord!("___^") => Emit(Hit(UP)), // Fn-E KEY_UP
-            chord!("___v") => Emit(Hit(DOWN)), // Fn-T KEY_DOWN
-            chord!("^___") => Emit(Hit(DOWN)), // Fn-A KEY_DOWN
 
             chord!("%__v") => Emit(Hit(F10)),
             chord!("%__^") => Emit(Hit(F1)),
