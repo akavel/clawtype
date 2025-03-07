@@ -58,8 +58,8 @@ fn main() -> ! {
     let p2 = pins.pb2.into_pull_up_input();
     let p3 = pins.pb3.into_pull_up_input();
     let p4 = pins.pb7.into_pull_up_input();
-    let p5 = pins.pd0.into_pull_up_input();
-    let p6 = pins.pd1.into_pull_up_input();
+    let p5 = pins.pc6.into_pull_up_input();
+    let p6 = pins.pc7.into_pull_up_input();
     let p7 = pins.pd2.into_pull_up_input();
 
     unsafe { usb_try_init(); }
