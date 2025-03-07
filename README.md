@@ -3,6 +3,8 @@ chordite-rust
 
 Rust project for the _Teensy 2.0_.
 
+A variant of the [Chordite keyboard](https://web.archive.org/web/20220201061603/http://chordite.com/).
+
 ## Build Instructions
 1. Install prerequisites as described in the [`avr-hal` README] (`avr-gcc`, `avr-libc`, `avrdude`, [`ravedude`]).
 
