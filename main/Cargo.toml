@@ -17,6 +17,7 @@ chordite-macros.workspace = true
 const_map.workspace = true
 debouncr.workspace = true
 embedded-hal.workspace = true
+mpu6050-dmp.workspace = true
 nb.workspace = true
 panic-halt.workspace = true
 ufmt.workspace = true

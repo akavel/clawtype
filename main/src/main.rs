@@ -19,6 +19,7 @@
 
 use debouncr::debounce_8 as debouncer;
 use embedded_hal::delay::DelayNs;
+use mpu6050_dmp::sensor::Mpu6050;
 use panic_halt as _;
 use chordite_chords::{
     keycodes as new_keys,
@@ -51,6 +52,14 @@ fn main() -> ! {
     clkpr.write(|w| w.clkpce().set_bit().clkps().variant(CLKPS_A::VAL_0X00));
     clkpr.write(|w| w.clkps().variant(CLKPS_A::VAL_0X01));
 
+    let mut i2c = atmega_hal::I2c::new(
+        dp.TWI,
+        pins.pd1.into_pull_up_input(),
+        pins.pd0.into_pull_up_input(),
+        400_000, // TODO: double-check if ok
+    );
+    let gy521 = Mpu6050::new(i2c, mpu6050_dmp::address::Address::default());
+
     let mut led = pins.pd6.into_output();
 
     let p0 = pins.pb0.into_pull_up_input();
@@ -77,8 +86,23 @@ fn main() -> ! {
 
     led.toggle();
 
+    let mut prnt = PrinterWrapper{};
+
     loop {
         // led.toggle();
+
+        match gy521 {
+            Ok(sensor) => 'sensor: {
+                let Ok(gyro) = sensor.gyro() else {
+                    println("gyro error :(");
+                    break 'sensor;
+                };
+                ufmt::uwrite!(prnt, "gx:{}, gy:{}, gz:{}", gyro.x(), gyro.y(), gyro.z());
+            }
+            Err(err) => {
+                println("mpu6050 error :(");
+            }
+        }
 
         let switches =
             debit(0b01_00_00_00, &mut i0, p0.is_low()) | // pinky base
@@ -154,4 +178,14 @@ fn debit(mask: u8, debouncer: &mut debouncr::Debouncer<u8, debouncr::Repeat8>, s
 
 fn bit(mask: u8, apply: bool) -> u8 {
     if apply { mask } else { 0 }
+}
+
+struct PrinterWrapper {};
+impl ufmt_write::uWrite for PrinterWrapper {
+    type Error = Infallible;
+
+    fn write_str(&mut self, s: &str) -> Result<(), Self::Error> {
+        print(s);
+        Ok(())
+    }
 }

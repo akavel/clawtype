@@ -9,6 +9,7 @@ chordite-macros = { path = "macros" }
 const_map = { git = "https://github.com/akavel/const_map", branch = "master" }
 debouncr = "0.2.2"
 embedded-hal = "1.0"
+mpu6050-dmp = "0.6.0"
 nb = "1.1.0"
 panic-halt = "0.2.0"
 ufmt = "0.2.0"
