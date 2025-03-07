@@ -52,3 +52,6 @@ void usb_send_key_with_mod(uint8_t key, uint8_t mod) {
     Keyboard.send_now();
 }
 
+void usb_mouse_move(int8_t x, int8_t y) {
+    Mouse.move(x, y);
+}

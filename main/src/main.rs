@@ -35,6 +35,7 @@ extern "C" {
     fn usb_debug_putchar(c: u8);
     fn usb_simple_send_key(k: u16);
     fn usb_send_key_with_mod(key: u8, modifier: u8);
+    fn usb_mouse_move(x: i8, y: i8);
 }
 
 // Define core clock. This can be used in the rest of the project.
@@ -94,7 +95,7 @@ fn main() -> ! {
         // led.toggle();
 
         i += 1;
-        if i == 100 {
+        if i == 10 {
             i = 0;
             match gy521 {
                 Ok(ref mut sensor) => 'sensor: {
@@ -102,7 +103,10 @@ fn main() -> ! {
                         println("gyro error :(");
                         break 'sensor;
                     };
-                    ufmt::uwriteln!(prnt, "gx:{}, gy:{}, gz:{}", gyro.x()/100, gyro.y()/100, gyro.z()/100);
+                    // ufmt::uwriteln!(prnt, "gx:{}, gy:{}, gz:{}", gyro.x()/100, gyro.y()/100, gyro.z()/100);
+                    let vx = (gyro.y()/200) as i8;
+                    let vy = (-gyro.z()/150) as i8;
+                    unsafe { usb_mouse_move(vx, vy); }
                 }
                 Err(ref _err) => {
                     println("mpu6050 error :(");
