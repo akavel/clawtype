@@ -13,6 +13,7 @@ mpu6050-dmp = "0.6.0"
 nb = "1.1.0"
 panic-halt = "0.2.0"
 ufmt = "0.2.0"
+ufmt-write = "0.1.0"
 
 [workspace.package]
 authors = ["Mateusz Czapliński <czapkofan@gmail.com>"]

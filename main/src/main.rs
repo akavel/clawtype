@@ -17,6 +17,7 @@
 #![no_std]
 #![no_main]
 
+use core::convert::Infallible;
 use debouncr::debounce_8 as debouncer;
 use embedded_hal::delay::DelayNs;
 use mpu6050_dmp::sensor::Mpu6050;
@@ -52,13 +53,13 @@ fn main() -> ! {
     clkpr.write(|w| w.clkpce().set_bit().clkps().variant(CLKPS_A::VAL_0X00));
     clkpr.write(|w| w.clkps().variant(CLKPS_A::VAL_0X01));
 
-    let mut i2c = atmega_hal::I2c::new(
+    let i2c = atmega_hal::I2c::<CoreClock>::new(
         dp.TWI,
         pins.pd1.into_pull_up_input(),
         pins.pd0.into_pull_up_input(),
         400_000, // TODO: double-check if ok
     );
-    let gy521 = Mpu6050::new(i2c, mpu6050_dmp::address::Address::default());
+    let mut gy521 = Mpu6050::new(i2c, mpu6050_dmp::address::Address::default());
 
     let mut led = pins.pd6.into_output();
 
@@ -88,19 +89,24 @@ fn main() -> ! {
 
     let mut prnt = PrinterWrapper{};
 
+    let mut i = 0;
     loop {
         // led.toggle();
 
-        match gy521 {
-            Ok(sensor) => 'sensor: {
-                let Ok(gyro) = sensor.gyro() else {
-                    println("gyro error :(");
-                    break 'sensor;
-                };
-                ufmt::uwrite!(prnt, "gx:{}, gy:{}, gz:{}", gyro.x(), gyro.y(), gyro.z());
-            }
-            Err(err) => {
-                println("mpu6050 error :(");
+        i += 1;
+        if i == 100 {
+            i = 0;
+            match gy521 {
+                Ok(ref mut sensor) => 'sensor: {
+                    let Ok(gyro) = sensor.gyro() else {
+                        println("gyro error :(");
+                        break 'sensor;
+                    };
+                    ufmt::uwriteln!(prnt, "gx:{}, gy:{}, gz:{}", gyro.x()/100, gyro.y()/100, gyro.z()/100);
+                }
+                Err(ref _err) => {
+                    println("mpu6050 error :(");
+                }
             }
         }
 
@@ -180,7 +186,8 @@ fn bit(mask: u8, apply: bool) -> u8 {
     if apply { mask } else { 0 }
 }
 
-struct PrinterWrapper {};
+struct PrinterWrapper {}
+
 impl ufmt_write::uWrite for PrinterWrapper {
     type Error = Infallible;
 

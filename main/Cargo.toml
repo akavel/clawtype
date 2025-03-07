@@ -21,6 +21,7 @@ mpu6050-dmp.workspace = true
 nb.workspace = true
 panic-halt.workspace = true
 ufmt.workspace = true
+ufmt-write.workspace = true
 
 [dependencies.embedded-hal-v0]
 # TODO: what's this and do we need it and why? copied from avr-hal/examples/atmega2560/Cargo.toml

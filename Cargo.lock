@@ -99,10 +99,12 @@ dependencies = [
  "debouncr",
  "embedded-hal 0.2.7",
  "embedded-hal 1.0.0",
+ "mpu6050-dmp",
  "nb 1.1.0",
  "panic-halt",
  "proc-macro2",
  "ufmt",
+ "ufmt-write",
 ]
 
 [[package]]
@@ -162,6 +164,22 @@ name = "embedded-storage"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "723dce4e9f25b6e6c5f35628e144794e5b459216ed7da97b7c4b66cdb3fa82ca"
+
+[[package]]
+name = "libm"
+version = "0.2.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8355be11b20d696c8f18f6cc018c4e372165b1fa8126cef092399c9951984ffa"
+
+[[package]]
+name = "mpu6050-dmp"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6bc6140a2853ffebdcfe2c408d7e37ee7f3f5689d7d3e25302f6bb1ac4f3fccc"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "libm",
+]
 
 [[package]]
 name = "nb"
