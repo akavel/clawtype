@@ -115,8 +115,8 @@ fn main() -> ! {
                         break 'sensor;
                     };
                     // ufmt::uwriteln!(prnt, "gx:{}, gy:{}, gz:{}", gyro.x()/100, gyro.y()/100, gyro.z()/100);
-                    let vx = (gyro.y()/200) as i8;
-                    let vy = (-gyro.z()/150) as i8;
+                    let vx = (gyro.y()/250) as i8;
+                    let vy = (-gyro.z()/200) as i8;
                     if mouse_enabled {
                         unsafe { usb_mouse_move(vx, vy); }
                     }
