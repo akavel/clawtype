@@ -70,6 +70,10 @@ fn main() -> ! {
         400_000, // TODO: double-check if ok
     );
     let mut gy521 = Mpu6050::new(i2c, mpu6050_dmp::address::Address::default());
+    if let Ok(ref mut sensor) = gy521 {
+        use mpu6050_dmp::config::DigitalLowPassFilter::*;
+        sensor.set_digital_lowpass_filter(Filter6);
+    }
 
     let mut led = pins.pd6.into_output();
 
