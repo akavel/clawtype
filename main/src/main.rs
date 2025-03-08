@@ -24,6 +24,13 @@ use mpu6050_dmp::sensor::Mpu6050;
 use panic_halt as _;
 use chordite_chords::{
     keycodes as new_keys,
+    keycodes::{
+        HACK_MOUSE_MARKER,
+        HACK_MOUSE_ENABLE_TOGGLE,
+        HACK_MOUSE_LEFT_DRAG_TOGGLE,
+        HACK_MOUSE_LEFT_CLICK,
+        HACK_MOUSE_RIGHT_CLICK,
+    },
     Chordite, SwitchSet,
     UsbOutcome::*
 };
@@ -36,6 +43,8 @@ extern "C" {
     fn usb_simple_send_key(k: u16);
     fn usb_send_key_with_mod(key: u8, modifier: u8);
     fn usb_mouse_move(x: i8, y: i8);
+    fn usb_mouse_press(btn: u8);
+    fn usb_mouse_release(btn: u8);
 }
 
 // Define core clock. This can be used in the rest of the project.
@@ -91,6 +100,8 @@ fn main() -> ! {
     let mut prnt = PrinterWrapper{};
 
     let mut i = 0;
+    let mut mouse_enabled = false;
+    let mut mouse_left_dragging = false;
     loop {
         // led.toggle();
 
@@ -106,7 +117,9 @@ fn main() -> ! {
                     // ufmt::uwriteln!(prnt, "gx:{}, gy:{}, gz:{}", gyro.x()/100, gyro.y()/100, gyro.z()/100);
                     let vx = (gyro.y()/200) as i8;
                     let vy = (-gyro.z()/150) as i8;
-                    unsafe { usb_mouse_move(vx, vy); }
+                    if mouse_enabled {
+                        unsafe { usb_mouse_move(vx, vy); }
+                    }
                 }
                 Err(ref _err) => {
                     println("mpu6050 error :(");
@@ -128,9 +141,37 @@ fn main() -> ! {
         match outcome {
             Nothing => (),
             KeyHit(key_with_flags) => {
-                println("Sending!");
-                led.toggle();
-                usb_send_new_key(key_with_flags);
+                if key_with_flags & HACK_MOUSE_MARKER == HACK_MOUSE_MARKER {
+                    match key_with_flags {
+                        HACK_MOUSE_ENABLE_TOGGLE => mouse_enabled = !mouse_enabled,
+                        // HACK_MOUSE_ENABLE => mouse_enabled = true,
+                        // HACK_MOUSE_DISABLE => mouse_enabled = false,
+                        HACK_MOUSE_LEFT_DRAG_TOGGLE => {
+                            mouse_left_dragging = !mouse_left_dragging;
+                            if mouse_left_dragging {
+                                unsafe { usb_mouse_press(0x1); }
+                            } else {
+                                unsafe { usb_mouse_release(0x1); }
+                            }
+                        }
+                        HACK_MOUSE_LEFT_CLICK => {
+                            unsafe {
+                                usb_mouse_press(0x1);
+                                usb_mouse_release(0x1);
+                            }
+                            mouse_left_dragging = false;
+                        },
+                        HACK_MOUSE_RIGHT_CLICK => unsafe {
+                            usb_mouse_press(0x2);
+                            usb_mouse_release(0x2);
+                        },
+                        _ => (),
+                    }
+                } else {
+                    println("Sending!");
+                    led.toggle();
+                    usb_send_new_key(key_with_flags);
+                }
             }
         }
         Delay::new().delay_ms(2u32);

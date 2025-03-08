@@ -32,6 +32,21 @@ pub const RIGHT_SHIFT_FLAG: KeyWithFlags = 0x2000;
 pub const RIGHT_ALT_FLAG: KeyWithFlags = 0x4000;
 pub const RIGHT_GUI_FLAG: KeyWithFlags = 0x8000;
 
+pub const HACK_MOUSE_MARKER: KeyWithFlags = 0xF0;
+pub const HACK_MOUSE_ENABLE_TOGGLE: KeyWithFlags = 0xF0;
+// pub const HACK_MOUSE_ENABLE: KeyWithFlags = 0xF0;
+// pub const HACK_MOUSE_DISABLE: KeyWithFlags = 0xF1;
+// pub const HACK_MOUSE_LEFT_PRESS: KeyWithFlags = 0xF2;
+// pub const HACK_MOUSE_LEFT_RELEASE: KeyWithFlags = 0xF3;
+pub const HACK_MOUSE_LEFT_DRAG_TOGGLE: KeyWithFlags = 0xF3;
+pub const HACK_MOUSE_LEFT_CLICK: KeyWithFlags = 0xF4;
+pub const HACK_MOUSE_RIGHT_PRESS: KeyWithFlags = 0xF5;
+pub const HACK_MOUSE_RIGHT_RELEASE: KeyWithFlags = 0xF6;
+pub const HACK_MOUSE_RIGHT_CLICK: KeyWithFlags = 0xF7;
+pub const HACK_MOUSE_MIDDLE_PRESS: KeyWithFlags = 0xF8;
+pub const HACK_MOUSE_MIDDLE_RELEASE: KeyWithFlags = 0xF9;
+pub const HACK_MOUSE_MIDDLE_CLICK: KeyWithFlags = 0xFA;
+
 pub const A: KeyWithFlags = 4;
 pub const B: KeyWithFlags = 5;
 pub const C: KeyWithFlags = 6;

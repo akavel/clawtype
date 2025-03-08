@@ -28,6 +28,8 @@ void usb_try_init();
 void usb_simple_send_key(uint16_t k);
 void usb_send_key_with_mod(uint8_t key, uint8_t mod);
 void usb_mouse_move(int8_t x, int8_t y);
+void usb_mouse_press(uint8_t btn);
+void usb_mouse_release(uint8_t btn);
 
 //#ifdef __cplusplus
 }

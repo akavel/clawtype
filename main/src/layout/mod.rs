@@ -43,6 +43,12 @@ impl Layout {
 
             chord!("%%%%") => ClearState,
 
+            // TODO: put mouse on cheatsheet
+            chord!("^_^%") => Emit(Hit(HACK_MOUSE_ENABLE_TOGGLE)),
+            chord!("_v_^") => Emit(Hit(HACK_MOUSE_LEFT_CLICK)),
+            chord!("^_v_") => Emit(Hit(HACK_MOUSE_RIGHT_CLICK)),
+            chord!("%%_^") => Emit(Hit(HACK_MOUSE_LEFT_DRAG_TOGGLE)),
+
             chord!("__^_") => Emit(Hit(RIGHT)),
             chord!("_^__") => Emit(Hit(LEFT)),
             chord!("___^") => Emit(Hit(UP)),
