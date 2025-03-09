@@ -73,9 +73,26 @@ fn main() -> ! {
         400_000, // TODO: double-check if ok
     );
     let mut gy521 = Mpu6050::new(i2c, mpu6050_dmp::address::Address::default());
+    // Calibration values obtained once by running sensor.calibrate().
+    let mut gyro_calibr: Option<mpu6050_dmp::gyro::Gyro> =
+        Some(mpu6050_dmp::gyro::Gyro::new(58, -30, -28));
     if let Ok(ref mut sensor) = gy521 {
         use mpu6050_dmp::config::DigitalLowPassFilter::*;
-        sensor.set_digital_lowpass_filter(Filter6);
+        let _ = sensor.set_digital_lowpass_filter(Filter6);
+        let _ = sensor.enable_dmp();
+
+        // let mut delay = Delay::new();
+        // let params = mpu6050_dmp::calibration::CalibrationParameters::new(
+        //     mpu6050_dmp::accel::AccelFullScale::G2,
+        //     mpu6050_dmp::gyro::GyroFullScale::Deg2000,
+        //     mpu6050_dmp::calibration::ReferenceGravity::ZP,
+        // );
+        // if let Ok(calibr) = sensor.calibrate(&mut delay, &params) {
+        //     gyro_calibr = Some(calibr.1);
+        // };
+        if let Some(c) = gyro_calibr {
+            sensor.set_gyro_calibration(&c);
+        }
     }
 
     let mut led = pins.pd6.into_output();
@@ -122,8 +139,11 @@ fn main() -> ! {
                         break 'sensor;
                     };
                     // ufmt::uwriteln!(prnt, "gx:{}, gy:{}, gz:{}", gyro.x()/100, gyro.y()/100, gyro.z()/100);
-                    let vx = (gyro.y()/250) as i8;
-                    let vy = (-gyro.z()/200) as i8;
+                    // if let Some(c) = gyro_calibr {
+                    //     ufmt::uwriteln!(prnt, "calibr gx:{}, gy:{}, gx:{}", c.x(), c.y(), c.z());
+                    // }
+                    let vx = (gyro.y()/50) as i8;
+                    let vy = (-gyro.z()/40) as i8;
                     if mouse_enabled {
                         unsafe { usb_mouse_move(vx, vy); }
                     }
