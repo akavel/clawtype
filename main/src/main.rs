@@ -30,6 +30,8 @@ use chordite_chords::{
         HACK_MOUSE_LEFT_DRAG_TOGGLE,
         HACK_MOUSE_LEFT_CLICK,
         HACK_MOUSE_RIGHT_CLICK,
+        HACK_MOUSE_WHEEL_DOWN,
+        HACK_MOUSE_WHEEL_UP,
     },
     Chordite, SwitchSet,
     UsbOutcome::*
@@ -45,6 +47,7 @@ extern "C" {
     fn usb_mouse_move(x: i8, y: i8);
     fn usb_mouse_press(btn: u8);
     fn usb_mouse_release(btn: u8);
+    fn usb_mouse_wheel_scroll(amount: i8);
 }
 
 // Define core clock. This can be used in the rest of the project.
@@ -168,6 +171,12 @@ fn main() -> ! {
                         HACK_MOUSE_RIGHT_CLICK => unsafe {
                             usb_mouse_press(0x2);
                             usb_mouse_release(0x2);
+                        },
+                        HACK_MOUSE_WHEEL_DOWN => unsafe {
+                            usb_mouse_wheel_scroll(10);
+                        },
+                        HACK_MOUSE_WHEEL_UP => unsafe {
+                            usb_mouse_wheel_scroll(-10);
                         },
                         _ => (),
                     }

@@ -30,6 +30,7 @@ void usb_send_key_with_mod(uint8_t key, uint8_t mod);
 void usb_mouse_move(int8_t x, int8_t y);
 void usb_mouse_press(uint8_t btn);
 void usb_mouse_release(uint8_t btn);
+void usb_mouse_wheel_scroll(int8_t amount);
 
 //#ifdef __cplusplus
 }

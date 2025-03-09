@@ -46,6 +46,8 @@ pub const HACK_MOUSE_RIGHT_CLICK: KeyWithFlags = 0xF7;
 pub const HACK_MOUSE_MIDDLE_PRESS: KeyWithFlags = 0xF8;
 pub const HACK_MOUSE_MIDDLE_RELEASE: KeyWithFlags = 0xF9;
 pub const HACK_MOUSE_MIDDLE_CLICK: KeyWithFlags = 0xFA;
+pub const HACK_MOUSE_WHEEL_DOWN: KeyWithFlags = 0xFB;
+pub const HACK_MOUSE_WHEEL_UP: KeyWithFlags = 0xFC;
 
 pub const A: KeyWithFlags = 4;
 pub const B: KeyWithFlags = 5;

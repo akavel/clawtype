@@ -48,6 +48,8 @@ impl Layout {
             chord!("_v_^") => Emit(Hit(HACK_MOUSE_LEFT_CLICK)),
             chord!("^_v_") => Emit(Hit(HACK_MOUSE_RIGHT_CLICK)),
             chord!("%%_^") => Emit(Hit(HACK_MOUSE_LEFT_DRAG_TOGGLE)),
+            chord!("v_^^") => Emit(Hit(HACK_MOUSE_WHEEL_DOWN)),
+            chord!("v^^_") => Emit(Hit(HACK_MOUSE_WHEEL_UP)),
 
             chord!("__^_") => Emit(Hit(RIGHT)),
             chord!("_^__") => Emit(Hit(LEFT)),
@@ -86,7 +88,6 @@ impl Layout {
             chord!("%__%") => TemporaryLayerSwitch { layer: 1 }, // SHIFT
             chord!("%_%_") => TemporaryPlusMask { mask: CTRL_FLAG }, // CTRL
             chord!("^^__") => TemporaryPlusMask { mask: CTRL_FLAG }, // CTRL (new easier version)
-
             chord!("%%%_") => TemporaryPlusMask { mask: ALT_FLAG }, // ALT
             chord!("_%%%") => TemporaryPlusMask { mask: RIGHT_ALT_FLAG }, // R-ALT
             chord!("^_^v") => TemporaryPlusMask { mask: GUI_FLAG }, // GUI

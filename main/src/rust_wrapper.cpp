@@ -64,3 +64,7 @@ void usb_mouse_release(uint8_t btn) {
     Mouse.release(btn);
 }
 
+void usb_mouse_wheel_scroll(int8_t amount) {
+    Mouse.scroll(amount);
+}
+
