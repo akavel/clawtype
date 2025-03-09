@@ -85,6 +85,8 @@ impl Layout {
 
             chord!("%__%") => TemporaryLayerSwitch { layer: 1 }, // SHIFT
             chord!("%_%_") => TemporaryPlusMask { mask: CTRL_FLAG }, // CTRL
+            chord!("^^__") => TemporaryPlusMask { mask: CTRL_FLAG }, // CTRL (new easier version)
+
             chord!("%%%_") => TemporaryPlusMask { mask: ALT_FLAG }, // ALT
             chord!("_%%%") => TemporaryPlusMask { mask: RIGHT_ALT_FLAG }, // R-ALT
             chord!("%%_%") => TemporaryPlusMask { mask: GUI_FLAG }, // GUI
@@ -95,7 +97,7 @@ impl Layout {
             chord!("_%_%") => Emit(Hit(ENTER)),
             chord!("_%%_") => Emit(Hit(ESC)),
             chord!("_v_%") => Emit(Hit(TAB)),
-            chord!("^^__") => Emit(Hit(DELETE)),
+            // chord!("^^__") => Emit(Hit(DELETE)),
             chord!("v%%_") => Emit(Hit(INSERT)),
 
             chord!("%%__") => Emit(Hit(HOME)),
@@ -162,6 +164,7 @@ impl Layout {
         (u8 => LayerOutcome<KeyWithFlags>) {
             0 => FromOtherPlusMask { layer: 0, mask: SHIFT_FLAG },
 
+            chord!("v___") => Emit(Hit(DELETE)), // S-Bksp Del
             chord!("vvv_") => Emit(Hit(BACKSLASH)), // S-/ \
             chord!("%%v_") => Emit(Hit(TILDE | SHIFT_FLAG)), // S-` ~
             chord!("_v^_") => Emit(Hit(QUOTE | SHIFT_FLAG)), // S-' "
