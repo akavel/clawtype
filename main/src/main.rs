@@ -173,10 +173,10 @@ fn main() -> ! {
                             usb_mouse_release(0x2);
                         },
                         HACK_MOUSE_WHEEL_DOWN => unsafe {
-                            usb_mouse_wheel_scroll(10);
+                            usb_mouse_wheel_scroll(-10);
                         },
                         HACK_MOUSE_WHEEL_UP => unsafe {
-                            usb_mouse_wheel_scroll(-10);
+                            usb_mouse_wheel_scroll(10);
                         },
                         _ => (),
                     }
