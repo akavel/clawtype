@@ -89,9 +89,10 @@ impl Layout {
 
             chord!("%%%_") => TemporaryPlusMask { mask: ALT_FLAG }, // ALT
             chord!("_%%%") => TemporaryPlusMask { mask: RIGHT_ALT_FLAG }, // R-ALT
-            chord!("%%_%") => TemporaryPlusMask { mask: GUI_FLAG }, // GUI
-            chord!("v%_%") => TemporaryPlusMask { mask: GUI_FLAG }, // GUI
-            chord!("vv_%") => TemporaryPlusMask { mask: GUI_FLAG }, // GUI
+            chord!("^_^v") => TemporaryPlusMask { mask: GUI_FLAG }, // GUI
+            chord!("%%_%") => TemporaryPlusMask { mask: GUI_FLAG }, // GUI (old!)
+            chord!("v%_%") => TemporaryPlusMask { mask: GUI_FLAG }, // GUI (old!)
+            chord!("vv_%") => TemporaryPlusMask { mask: GUI_FLAG }, // GUI (old!)
             chord!("%_%%") => TemporaryPlusMask { mask: RIGHT_GUI_FLAG }, // R_GUI
 
             chord!("_%_%") => Emit(Hit(ENTER)),
