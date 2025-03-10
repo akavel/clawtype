@@ -74,8 +74,10 @@ fn main() -> ! {
     );
     let mut gy521 = Mpu6050::new(i2c, mpu6050_dmp::address::Address::default());
     // Calibration values obtained once by running sensor.calibrate().
+    // let mut gyro_calibr: Option<mpu6050_dmp::gyro::Gyro> =
+    //     Some(mpu6050_dmp::gyro::Gyro::new(58, -30, -28));
     let mut gyro_calibr: Option<mpu6050_dmp::gyro::Gyro> =
-        Some(mpu6050_dmp::gyro::Gyro::new(58, -30, -28));
+        Some(mpu6050_dmp::gyro::Gyro::new(61, -30, -15));
     if let Ok(ref mut sensor) = gy521 {
         use mpu6050_dmp::config::DigitalLowPassFilter::*;
         let _ = sensor.set_digital_lowpass_filter(Filter6);
@@ -90,6 +92,7 @@ fn main() -> ! {
         // if let Ok(calibr) = sensor.calibrate(&mut delay, &params) {
         //     gyro_calibr = Some(calibr.1);
         // };
+
         if let Some(c) = gyro_calibr {
             sensor.set_gyro_calibration(&c);
         }
