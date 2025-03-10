@@ -18,9 +18,10 @@
 #![no_main]
 
 use core::convert::Infallible;
+use core::fmt::Write;
 use debouncr::debounce_8 as debouncer;
 use embedded_hal::delay::DelayNs;
-use mpu6050_dmp::sensor::Mpu6050;
+use mpu6050_dmp::{quaternion::Quaternion, sensor::Mpu6050};
 use panic_halt as _;
 use chordite_chords::{
     keycodes as new_keys,
@@ -82,6 +83,7 @@ fn main() -> ! {
         use mpu6050_dmp::config::DigitalLowPassFilter::*;
         let _ = sensor.set_digital_lowpass_filter(Filter6);
         let _ = sensor.enable_dmp();
+        let _ = sensor.enable_fifo();
 
         // let mut delay = Delay::new();
         // let params = mpu6050_dmp::calibration::CalibrationParameters::new(
@@ -129,6 +131,7 @@ fn main() -> ! {
     let mut i = 0;
     let mut mouse_enabled = false;
     let mut mouse_left_dragging = false;
+    let mut buffer = [0u8; 28];
     loop {
         // led.toggle();
 
@@ -152,6 +155,13 @@ fn main() -> ! {
             if mouse_enabled {
                 unsafe { usb_mouse_move(vx, vy); }
             }
+
+            let Ok(fifo_count) = sensor.get_fifo_count() else { break 'sensor; };
+            if fifo_count < buffer.len() { break 'sensor; }
+            let Ok(data) = sensor.read_fifo(&mut buffer) else { break 'sensor; };
+            let Some(quat) = Quaternion::from_bytes(&data[..16]) else { break 'sensor; };
+            let quat = quat.normalize();
+            // core::writeln!(prnt, "quat {} {} {} {}", quat.w, quat.x, quat.y, quat.z);
         } }
 
         let switches =
@@ -270,6 +280,13 @@ impl ufmt_write::uWrite for PrinterWrapper {
     type Error = Infallible;
 
     fn write_str(&mut self, s: &str) -> Result<(), Self::Error> {
+        print(s);
+        Ok(())
+    }
+}
+
+impl core::fmt::Write for PrinterWrapper {
+    fn write_str(&mut self, s: &str) -> core::fmt::Result {
         print(s);
         Ok(())
     }
