@@ -133,29 +133,26 @@ fn main() -> ! {
         // led.toggle();
 
         i += 1;
-        if i == 10 {
+        'sensor: { if i == 10 {
             i = 0;
-            match gy521 {
-                Ok(ref mut sensor) => 'sensor: {
-                    let Ok(gyro) = sensor.gyro() else {
-                        println("gyro error :(");
-                        break 'sensor;
-                    };
-                    // ufmt::uwriteln!(prnt, "gx:{}, gy:{}, gz:{}", gyro.x()/100, gyro.y()/100, gyro.z()/100);
-                    // if let Some(c) = gyro_calibr {
-                    //     ufmt::uwriteln!(prnt, "calibr gx:{}, gy:{}, gx:{}", c.x(), c.y(), c.z());
-                    // }
-                    let vx = (gyro.y()/250) as i8;
-                    let vy = (-gyro.z()/200) as i8;
-                    if mouse_enabled {
-                        unsafe { usb_mouse_move(vx, vy); }
-                    }
-                }
-                Err(ref _err) => {
-                    println("mpu6050 error :(");
-                }
+            let Ok(ref mut sensor) = gy521 else {
+                println("mpu6050 error :(");
+                break 'sensor;
+            };
+            let Ok(gyro) = sensor.gyro() else {
+                println("gyro error :(");
+                break 'sensor;
+            };
+            // ufmt::uwriteln!(prnt, "gx:{}, gy:{}, gz:{}", gyro.x()/100, gyro.y()/100, gyro.z()/100);
+            // if let Some(c) = gyro_calibr {
+            //     ufmt::uwriteln!(prnt, "calibr gx:{}, gy:{}, gx:{}", c.x(), c.y(), c.z());
+            // }
+            let vx = (gyro.y()/250) as i8;
+            let vy = (-gyro.z()/200) as i8;
+            if mouse_enabled {
+                unsafe { usb_mouse_move(vx, vy); }
             }
-        }
+        } }
 
         let switches =
             debit(0b01_00_00_00, &mut i0, p0.is_low()) | // pinky base
