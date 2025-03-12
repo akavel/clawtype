@@ -40,12 +40,12 @@ fn main() {
         "Print", "Stream", "WString", "new", "HardwareSerial",
         "CrashReport",
     ] {
-        let path = format!("src/{basename}.cpp");
+        let path = format!("src/cc/{basename}.cpp");
         println!("cargo::rerun-if-changed={path}");
         // Use the `cc` crate to build a C file and statically link it.
         cc::Build::new()
             // .cpp(true)
-            .includes(&["src"])
+            .includes(&["src/cc"])
             // .no_default_flags(true)
             .force_frame_pointer(false)
             .pic(false)
@@ -74,7 +74,7 @@ fn main() {
     }
 
     for basename in ["usb", "keylayouts", "wiring", "pins_teensy"] {
-        let path = format!("src/{basename}.c");
+        let path = format!("src/cc/{basename}.c");
         println!("cargo::rerun-if-changed={path}");
         // Use the `cc` crate to build a C file and statically link it.
         cc::Build::new()
