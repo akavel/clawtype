@@ -15,7 +15,8 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 extern "C" {
-#include "wiring_private.h"
+#include <avr/interrupt.h>
+#include <stdlib.h>
 #include "usb_private.h"
 }
 #include "usb_api.h"
