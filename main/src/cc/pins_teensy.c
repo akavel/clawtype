@@ -22,10 +22,10 @@
  */
 
 
+#include <avr/interrupt.h>
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 #include <avr/sleep.h>
-#include "wiring_private.h"
 #include "usb_private.h"
 #include "core_pins.h"
 

@@ -26,7 +26,7 @@
 #include "usb_common.h"
 #include "usb_private.h"
 #include "usb_api.h"
-#include "wiring.h"
+#include "core_pins.h"
 
 // This file is used only for Teensy 2.0 and Teensy++ 2.0
 
