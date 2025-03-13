@@ -37,7 +37,7 @@ fn main() {
 
     for basename in [
         "rust_wrapper", "usb_api",
-        "WString", "new", "HardwareSerial",
+        "new",
         // "CrashReport",
     ] {
         let path = format!("src/cc/{basename}.cpp");
