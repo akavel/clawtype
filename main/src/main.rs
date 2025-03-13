@@ -42,7 +42,6 @@ mod layout;
 extern "C" {
     fn usb_try_init();
     fn usb_debug_putchar(c: u8);
-    fn usb_simple_send_key(k: u16);
     fn usb_send_key_with_mod(key: u8, modifier: u8);
     fn usb_mouse_move(x: i8, y: i8);
     fn usb_mouse_press(btn: u8);
@@ -208,31 +207,6 @@ fn main() -> ! {
             }
         }
         Delay::new().delay_ms(2u32);
-
-
-        /*
-        let switch0_low = switch0.is_low();
-        if switch0_low != switch0_last {
-            switch0_last = switch0_low;
-            if switch0_low {
-                println("KEY PRESS 0");
-                const KEY_A: u16 = 4 | 0xF000;
-                unsafe { usb_simple_send_key(KEY_A); }
-            } else {
-                println("Key release 0");
-                const KEY_B: u16 = 5 | 0xF000;
-                unsafe { usb_simple_send_key(KEY_B); }
-            }
-        }
-
-        if switch0.is_low() {
-            Delay::new().delay_ms(100u32);
-            continue;
-        }
-
-        Delay::new().delay_ms(1000u32);
-        println("Hello cpp :)");
-        */
     }
 }
 

@@ -34,11 +34,6 @@ void usb_try_init() {
     //Serial.begin(0);
 }
 
-void usb_simple_send_key(uint16_t k) {
-    Keyboard.press(k);
-    Keyboard.release(k);
-}
-
 void usb_send_key_with_mod(uint8_t key, uint8_t mod) {
     // Press modifier & key. In sequence, just in case it would matter to OS.
     Keyboard.set_modifier(mod);
