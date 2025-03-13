@@ -73,7 +73,7 @@ fn main() {
             .compile(basename);
     }
 
-    for basename in ["usb", "keylayouts", "wiring", "pins_teensy"] {
+    for basename in ["usb", "wiring", "pins_teensy"] {
         let path = format!("src/cc/{basename}.c");
         println!("cargo::rerun-if-changed={path}");
         // Use the `cc` crate to build a C file and statically link it.
