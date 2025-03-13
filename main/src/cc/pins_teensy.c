@@ -201,31 +201,6 @@ void delay(uint32_t ms)
 			start += 1000;
 		}
 	}
-#if 0
-	// This doesn't save a lot of power on Teensy, which
-	// lacks the power saving flash memory of some newer
-	// chips, and also usually consumes lots of power for
-	// the USB port.  There is also some strange (probably
-	// hardware) bug involving the A/D mux for the first
-	// conversion after the processor wakes from idle mode.
-	uint32_t start;
-	if (!(SREG & 0x80)) {
-		// if interrupts are disabled, busy loop
-		while (ms--) delayMicroseconds(1000);
-		return;
-	}
-	// if interrupt are enabled, use low power idle mode
-	cli();
-	start = timer0_millis_count;
-	do {
-		_SLEEP_CONTROL_REG = SLEEP_MODE_IDLE | _SLEEP_ENABLE_MASK;
-		sei();
-		sleep_cpu();
-		_SLEEP_CONTROL_REG = SLEEP_MODE_IDLE;
-		cli();
-	} while (timer0_millis_count - start <= ms);
-	sei();
-#endif
 }
 
 
