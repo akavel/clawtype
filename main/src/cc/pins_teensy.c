@@ -26,7 +26,6 @@
 #include <avr/pgmspace.h>
 #include <avr/sleep.h>
 #include "wiring_private.h"
-#include "pins_arduino.h"
 #include "usb_private.h"
 #include "core_pins.h"
 
