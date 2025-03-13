@@ -3,10 +3,7 @@
 
 #include <inttypes.h>
 
-#include "Print.h"
-#include "Stream.h"
-
-class usb_serial_class : public Stream
+class usb_serial_class
 {
 public:
 	void begin(long);
@@ -18,7 +15,7 @@ public:
 #if ARDUINO >= 100
 	virtual size_t write(uint8_t c)		{ return write(&c, 1); }
 	virtual size_t write(const uint8_t *buffer, uint16_t size);
-	using Print::write;
+	//using Print::write;
 #else
 	virtual void write(uint8_t c)		{ write(&c, 1); }
 	virtual void write(const uint8_t *buffer, uint16_t size);
@@ -34,6 +31,8 @@ public:
 	operator bool();
 private:
 	int16_t peek_buf;
+
+    void setWriteError() { }
 };
 
 extern usb_serial_class Serial;

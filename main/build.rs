@@ -37,8 +37,8 @@ fn main() {
 
     for basename in [
         "rust_wrapper", "usb_api",
-        "Print", "Stream", "WString", "new", "HardwareSerial",
-        "CrashReport",
+        "WString", "new", "HardwareSerial",
+        // "CrashReport",
     ] {
         let path = format!("src/cc/{basename}.cpp");
         println!("cargo::rerun-if-changed={path}");
