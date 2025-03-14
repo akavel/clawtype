@@ -65,7 +65,6 @@ fn main() -> ! {
     clkpr.write(|w| w.clkpce().set_bit().clkps().variant(CLKPS_A::VAL_0X00));
     clkpr.write(|w| w.clkps().variant(CLKPS_A::VAL_0X01));
 
-    /*
     let i2c = atmega_hal::I2c::<CoreClock>::new(
         dp.TWI,
         pins.pd1.into_pull_up_input(),
@@ -97,7 +96,6 @@ fn main() -> ! {
             sensor.set_gyro_calibration(&c);
         }
     }
-    */
 
     let mut led = pins.pd6.into_output();
 
@@ -133,7 +131,6 @@ fn main() -> ! {
     loop {
         // led.toggle();
 
-        /*
         i += 1;
         'sensor: { if i == 10 {
             i = 0;
@@ -149,13 +146,12 @@ fn main() -> ! {
             // if let Some(c) = gyro_calibr {
             //     ufmt::uwriteln!(prnt, "calibr gx:{}, gy:{}, gx:{}", c.x(), c.y(), c.z());
             // }
-            let vx = (gyro.y()/250) as i8;
+            let vx = (-gyro.y()/250) as i8;
             let vy = (-gyro.z()/200) as i8;
             if mouse_enabled {
                 unsafe { usb_mouse_move(vx, vy); }
             }
         } }
-        */
 
         let switches =
             debit(0b01_00_00_00, &mut i0, p0.is_low()) | // pinky base
