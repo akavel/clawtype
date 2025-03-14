@@ -146,7 +146,7 @@ fn main() -> ! {
             // if let Some(c) = gyro_calibr {
             //     ufmt::uwriteln!(prnt, "calibr gx:{}, gy:{}, gx:{}", c.x(), c.y(), c.z());
             // }
-            let vx = (-gyro.y()/250) as i8;
+            let vx = (gyro.x()/250) as i8;
             let vy = (-gyro.z()/200) as i8;
             if mouse_enabled {
                 unsafe { usb_mouse_move(vx, vy); }
