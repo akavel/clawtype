@@ -104,7 +104,7 @@ fn main() -> ! {
     let p0 = pins.pc6.into_pull_up_input(); // pinky base
     let p1 = pins.pd2.into_pull_up_input(); // pinky tip
     let p2 = pins.pc7.into_pull_up_input(); // ring base
-    let p3 = pins.pb4.into_pull_up_input(); // ring tip
+    let p3 = pins.pd7.into_pull_up_input(); // ring tip
     let p4 = pins.pb6.into_pull_up_input(); // middle base
     let p5 = pins.pf6.into_pull_up_input(); // middle tip
     let p6 = pins.pf4.into_pull_up_input(); // index base
