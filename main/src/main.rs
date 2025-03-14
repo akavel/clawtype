@@ -65,6 +65,7 @@ fn main() -> ! {
     clkpr.write(|w| w.clkpce().set_bit().clkps().variant(CLKPS_A::VAL_0X00));
     clkpr.write(|w| w.clkps().variant(CLKPS_A::VAL_0X01));
 
+    /*
     let i2c = atmega_hal::I2c::<CoreClock>::new(
         dp.TWI,
         pins.pd1.into_pull_up_input(),
@@ -96,17 +97,18 @@ fn main() -> ! {
             sensor.set_gyro_calibration(&c);
         }
     }
+    */
 
     let mut led = pins.pd6.into_output();
 
-    let p0 = pins.pb0.into_pull_up_input();
-    let p1 = pins.pb1.into_pull_up_input();
-    let p2 = pins.pb2.into_pull_up_input();
-    let p3 = pins.pb3.into_pull_up_input();
-    let p4 = pins.pb7.into_pull_up_input();
-    let p5 = pins.pc6.into_pull_up_input();
-    let p6 = pins.pc7.into_pull_up_input();
-    let p7 = pins.pd2.into_pull_up_input();
+    let p0 = pins.pc6.into_pull_up_input(); // pinky base
+    let p1 = pins.pd2.into_pull_up_input(); // pinky tip
+    let p2 = pins.pc7.into_pull_up_input(); // ring base
+    let p3 = pins.pb4.into_pull_up_input(); // ring tip
+    let p4 = pins.pb6.into_pull_up_input(); // middle base
+    let p5 = pins.pf6.into_pull_up_input(); // middle tip
+    let p6 = pins.pf4.into_pull_up_input(); // index base
+    let p7 = pins.pf0.into_pull_up_input(); // index tip
 
     unsafe { usb_try_init(); }
 
@@ -131,6 +133,7 @@ fn main() -> ! {
     loop {
         // led.toggle();
 
+        /*
         i += 1;
         'sensor: { if i == 10 {
             i = 0;
@@ -152,6 +155,7 @@ fn main() -> ! {
                 unsafe { usb_mouse_move(vx, vy); }
             }
         } }
+        */
 
         let switches =
             debit(0b01_00_00_00, &mut i0, p0.is_low()) | // pinky base
