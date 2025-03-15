@@ -1,4 +1,4 @@
-// chordite-rust is (a part of) firmware for chorded keyboards
+// clawtype-rust is (a part of) firmware for chorded keyboards
 // Copyright (C) 2025  Mateusz Czapliński akavel.pl
 //
 // This program is free software: you can redistribute it and/or modify
@@ -22,7 +22,8 @@ use debouncr::debounce_8 as debouncer;
 use embedded_hal::delay::DelayNs;
 use mpu6050_dmp::sensor::Mpu6050;
 use panic_halt as _;
-use chordite_chords::{
+use clawtype_chords::{
+    self as chords,
     keycodes as new_keys,
     keycodes::{
         HACK_MOUSE_MARKER,
@@ -33,7 +34,7 @@ use chordite_chords::{
         HACK_MOUSE_WHEEL_DOWN,
         HACK_MOUSE_WHEEL_UP,
     },
-    Chordite, SwitchSet,
+    SwitchSet,
     UsbOutcome::*
 };
 
@@ -110,7 +111,7 @@ fn main() -> ! {
 
     unsafe { usb_try_init(); }
 
-    let mut cho = Chordite::<layout::Layout>::default();
+    let mut cho = chords::Engine::<layout::Layout>::default();
 
     let mut i0 = debouncer(false);
     let mut i1 = debouncer(false);

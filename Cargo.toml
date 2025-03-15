@@ -4,8 +4,8 @@ members = ["main"]
 
 [workspace.dependencies]
 avr-device = { version = "0.7", features = ["rt"] }
-chordite-chords = { path = "chords" }
-chordite-macros = { path = "macros" }
+clawtype-chords = { path = "chords" }
+clawtype-macros = { path = "macros" }
 const_map = { git = "https://github.com/akavel/const_map", branch = "master" }
 debouncr = "0.2.2"
 embedded-hal = "1.0"

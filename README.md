@@ -1,5 +1,5 @@
-chordite-rust
-=============
+clawtype
+========
 
 Rust project for the _Teensy 2.0_.
 

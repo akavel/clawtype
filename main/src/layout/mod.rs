@@ -1,4 +1,4 @@
-// chordite-rust is (a part of) firmware for chorded keyboards
+// clawtype-rust is (a part of) firmware for chorded keyboards
 // Copyright (C) 2025  Mateusz Czapliński akavel.pl
 //
 // This program is free software: you can redistribute it and/or modify
@@ -15,8 +15,8 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 use const_map::const_map;
-use chordite_macros::chord;
-use chordite_chords::{
+use clawtype_macros::chord;
+use clawtype_chords::{
     LayerOutcome::{self, *},
     UsbOutcome::KeyHit as Hit,
     keycodes::{self, *},
@@ -24,7 +24,7 @@ use chordite_chords::{
 
 pub struct Layout {}
 
-impl chordite_chords::Lookup for Layout {
+impl clawtype_chords::Lookup for Layout {
     type KeyWithFlags = keycodes::KeyWithFlags;
 
     fn lookup(layer: i32, chord: u8) -> Option<LayerOutcome<Self::KeyWithFlags>> {

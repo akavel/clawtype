@@ -72,29 +72,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
-name = "chordite-chords"
-version = "0.1.0"
-dependencies = [
- "chordite-macros",
- "const_map",
-]
-
-[[package]]
-name = "chordite-macros"
-version = "0.0.1"
-dependencies = [
- "proc-macro2",
-]
-
-[[package]]
-name = "chordite-rust"
+name = "clawtype"
 version = "0.1.0"
 dependencies = [
  "atmega-hal",
  "avr-device",
  "cc",
- "chordite-chords",
- "chordite-macros",
+ "clawtype-chords",
+ "clawtype-macros",
  "const_map",
  "debouncr",
  "embedded-hal 0.2.7",
@@ -105,6 +90,21 @@ dependencies = [
  "proc-macro2",
  "ufmt",
  "ufmt-write",
+]
+
+[[package]]
+name = "clawtype-chords"
+version = "0.1.0"
+dependencies = [
+ "clawtype-macros",
+ "const_map",
+]
+
+[[package]]
+name = "clawtype-macros"
+version = "0.0.1"
+dependencies = [
+ "proc-macro2",
 ]
 
 [[package]]

@@ -1,5 +1,5 @@
 [package]
-name = "chordite-chords"
+name = "clawtype-chords"
 version = "0.1.0"
 authors.workspace = true
 edition.workspace = true
@@ -7,5 +7,5 @@ license.workspace = true
 
 [dependencies]
 const_map.workspace = true
-chordite-macros.workspace = true
+clawtype-macros.workspace = true
 

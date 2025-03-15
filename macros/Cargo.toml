@@ -1,5 +1,5 @@
 [package]
-name = "chordite-macros"
+name = "clawtype-macros"
 version = "0.0.1"
 authors.workspace = true
 edition.workspace = true

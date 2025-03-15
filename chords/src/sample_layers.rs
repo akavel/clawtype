@@ -1,4 +1,4 @@
-// chordite-chords is (a part of) firmware for chorded keyboards
+// clawtype-chords is (a part of) firmware for chorded keyboards
 // Copyright (C) 2025  Mateusz Czapliński akavel.pl
 //
 // This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
 
 use const_map::const_map;
 
-use chordite_macros::chord;
+use clawtype_macros::chord;
 
 use crate::LayerOutcome::{self, *};
 use crate::UsbOutcome::KeyHit as Hit;
