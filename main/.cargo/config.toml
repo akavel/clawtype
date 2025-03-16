@@ -1,12 +1,10 @@
+[target.'cfg(all(target_arch = "arm", target_os = "none"))']
+# replace nRF51422_xxAA with your chip as listed in `probe-rs chip list`
+runner = "probe-rs run --chip nRF51822_xxAA"
+
 [build]
-target = "avr-specs/avr-atmega32u4.json"
+target = "thumbv6m-none-eabi"
 
-#[target.'cfg(target_arch = "avr")']
-#runner = "ravedude leonardo"
-#runner = "ravedude -cb 57600 mega2560"
+[env]
+DEFMT_LOG = "trace"
 
-[unstable]
-build-std = ["core"]
-# For some reason, __addsf3 from rust stdlib does not get overwritten by avr-gcc stdlib's (old rust?); hotfix:
-# https://github.com/rust-lang/rust/issues/108489#issuecomment-1445352014
-build-std-features = ["compiler-builtins-mangled-names"]

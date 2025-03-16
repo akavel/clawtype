@@ -5,39 +5,30 @@ authors.workspace = true
 edition.workspace = true
 license.workspace = true
 
-[[bin]]
-name = "clawtype"
-test = false
-bench = false
+# [[bin]]
+# name = "clawtype"
+# test = false
+# bench = false
 
 [dependencies]
-avr-device.workspace = true
-clawtype-chords.workspace = true
-clawtype-macros.workspace = true
-const_map.workspace = true
-debouncr.workspace = true
-embedded-hal.workspace = true
-mpu6050-dmp.workspace = true
-nb.workspace = true
-panic-halt.workspace = true
-ufmt.workspace = true
-ufmt-write.workspace = true
+# clawtype-chords.workspace = true
+# clawtype-macros.workspace = true
+# const_map.workspace = true
+# debouncr.workspace = true
+# embedded-hal.workspace = true
+# mpu6050-dmp.workspace = true
+# ufmt.workspace = true
+# ufmt-write.workspace = true
 
-[dependencies.embedded-hal-v0]
-# TODO: what's this and do we need it and why? copied from avr-hal/examples/atmega2560/Cargo.toml
-version = "0.2.3"
-package = "embedded-hal"
+embassy-executor.workspace = true
+embassy-time.workspace = true
+embassy-nrf.workspace = true
 
-[dependencies.atmega-hal]
-git = "https://github.com/rahix/avr-hal"
-rev = "3c089795cadbbc7fa83f45958128689fee7ba1e4"
-features = ["atmega32u4"]
+defmt.workspace = true
+defmt-rtt.workspace = true
 
-# The latest releases of `proc-macro2` do not support the rust toolchain that
-# we use.  Thus, we must fix this dependency to an older version where our
-# toolchain is still supported.  See https://github.com/Rahix/avr-hal/issues/537
-[build-dependencies.proc-macro2]
-version = "=1.0.79"
+cortex-m.workspace = true
+cortex-m-rt.workspace = true
+panic-probe.workspace = true
 
-[build-dependencies]
-cc = "1.0"
+
