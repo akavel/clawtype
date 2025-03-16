@@ -27,6 +27,8 @@ async fn main(_spawner: Spawner) {
     let p = embassy_nrf::init(Default::default());
     let mut led = Output::new(p.P0_21, Level::Low, OutputDrive::Standard);
 
+    defmt::println!("Hello nrf!");
+
     loop {
         led.set_high();
         Timer::after_millis(300).await;

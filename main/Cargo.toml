@@ -31,4 +31,7 @@ cortex-m.workspace = true
 cortex-m-rt.workspace = true
 panic-probe.workspace = true
 
+[profile.release]
+debug = 2
+
 
