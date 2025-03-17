@@ -7,6 +7,7 @@ avr-device = { version = "0.7", features = ["rt"] }
 chordite-chords = { path = "chords" }
 chordite-macros = { path = "macros" }
 const_map = { git = "https://github.com/akavel/const_map", branch = "master" }
+compiler_builtins_ex = { package = "compiler_builtins", git = "https://github.com/Patryk27/compiler-builtins", branch = "avr-skip-no-more" }
 debouncr = "0.2.2"
 embedded-hal = "1.0"
 mpu6050-dmp = "0.6.0"

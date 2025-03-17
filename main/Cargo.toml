@@ -15,6 +15,7 @@ avr-device.workspace = true
 chordite-chords.workspace = true
 chordite-macros.workspace = true
 const_map.workspace = true
+compiler_builtins_ex.workspace = true
 debouncr.workspace = true
 embedded-hal.workspace = true
 mpu6050-dmp.workspace = true

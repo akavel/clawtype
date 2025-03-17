@@ -17,6 +17,8 @@
 #![no_std]
 #![no_main]
 
+extern crate compiler_builtins_ex;
+
 use core::convert::Infallible;
 use core::fmt::Write;
 use debouncr::debounce_8 as debouncer;

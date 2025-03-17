@@ -95,6 +95,7 @@ dependencies = [
  "cc",
  "chordite-chords",
  "chordite-macros",
+ "compiler_builtins",
  "const_map",
  "debouncr",
  "embedded-hal 0.2.7",
@@ -106,6 +107,11 @@ dependencies = [
  "ufmt",
  "ufmt-write",
 ]
+
+[[package]]
+name = "compiler_builtins"
+version = "0.1.151"
+source = "git+https://github.com/Patryk27/compiler-builtins?branch=avr-skip-no-more#458dfab8b66fd59a5e1434561927d94ea6e3b3e8"
 
 [[package]]
 name = "const_map"
