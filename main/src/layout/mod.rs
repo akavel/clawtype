@@ -91,8 +91,11 @@ impl Layout {
             chord!("%%%_") => TemporaryPlusMask { mask: ALT_FLAG }, // ALT
             chord!("_%%%") => TemporaryPlusMask { mask: RIGHT_ALT_FLAG }, // R-ALT
             chord!("^_^v") => TemporaryPlusMask { mask: GUI_FLAG }, // GUI
+            // candidate "mouse layer"
             chord!("%%_%") => TemporaryPlusMask { mask: GUI_FLAG }, // GUI (old!)
+            // candidate "mouse layer"
             chord!("v%_%") => TemporaryPlusMask { mask: GUI_FLAG }, // GUI (old!)
+            // candidate "mouse layer"
             chord!("vv_%") => TemporaryPlusMask { mask: GUI_FLAG }, // GUI (old!)
             chord!("%_%%") => TemporaryPlusMask { mask: RIGHT_GUI_FLAG }, // R_GUI
 
@@ -128,6 +131,7 @@ impl Layout {
             chord!("^^^%") => Emit(Hit(KEY_6 | SHIFT_FLAG)), // ^
             chord!("%_%v") => Emit(Hit(KEY_5 | SHIFT_FLAG)), // %
             chord!("vvvv") => Emit(Hit(BACKSLASH | SHIFT_FLAG)), // |
+            // candidate "mouse layer"
             chord!("v^_v") => Emit(Hit(KEY_2 | SHIFT_FLAG)), // @
             chord!("%^^%") => Emit(Hit(KEY_3 | SHIFT_FLAG)), // #
 
