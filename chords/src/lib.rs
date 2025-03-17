@@ -102,6 +102,11 @@ pub trait Lookup {
     fn lookup(layer: i32, chord: u8) -> Option<LayerOutcome<Self::KeyWithFlags>>;
 }
 
+pub fn lookup_in_slice<K>(chord: u8, layout: &[(u8, LayerOutcome<K>)]) -> Option<&LayerOutcome<K>> {
+    layout.iter().find(|x| x.0 == chord).map(|x| &x.1)
+}
+
+
 impl<L> Engine<L>
 where
     L: Lookup,

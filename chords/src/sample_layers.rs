@@ -28,10 +28,11 @@ impl super::Lookup for SampleLayers {
     type KeyWithFlags = keycodes::KeyWithFlags;
 
     fn lookup(layer: i32, chord: u8) -> Option<LayerOutcome<Self::KeyWithFlags>> {
-        match layer {
-            1 => Self::lookup1(chord), // "SHIFT"
-            _ => Self::lookup0(chord),
-        }
+        let layout: &[_] = match layer {
+            1 => &Self::LAYOUT1, // "SHIFT"
+            _ => &Self::LAYOUT0,
+        };
+        crate::lookup_in_slice(chord, layout).copied()
     }
 }
 

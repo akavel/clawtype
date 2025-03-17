@@ -28,11 +28,11 @@ impl clawtype_chords::Lookup for Layout {
     type KeyWithFlags = keycodes::KeyWithFlags;
 
     fn lookup(layer: i32, chord: u8) -> Option<LayerOutcome<Self::KeyWithFlags>> {
-        match layer {
-            1 => Self::lookup1(chord), // "SHIFT"
-            2 => Self::lookup2(chord), // "Nav / Fn"
-            _ => Self::lookup0(chord),
-        }
+        clawtype_chords::lookup_in_slice(chord, match layer {
+            1 => &Self::LAYOUT1, // "SHIFT"
+            2 => &Self::LAYOUT2, // "Nav / Fn"
+            _ => &Self::LAYOUT0,
+        }).copied()
     }
 }
 
