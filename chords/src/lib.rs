@@ -48,6 +48,10 @@ impl<K: BitOr<Output = K>> BitOr<K> for UsbOutcome<K> {
     }
 }
 
+pub struct LayerInfo {
+    pub unchorded_mask: SwitchSet,
+}
+
 #[derive(Copy, Clone)]
 pub enum LayerOutcome<KeyWithFlags> {
     ClearState,
@@ -100,6 +104,10 @@ where
 pub trait Lookup {
     type KeyWithFlags;
     fn lookup(layer: i32, chord: u8) -> Option<LayerOutcome<Self::KeyWithFlags>>;
+    fn info(_layer: i32) -> LayerInfo {
+        LayerInfo { unchorded_mask: Default::default() }
+    }
+    fn unchorded(_layer: i32, _switch: SwitchSet) -> Option<UsbOutcome<Self::KeyWithFlags>> { None }
 }
 
 pub fn lookup_in_slice<K>(chord: u8, layout: &[(u8, LayerOutcome<K>)]) -> Option<&LayerOutcome<K>> {

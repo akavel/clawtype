@@ -21,6 +21,7 @@ use clawtype_macros::chord;
 use crate::LayerOutcome::{self, *};
 use crate::UsbOutcome::KeyHit as Hit;
 use crate::keycodes::{self, *};
+use crate::{LayerInfo, SwitchSet};
 
 pub struct SampleLayers {}
 
@@ -30,9 +31,18 @@ impl super::Lookup for SampleLayers {
     fn lookup(layer: i32, chord: u8) -> Option<LayerOutcome<Self::KeyWithFlags>> {
         let layout: &[_] = match layer {
             1 => &Self::LAYOUT1, // "SHIFT"
+            2 => &Self::LAYOUT2, // "TEST"
             _ => &Self::LAYOUT0,
         };
         crate::lookup_in_slice(chord, layout).copied()
+    }
+
+    fn info(layer: i32) -> LayerInfo {
+        let unchorded_mask = SwitchSet(match layer {
+            2 => chord!("__^^"),
+            _ => 0,
+        });
+        LayerInfo { unchorded_mask }
     }
 }
 
@@ -147,4 +157,13 @@ impl SampleLayers {
     // Insert
     // PrintScreen
     // Alt-Tab & Alt-Shift-Tab
+
+    // TEST layer
+    const_map!(
+        LAYOUT2, lookup2(),
+        (u8 => LayerOutcome<KeyWithFlags>) {
+            // 0 => FromOtherPlusMask { layer: 0, mask: SHIFT_FLAG },
+            chord!("^^__") => TemporaryPlusMask { mask: CTRL_FLAG }, // CTRL
+        }
+    );
 }
