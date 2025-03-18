@@ -333,5 +333,13 @@ mod tests {
         assert_eq!(eng.handle(S(chord!("___^"))), Press(HACK_MOUSE_LEFT_BTN | CTRL_FLAG));
         assert_eq!(eng.handle(S(chord!("^^_^"))), Nothing);
         assert_eq!(eng.handle(S(chord!("____"))), Release(HACK_MOUSE_LEFT_BTN | CTRL_FLAG));
+
+        assert_eq!(eng.handle(S(chord!("___^"))), Press(HACK_MOUSE_LEFT_BTN));
+        assert_eq!(eng.handle(S(chord!("__^^"))), Press(HACK_MOUSE_RIGHT_BTN));
+        // release both in sequence when exiting the layer,
+        // ignoring any args until all released
+        assert_eq!(eng.handle(S(chord!("v^_v") | chord!("__^^"))), Release(HACK_MOUSE_RIGHT_BTN));
+        assert_eq!(eng.handle(S(0)), Release(HACK_MOUSE_LEFT_BTN));
+        assert_eq!(eng.handle(S(0)), Nothing);
     }
 }
