@@ -381,24 +381,29 @@ mod tests {
 
         // enter TEST layer with some unchorded keys
         assert_eq!(eng.handle(S(chord!("v^_v"))), Nothing);
+        assert_eq!(eng.handle(S(chord!("____"))), Nothing); // layer switched
         // immediate press of mouse button, then release (a click)
         assert_eq!(eng.handle(S(chord!("___^"))), Press(HACK_MOUSE_LEFT_BTN));
         assert_eq!(eng.handle(S(chord!("____"))), Release(HACK_MOUSE_LEFT_BTN));
         // ctrl-press, then release
         assert_eq!(eng.handle(S(chord!("^^__"))), Nothing);
+        assert_eq!(eng.handle(S(chord!("____"))), Nothing); // ctrl-...
         assert_eq!(eng.handle(S(chord!("___^"))), Press(HACK_MOUSE_LEFT_BTN | CTRL_FLAG));
         assert_eq!(eng.handle(S(chord!("____"))), Release(HACK_MOUSE_LEFT_BTN));
         // ctrl-press, then ctrl-release
         assert_eq!(eng.handle(S(chord!("^^__"))), Nothing);
+        assert_eq!(eng.handle(S(chord!("____"))), Nothing); // ctrl-...
         assert_eq!(eng.handle(S(chord!("___^"))), Press(HACK_MOUSE_LEFT_BTN | CTRL_FLAG));
         assert_eq!(eng.handle(S(chord!("^^_^"))), Nothing);
+        assert_eq!(eng.handle(S(chord!("___^"))), Nothing); // ctrl-...
         assert_eq!(eng.handle(S(chord!("____"))), Release(HACK_MOUSE_LEFT_BTN | CTRL_FLAG));
 
         assert_eq!(eng.handle(S(chord!("___^"))), Press(HACK_MOUSE_LEFT_BTN));
         assert_eq!(eng.handle(S(chord!("__^^"))), Press(HACK_MOUSE_RIGHT_BTN));
         // release both in sequence when exiting the layer,
         // ignoring any args until all released
-        assert_eq!(eng.handle(S(chord!("v^_v") | chord!("__^^"))), Release(HACK_MOUSE_RIGHT_BTN));
+        assert_eq!(eng.handle(S(chord!("v^_v") | chord!("__^^"))), Nothing);
+        assert_eq!(eng.handle(S(chord!("__^^"))), Release(HACK_MOUSE_RIGHT_BTN));
         assert_eq!(eng.handle(S(0)), Release(HACK_MOUSE_LEFT_BTN));
         assert_eq!(eng.handle(S(0)), Nothing);
     }
