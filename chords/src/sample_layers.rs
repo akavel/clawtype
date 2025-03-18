@@ -44,6 +44,14 @@ impl super::Lookup for SampleLayers {
         });
         LayerInfo { unchorded_mask }
     }
+
+    fn unchorded_key(layer: i32, switch: SwitchSet) -> Option<Self::KeyWithFlags> {
+        match (layer, switch.0) {
+            (2, chord!("___^")) => Some(HACK_MOUSE_LEFT_BTN),
+            (2, chord!("__^_")) => Some(HACK_MOUSE_RIGHT_BTN),
+            _ => None,
+        }
+    }
 }
 
 impl SampleLayers {
@@ -113,6 +121,8 @@ impl SampleLayers {
             chord!("^^_%") => Emit(Hit(KEY_8 | SHIFT_FLAG)), // *
             chord!("^_%_") => Emit(Hit(LEFT_BRACE | SHIFT_FLAG)), // {
             chord!("v_%_") => Emit(Hit(RIGHT_BRACE | SHIFT_FLAG)), // }
+
+            chord!("v^_v") => LayerSwitch { layer: 2 },
         }
     );
 
@@ -164,6 +174,8 @@ impl SampleLayers {
         (u8 => LayerOutcome<KeyWithFlags>) {
             // 0 => FromOtherPlusMask { layer: 0, mask: SHIFT_FLAG },
             chord!("^^__") => TemporaryPlusMask { mask: CTRL_FLAG }, // CTRL
+
+            chord!("v^_v") => LayerSwitch { layer: 0 },
         }
     );
 }

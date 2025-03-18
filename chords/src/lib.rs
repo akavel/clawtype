@@ -35,6 +35,8 @@ pub struct SwitchSet(pub u8);
 pub enum UsbOutcome<KeyWithFlags> {
     Nothing,
     KeyHit(KeyWithFlags),
+    KeyPress(KeyWithFlags),
+    KeyRelease(KeyWithFlags),
 }
 
 impl<K: BitOr<Output = K>> BitOr<K> for UsbOutcome<K> {
@@ -107,7 +109,8 @@ pub trait Lookup {
     fn info(_layer: i32) -> LayerInfo {
         LayerInfo { unchorded_mask: Default::default() }
     }
-    fn unchorded(_layer: i32, _switch: SwitchSet) -> Option<UsbOutcome<Self::KeyWithFlags>> { None }
+
+    fn unchorded_key(_layer: i32, _switch: SwitchSet) -> Option<Self::KeyWithFlags> { None }
 }
 
 pub fn lookup_in_slice<K>(chord: u8, layout: &[(u8, LayerOutcome<K>)]) -> Option<&LayerOutcome<K>> {
@@ -190,8 +193,10 @@ mod tests {
     use super::*;
 
     use SwitchSet as S;
-    use UsbOutcome::KeyHit as Hit;
-    use UsbOutcome::Nothing;
+    use UsbOutcome::{
+        KeyHit as Hit, KeyPress as Press, KeyRelease as Release,
+        Nothing,
+    };
     use keycodes::*;
     use clawtype_macros::chord;
     use sample_layers::SampleLayers as L;
@@ -298,5 +303,25 @@ mod tests {
         assert_eq!(eng.handle(S(0)), Nothing);
         assert_eq!(eng.handle(S(chord!("___^"))), Nothing);
         assert_eq!(eng.handle(S(0)), Hit(keycodes::E | SHIFT_FLAG | RIGHT_ALT_FLAG));
+    }
+
+    #[test]
+    fn unchorded() {
+        let mut eng = Engine::<L>::default();
+
+        // enter TEST layer with some unchorded keys
+        assert_eq!(eng.handle(S(chord!("v^_v"))), Nothing);
+        // immediate press of mouse button, then release (a click)
+        assert_eq!(eng.handle(S(chord!("___^"))), Press(HACK_MOUSE_LEFT_BTN));
+        assert_eq!(eng.handle(S(chord!("____"))), Release(HACK_MOUSE_LEFT_BTN));
+        // ctrl-press, then release
+        assert_eq!(eng.handle(S(chord!("^^__"))), Nothing);
+        assert_eq!(eng.handle(S(chord!("___^"))), Press(HACK_MOUSE_LEFT_BTN | CTRL_FLAG));
+        assert_eq!(eng.handle(S(chord!("____"))), Release(HACK_MOUSE_LEFT_BTN));
+        // ctrl-press, then ctrl-release
+        assert_eq!(eng.handle(S(chord!("^^__"))), Nothing);
+        assert_eq!(eng.handle(S(chord!("___^"))), Press(HACK_MOUSE_LEFT_BTN | CTRL_FLAG));
+        assert_eq!(eng.handle(S(chord!("^^_^"))), Nothing);
+        assert_eq!(eng.handle(S(chord!("____"))), Release(HACK_MOUSE_LEFT_BTN | CTRL_FLAG));
     }
 }
