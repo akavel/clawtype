@@ -46,6 +46,8 @@ extern "C" {
     fn usb_try_init();
     fn usb_debug_putchar(c: u8);
     fn usb_send_key_with_mod(key: u8, modifier: u8);
+    fn usb_set_mod_now(modifier: u8);
+    fn usb_set_key_now(key: u8);
     fn usb_mouse_move(x: i8, y: i8);
     fn usb_mouse_press(btn: u8);
     fn usb_mouse_release(btn: u8);

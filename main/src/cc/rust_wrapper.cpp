@@ -35,17 +35,23 @@ void usb_try_init() {
     //Serial.begin(0);
 }
 
-void usb_send_key_with_mod(uint8_t key, uint8_t mod) {
-    // Press modifier & key. In sequence, just in case it would matter to OS.
+void usb_set_mod_now(uint8_t mod) {
     Keyboard.set_modifier(mod);
     Keyboard.send_now();
+}
+
+void usb_set_key_now(uint8_t key) {
     Keyboard.set_key1(key);
     Keyboard.send_now();
+}
+
+void usb_send_key_with_mod(uint8_t key, uint8_t mod) {
+    // Press modifier & key. In sequence, just in case it would matter to OS.
+    usb_set_mod_now(mod);
+    usb_set_key_now(key);
     // Release key & modifier.
-    Keyboard.set_key1(0);
-    Keyboard.send_now();
-    Keyboard.set_modifier(0);
-    Keyboard.send_now();
+    usb_set_key_now(0);
+    usb_set_mod_now(0);
 }
 
 void usb_mouse_move(int8_t x, int8_t y) {

@@ -19,6 +19,9 @@
 /// Least significant byte is keycode.
 pub type KeyWithFlags = u16;
 
+pub const KEY_MASK: KeyWithFlags = 0x00ff;
+pub const FLAG_MASK: KeyWithFlags = 0xff00;
+
 pub const CTRL_FLAG: KeyWithFlags = 0x0100;
 pub const SHIFT_FLAG: KeyWithFlags = 0x0200;
 pub const ALT_FLAG: KeyWithFlags = 0x0400;
