@@ -90,6 +90,7 @@ pub struct Engine<L: Lookup> {
     temporary_plus_mask: L::KeyWithFlags,
     unchorded_state: SwitchSet,
     unchorded_shunt: SwitchSet, // to be shunted after layer switch
+    unchorded_shunt_layer: i32,
 }
 
 impl<L> Default for Engine<L>
@@ -106,6 +107,7 @@ where
             temporary_plus_mask: L::KeyWithFlags::default(),
             unchorded_state: SwitchSet::default(),
             unchorded_shunt: SwitchSet::default(),
+            unchorded_shunt_layer: 0,
         }
     }
 }
@@ -138,15 +140,7 @@ where
             // sched the most significant bit
             let msb = top_bit(self.unchorded_shunt.0);
             self.unchorded_shunt.0 &= !msb;
-            // assume previous layer is stored in temporary_layer...
-            let Some(layer) = self.temporary_layer else {
-                // whoops... not much else we can do than bail out...
-                self.unchorded_shunt = Default::default();
-                return Nothing;
-            };
-            if self.unchorded_shunt.0 == 0 {
-                self.temporary_layer = None;
-            }
+            let layer = self.unchorded_shunt_layer;
             let Some(key) = L::unchorded_key(layer, SwitchSet(msb)) else {
                 return Nothing; // whoops, should not happen
             };
@@ -210,22 +204,22 @@ where
         use core::mem::take;
         match lookup {
             ClearState => {
+                self.shunt_unchorded();
                 take(&mut self.layer);
                 take(&mut self.temporary_layer);
                 take(&mut self.plus_mask);
                 take(&mut self.temporary_plus_mask);
-                self.shunt_unchorded();
                 UsbOutcome::Nothing
             }
             Emit(v) => v.map(|k| self.plus_masked(k)),
             LayerSwitch { layer } => {
-                self.layer = layer;
                 self.shunt_unchorded();
+                self.layer = layer;
                 UsbOutcome::Nothing
             }
             TemporaryLayerSwitch { layer } => {
-                self.temporary_layer = Some(layer);
                 self.shunt_unchorded();
+                self.temporary_layer = Some(layer);
                 UsbOutcome::Nothing
             }
             TogglePlusMask { mask } => {
@@ -251,6 +245,7 @@ where
 
     fn shunt_unchorded(&mut self) {
         self.unchorded_shunt = mem::take(&mut self.unchorded_state);
+        self.unchorded_shunt_layer = self.layer;
     }
 }
 
@@ -403,7 +398,8 @@ mod tests {
         // release both in sequence when exiting the layer,
         // ignoring any args until all released
         assert_eq!(eng.handle(S(chord!("v^_v") | chord!("__^^"))), Nothing);
-        assert_eq!(eng.handle(S(chord!("__^^"))), Release(HACK_MOUSE_RIGHT_BTN));
+        assert_eq!(eng.handle(S(chord!("__^^"))), Nothing);
+        assert_eq!(eng.handle(S(0)), Release(HACK_MOUSE_RIGHT_BTN));
         assert_eq!(eng.handle(S(0)), Release(HACK_MOUSE_LEFT_BTN));
         assert_eq!(eng.handle(S(0)), Nothing);
     }
