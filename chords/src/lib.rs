@@ -138,12 +138,13 @@ where
     L::KeyWithFlags: Copy + Default + BitAndAssign + BitOr<Output = L::KeyWithFlags> + BitOrAssign + Not<Output = L::KeyWithFlags>,
 {
     pub fn handle(&mut self, switches: SwitchSet) -> UsbOutcome<L::KeyWithFlags> {
+        use UsbOutcome::*;
         // any unchorded keys not from this layer remain pressed?
         // sched them one by one, ignoring any other input switches for now.
         if self.unchorded_shunt.0 != 0 {
             // sched the most significant bit
-            let msb = 1u8 << self.unchorded_shunt.0.ilog2();
-            self.unchorded_shunt.0 &= ~msb;
+            let msb = top_bit(unchorded_shunt.0);
+            self.unchorded_shunt.0 &= !msb;
             // assume previous layer is stored in temporary_layer...
             let Some(layer) = self.temporary_layer else {
                 // whoops... not much else we can do than bail out...
@@ -153,10 +154,37 @@ where
             if self.unchorded_shunt.0 == 0 {
                 self.temporary_layer = None;
             }
-            return KeyRelease(L::unchorded_key(layer, msb) |
-                              self.temporary_plus_mask.take());
+            let Some(key) = L::unchorded_key(layer, SwitchSet(msb)) else {
+                return Nothing; // whoops, should not happen
+            };
+            return KeyRelease(self.plus_masked(key));
         }
         //FIXME: further down ignore temp. layers if unchorded mask
+
+        // check unchorded switches for change
+        // (not on temporary layers - this feat is incompat. with them)
+        let unchorded_mask = self.temporary_layer.is_none()
+            .then(|| L::info(self.layer).unchorded_mask).unwrap_or(0);
+        'unchorded: {
+            let unchorded = switches.0 & unchorded_mask;
+            if unchorded == self.unchorded_state {
+                break 'unchorded; // no change, proceed
+            }
+            // find out top-most bit different between prev and curr state
+            let msb = top_bit(unchorded ^ self.unchorded_state);
+            let Some(key) = L::unchorded_key(layer, SwitchSet(msb)) else {
+                break 'unchorded; // whoops, should not happen
+            };
+            let key = self.plus_masked(key);
+            let outcome = if self.unchorded_state & msb == 0 {
+                KeyPress(key)
+            } else {
+                KeyRelease(key)
+            };
+            self.unchorded_state ^= msb;
+            return outcome;
+        }
+        let switches = SwitchSet(switches.0 & !unchorded_mask);
 
         // some switches are pressed?
         if switches.0 != 0 {
@@ -193,15 +221,18 @@ where
                 take(&mut self.temporary_layer);
                 take(&mut self.plus_mask);
                 take(&mut self.temporary_plus_mask);
+                self.shunt_unchorded();
                 UsbOutcome::Nothing
             }
-            Emit(v) => v | mem::take(&mut self.temporary_plus_mask) | self.plus_mask,
+            Emit(v) => self.plus_masked(v),
             LayerSwitch { layer } => {
                 self.layer = layer;
+                self.shunt_unchorded();
                 UsbOutcome::Nothing
             }
             TemporaryLayerSwitch { layer } => {
                 self.temporary_layer = Some(layer);
+                self.shunt_unchorded();
                 UsbOutcome::Nothing
             }
             TogglePlusMask { mask } => {
@@ -220,6 +251,18 @@ where
             }
         }
     }
+
+    fn plus_masked(&mut Self, key: L::KeyWithFlags) -> L::KeyWithFlags {
+        key | mem::take(&mut self.temporary_plus_mask) | self.plus_mask
+    }
+
+    fn shunt_unchorded(&mut Self) {
+        self.unchorded_shunt = take(&mut self.unchorded_state);
+    }
+}
+
+fn top_bit(v: u8) -> u8 {
+    if v == 0 { 0 } else { 1u8 << v.ilog2() }
 }
 
 #[cfg(test)]
