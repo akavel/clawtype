@@ -39,13 +39,6 @@ pub enum UsbOutcome<KeyWithFlags> {
     KeyRelease(KeyWithFlags),
 }
 
-impl<K: BitOr<Output = K>> BitOr<K> for UsbOutcome<K> {
-    type Output = Self;
-    fn bitor(self, mask: K) -> Self {
-        self.map(|k| k | mask)
-    }
-}
-
 impl<K> UsbOutcome<K> {
     fn map<U, F>(self, f: F) -> UsbOutcome<U>
     where F: FnOnce(K) -> U,
@@ -143,7 +136,7 @@ where
         // sched them one by one, ignoring any other input switches for now.
         if self.unchorded_shunt.0 != 0 {
             // sched the most significant bit
-            let msb = top_bit(unchorded_shunt.0);
+            let msb = top_bit(self.unchorded_shunt.0);
             self.unchorded_shunt.0 &= !msb;
             // assume previous layer is stored in temporary_layer...
             let Some(layer) = self.temporary_layer else {
@@ -164,27 +157,27 @@ where
         // check unchorded switches for change
         // (not on temporary layers - this feat is incompat. with them)
         let unchorded_mask = self.temporary_layer.is_none()
-            .then(|| L::info(self.layer).unchorded_mask).unwrap_or(0);
+            .then(|| L::info(self.layer).unchorded_mask).unwrap_or_default();
         'unchorded: {
-            let unchorded = switches.0 & unchorded_mask;
-            if unchorded == self.unchorded_state {
+            let unchorded = switches.0 & unchorded_mask.0;
+            if unchorded == self.unchorded_state.0 {
                 break 'unchorded; // no change, proceed
             }
             // find out top-most bit different between prev and curr state
-            let msb = top_bit(unchorded ^ self.unchorded_state);
-            let Some(key) = L::unchorded_key(layer, SwitchSet(msb)) else {
+            let msb = top_bit(unchorded ^ self.unchorded_state.0);
+            let Some(key) = L::unchorded_key(self.layer, SwitchSet(msb)) else {
                 break 'unchorded; // whoops, should not happen
             };
             let key = self.plus_masked(key);
-            let outcome = if self.unchorded_state & msb == 0 {
+            let outcome = if self.unchorded_state.0 & msb == 0 {
                 KeyPress(key)
             } else {
                 KeyRelease(key)
             };
-            self.unchorded_state ^= msb;
+            self.unchorded_state.0 ^= msb;
             return outcome;
         }
-        let switches = SwitchSet(switches.0 & !unchorded_mask);
+        let switches = SwitchSet(switches.0 & !unchorded_mask.0);
 
         // some switches are pressed?
         if switches.0 != 0 {
@@ -224,7 +217,7 @@ where
                 self.shunt_unchorded();
                 UsbOutcome::Nothing
             }
-            Emit(v) => self.plus_masked(v),
+            Emit(v) => v.map(|k| self.plus_masked(k)),
             LayerSwitch { layer } => {
                 self.layer = layer;
                 self.shunt_unchorded();
@@ -252,12 +245,12 @@ where
         }
     }
 
-    fn plus_masked(&mut Self, key: L::KeyWithFlags) -> L::KeyWithFlags {
+    fn plus_masked(&mut self, key: L::KeyWithFlags) -> L::KeyWithFlags {
         key | mem::take(&mut self.temporary_plus_mask) | self.plus_mask
     }
 
-    fn shunt_unchorded(&mut Self) {
-        self.unchorded_shunt = take(&mut self.unchorded_state);
+    fn shunt_unchorded(&mut self) {
+        self.unchorded_shunt = mem::take(&mut self.unchorded_state);
     }
 }
 
