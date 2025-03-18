@@ -95,6 +95,8 @@ pub struct Engine<L: Lookup> {
     temporary_layer: Option<i32>,
     plus_mask: L::KeyWithFlags,
     temporary_plus_mask: L::KeyWithFlags,
+    unchorded_state: SwitchSet,
+    unchorded_shunt: SwitchSet, // to be shunted after layer switch
 }
 
 impl<L> Default for Engine<L>
@@ -109,6 +111,8 @@ where
             temporary_layer: None,
             plus_mask: L::KeyWithFlags::default(),
             temporary_plus_mask: L::KeyWithFlags::default(),
+            unchorded_state: SwitchSet::default(),
+            unchorded_shunt: SwitchSet::default(),
         }
     }
 }
@@ -134,6 +138,26 @@ where
     L::KeyWithFlags: Copy + Default + BitAndAssign + BitOr<Output = L::KeyWithFlags> + BitOrAssign + Not<Output = L::KeyWithFlags>,
 {
     pub fn handle(&mut self, switches: SwitchSet) -> UsbOutcome<L::KeyWithFlags> {
+        // any unchorded keys not from this layer remain pressed?
+        // sched them one by one, ignoring any other input switches for now.
+        if self.unchorded_shunt.0 != 0 {
+            // sched the most significant bit
+            let msb = 1u8 << self.unchorded_shunt.0.ilog2();
+            self.unchorded_shunt.0 &= ~msb;
+            // assume previous layer is stored in temporary_layer...
+            let Some(layer) = self.temporary_layer else {
+                // whoops... not much else we can do than bail out...
+                self.unchorded_shunt = Default::default();
+                return Nothing;
+            };
+            if self.unchorded_shunt.0 == 0 {
+                self.temporary_layer = None;
+            }
+            return KeyRelease(L::unchorded_key(layer, msb) |
+                              self.temporary_plus_mask.take());
+        }
+        //FIXME: further down ignore temp. layers if unchorded mask
+
         // some switches are pressed?
         if switches.0 != 0 {
             self.most.0 |= switches.0;

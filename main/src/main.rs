@@ -167,6 +167,8 @@ fn main() -> ! {
         let outcome = cho.handle(SwitchSet(switches));
         match outcome {
             Nothing => (),
+            KeyPress(_) => todo!(),
+            KeyRelease(_) => todo!(),
             KeyHit(key_with_flags) => {
                 if key_with_flags & HACK_MOUSE_MARKER == HACK_MOUSE_MARKER {
                     match key_with_flags {
