@@ -42,10 +42,20 @@ pub enum UsbOutcome<KeyWithFlags> {
 impl<K: BitOr<Output = K>> BitOr<K> for UsbOutcome<K> {
     type Output = Self;
     fn bitor(self, mask: K) -> Self {
+        self.map(|k| k | mask)
+    }
+}
+
+impl<K> UsbOutcome<K> {
+    fn map<U, F>(self, f: F) -> UsbOutcome<U>
+    where F: FnOnce(K) -> U,
+    {
         use UsbOutcome::*;
         match self {
-            Nothing => Nothing,
-            KeyHit(k) => KeyHit(k | mask),
+            Self::Nothing => Nothing,
+            Self::KeyHit(k) => KeyHit(f(k)),
+            Self::KeyPress(k) => KeyPress(f(k)),
+            Self::KeyRelease(k) => KeyRelease(f(k)),
         }
     }
 }
