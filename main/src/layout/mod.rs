@@ -20,6 +20,7 @@ use clawtype_chords::{
     LayerOutcome::{self, *},
     UsbOutcome::KeyHit as Hit,
     keycodes::{self, *},
+    LayerInfo, SwitchSet,
 };
 
 pub struct Layout {}
@@ -34,6 +35,22 @@ impl clawtype_chords::Lookup for Layout {
             _ => &Self::LAYOUT0,
         }).copied()
     }
+
+    fn info(layer: i32) -> LayerInfo {
+        let unchorded_mask = SwitchSet(match layer {
+            2 => chord!("__^^"),
+            _ => 0,
+        });
+        LayerInfo { unchorded_mask }
+    }
+
+    fn unchorded_key(layer: i32, switch: SwitchSet) -> Option<Self::KeyWithFlags> {
+        match (layer, switch.0) {
+            (2, chord!("___^")) => Some(HACK_MOUSE_LEFT_BTN),
+            (2, chord!("__^_")) => Some(HACK_MOUSE_RIGHT_BTN),
+            _ => None,
+        }
+    }
 }
 
 impl Layout {
@@ -43,6 +60,8 @@ impl Layout {
 
             chord!("%%%%") => ClearState,
 
+            // FIXME: add F1-F12 !!!
+
             // TODO: put mouse on cheatsheet
             chord!("^_^%") => Emit(Hit(HACK_MOUSE_ENABLE_TOGGLE)),
             chord!("_v_^") => Emit(Hit(HACK_MOUSE_LEFT_CLICK)),
@@ -50,6 +69,8 @@ impl Layout {
             chord!("%%_^") => Emit(Hit(HACK_MOUSE_LEFT_DRAG_TOGGLE)),
             chord!("v_^^") => Emit(Hit(HACK_MOUSE_WHEEL_DOWN)),
             chord!("v^^_") => Emit(Hit(HACK_MOUSE_WHEEL_UP)),
+
+            chord!("v^_v") => LayerSwitch { layer: 2 }, // Mouse layer
 
             chord!("__^_") => Emit(Hit(RIGHT)),
             chord!("_^__") => Emit(Hit(LEFT)),
@@ -86,7 +107,7 @@ impl Layout {
             chord!("vv__") => Emit(Hit(Q)),
 
             chord!("%__%") => TemporaryLayerSwitch { layer: 1 }, // SHIFT
-            chord!("%_%_") => TemporaryPlusMask { mask: CTRL_FLAG }, // CTRL
+            // chord!("%_%_") => TemporaryPlusMask { mask: CTRL_FLAG }, // CTRL
             chord!("^^__") => TemporaryPlusMask { mask: CTRL_FLAG }, // CTRL (new easier version)
             chord!("%%%_") => TemporaryPlusMask { mask: ALT_FLAG }, // ALT
             chord!("_%%%") => TemporaryPlusMask { mask: RIGHT_ALT_FLAG }, // R-ALT
@@ -102,7 +123,6 @@ impl Layout {
             chord!("_%_%") => Emit(Hit(ENTER)),
             chord!("_%%_") => Emit(Hit(ESC)),
             chord!("_v_%") => Emit(Hit(TAB)),
-            // chord!("^^__") => Emit(Hit(DELETE)),
             chord!("v%%_") => Emit(Hit(INSERT)),
 
             chord!("%%__") => Emit(Hit(HOME)),
@@ -131,8 +151,7 @@ impl Layout {
             chord!("^^^%") => Emit(Hit(KEY_6 | SHIFT_FLAG)), // ^
             chord!("%_%v") => Emit(Hit(KEY_5 | SHIFT_FLAG)), // %
             chord!("vvvv") => Emit(Hit(BACKSLASH | SHIFT_FLAG)), // |
-            // candidate "mouse layer"
-            chord!("v^_v") => Emit(Hit(KEY_2 | SHIFT_FLAG)), // @
+            chord!("v_^v") => Emit(Hit(KEY_2 | SHIFT_FLAG)), // @
             chord!("%^^%") => Emit(Hit(KEY_3 | SHIFT_FLAG)), // #
 
             chord!("v_vv") => Emit(Hit(KEY_9 | SHIFT_FLAG)), // (
@@ -155,12 +174,8 @@ impl Layout {
             chord!("_%_v") => Emit(Hit(KEY_8)),
             chord!("_%_^") => Emit(Hit(KEY_9)),
 
-            chord!("%%_v") => LayerSwitch { layer: 2 }, // "Nav / Fn" layer
-            chord!("v_^v") => LayerSwitch { layer: 2 }, // "Nav / Fn" layer
+            // chord!("%%_v") => LayerSwitch { layer: 2 }, // "Nav / Fn" layer
             chord!("%_^^") => Emit(Hit(CAPS_LOCK)),
-
-            // chord!("%%v_") => Emit(Hit(INSERT -- already defined)),
-
         }
     );
 
@@ -177,71 +192,82 @@ impl Layout {
         }
     );
 
-    // "Nav / Fn" layer
+    // Mouse layer - with unchorded keys mask: __^^
     const_map!(
         LAYOUT2, lookup2(),
         (u8 => LayerOutcome<KeyWithFlags>) {
             // 0 => FromOtherPlusMask { layer: 0, mask: 0 }, // fallback
 
-            chord!("%%%%") => ClearState,
+            // chord!("%%%%") => ClearState,
+            chord!("%%vv") => ClearState, // because mask - only this will work
 
-            chord!("%%_v") => ClearState, // quit to base layer
-            chord!("v_^v") => ClearState, // quit to base layer
-            chord!("%_^^") => TogglePlusMask { mask: ALT_FLAG }, // Fn-CAPSLOCK => sticky ALT
+            chord!("v^_v") => ClearState, // quit to base layer
 
-            // F1-F12
-            chord!("%__v") => Emit(Hit(F10)),
-            chord!("%__^") => Emit(Hit(F1)),
-            chord!("%_v_") => Emit(Hit(F2)),
-            chord!("%_^_") => Emit(Hit(F3)),
-            chord!("%v__") => Emit(Hit(F4)),
-            chord!("%^__") => Emit(Hit(F5)),
-            chord!("_%v_") => Emit(Hit(F6)),
-            chord!("_%^_") => Emit(Hit(F7)),
-            chord!("_%_v") => Emit(Hit(F8)),
-            chord!("_%_^") => Emit(Hit(F9)),
-            chord!("__%v") => Emit(Hit(F11)),
-            chord!("__%^") => Emit(Hit(F12)),
+            chord!("^^__") => TemporaryPlusMask { mask: CTRL_FLAG }, // CTRL
+            chord!("vv__") => TemporaryPlusMask { mask: ALT_FLAG }, // ALT
+            chord!("%%v_") => TemporaryPlusMask { mask: ALT_FLAG }, // ALT
+            chord!("%___") => TemporaryPlusMask { mask: SHIFT_FLAG }, // SHIFT
 
-            // Keypad - for mouse navigation on Windows / Mac
-            chord!("__^_") => Emit(Hit(KEYPAD_6)), // Right
-            chord!("_^__") => Emit(Hit(KEYPAD_4)), // Left
-            chord!("___^") => Emit(Hit(KEYPAD_8)), // Up
-            chord!("___v") => Emit(Hit(KEYPAD_2)), // Down
-            chord!("^___") => Emit(Hit(KEYPAD_7)), // Home / up-left
-            chord!("v___") => Emit(Hit(KEYPAD_1)), // End / down-left
-            chord!("_v__") => Emit(Hit(KEYPAD_3)), // PgDn / down-right
-            chord!("__v_") => Emit(Hit(KEYPAD_9)), // PgUp / up-right
-            chord!("__^%") => Emit(Hit(KEYPAD_5)), // 5 / click
-            chord!("^^^%") => Emit(Hit(KEYPAD_0)), // 0 / press&lock
-            // chord!("__v%") => Emit(Hit(KEYPAD_0)), // 0 / press&lock
-            // chord!("^^^^") => Emit(Hit(KEYPAD_0)), // 0 / press&lock
-            chord!("^^^_") => Emit(Hit(KEYPAD_PERIOD)), // . / drag release
-            chord!("___%") => Emit(Hit(KEYPAD_SLASH)), // / / left-click
-            chord!("__%_") => Emit(Hit(KEYPAD_ASTERIX)), // * / mid-click
-            chord!("_%__") => Emit(Hit(KEYPAD_MINUS)), // - / right-click
+            chord!("__v_") => Emit(Hit(HACK_MOUSE_WHEEL_UP)),
+            chord!("___v") => Emit(Hit(HACK_MOUSE_WHEEL_DOWN)),
+
+            // chord!("%%_v") => ClearState, // quit to base layer
+            // chord!("v_^v") => ClearState, // quit to base layer
+            // chord!("%_^^") => TogglePlusMask { mask: ALT_FLAG }, // Fn-CAPSLOCK => sticky ALT
+
+            // // F1-F12
+            // chord!("%__v") => Emit(Hit(F10)),
+            // chord!("%__^") => Emit(Hit(F1)),
+            // chord!("%_v_") => Emit(Hit(F2)),
+            // chord!("%_^_") => Emit(Hit(F3)),
+            // chord!("%v__") => Emit(Hit(F4)),
+            // chord!("%^__") => Emit(Hit(F5)),
+            // chord!("_%v_") => Emit(Hit(F6)),
+            // chord!("_%^_") => Emit(Hit(F7)),
+            // chord!("_%_v") => Emit(Hit(F8)),
+            // chord!("_%_^") => Emit(Hit(F9)),
+            // chord!("__%v") => Emit(Hit(F11)),
+            // chord!("__%^") => Emit(Hit(F12)),
+
+            // // Keypad - for mouse navigation on Windows / Mac
+            // chord!("__^_") => Emit(Hit(KEYPAD_6)), // Right
+            // chord!("_^__") => Emit(Hit(KEYPAD_4)), // Left
+            // chord!("___^") => Emit(Hit(KEYPAD_8)), // Up
+            // chord!("___v") => Emit(Hit(KEYPAD_2)), // Down
+            // chord!("^___") => Emit(Hit(KEYPAD_7)), // Home / up-left
+            // chord!("v___") => Emit(Hit(KEYPAD_1)), // End / down-left
+            // chord!("_v__") => Emit(Hit(KEYPAD_3)), // PgDn / down-right
+            // chord!("__v_") => Emit(Hit(KEYPAD_9)), // PgUp / up-right
+            // chord!("__^%") => Emit(Hit(KEYPAD_5)), // 5 / click
+            // chord!("^^^%") => Emit(Hit(KEYPAD_0)), // 0 / press&lock
+            // // chord!("__v%") => Emit(Hit(KEYPAD_0)), // 0 / press&lock
+            // // chord!("^^^^") => Emit(Hit(KEYPAD_0)), // 0 / press&lock
+            // chord!("^^^_") => Emit(Hit(KEYPAD_PERIOD)), // . / drag release
+            // chord!("___%") => Emit(Hit(KEYPAD_SLASH)), // / / left-click
+            // chord!("__%_") => Emit(Hit(KEYPAD_ASTERIX)), // * / mid-click
+            // chord!("_%__") => Emit(Hit(KEYPAD_MINUS)), // - / right-click
 
             // transparent to layer 0:
 
-            chord!("%__%") => FromOtherPlusMask { layer: 0, mask: 0 },
-            chord!("%_%_") => FromOtherPlusMask { layer: 0, mask: 0 },
-            chord!("%%%_") => FromOtherPlusMask { layer: 0, mask: 0 },
-            chord!("_%%%") => FromOtherPlusMask { layer: 0, mask: 0 },
-            chord!("%%_%") => FromOtherPlusMask { layer: 0, mask: 0 },
-            chord!("v%_%") => FromOtherPlusMask { layer: 0, mask: 0 },
-            chord!("vv_%") => FromOtherPlusMask { layer: 0, mask: 0 },
-            chord!("%_%%") => FromOtherPlusMask { layer: 0, mask: 0 },
+            // chord!("%__%") => FromOtherPlusMask { layer: 0, mask: 0 },
+            // chord!("%_%_") => FromOtherPlusMask { layer: 0, mask: 0 },
+            // chord!("%%%_") => FromOtherPlusMask { layer: 0, mask: 0 },
+            // chord!("_%%%") => FromOtherPlusMask { layer: 0, mask: 0 },
+            // chord!("%%_%") => FromOtherPlusMask { layer: 0, mask: 0 },
+            // chord!("v%_%") => FromOtherPlusMask { layer: 0, mask: 0 },
+            // chord!("vv_%") => FromOtherPlusMask { layer: 0, mask: 0 },
+            // chord!("%_%%") => FromOtherPlusMask { layer: 0, mask: 0 },
 
-            chord!("_%_%") => FromOtherPlusMask { layer: 0, mask: 0 },
-            chord!("_%%_") => FromOtherPlusMask { layer: 0, mask: 0 },
-            chord!("_v_%") => FromOtherPlusMask { layer: 0, mask: 0 },
-            chord!("^^__") => FromOtherPlusMask { layer: 0, mask: 0 },
-            chord!("v%%_") => FromOtherPlusMask { layer: 0, mask: 0 },
+            // chord!("_%_%") => FromOtherPlusMask { layer: 0, mask: 0 },
+            // chord!("_%%_") => FromOtherPlusMask { layer: 0, mask: 0 },
+            // chord!("_v_%") => FromOtherPlusMask { layer: 0, mask: 0 },
+            // chord!("^^__") => FromOtherPlusMask { layer: 0, mask: 0 },
+            // chord!("v%%_") => FromOtherPlusMask { layer: 0, mask: 0 },
 
-            chord!("__%%") => FromOtherPlusMask { layer: 0, mask: 0 },
-            chord!("%%__") => FromOtherPlusMask { layer: 0, mask: 0 },
-            chord!("__%^") => FromOtherPlusMask { layer: 0, mask: 0 },
-            chord!("__%v") => FromOtherPlusMask { layer: 0, mask: 0 },
+            // chord!("__%%") => FromOtherPlusMask { layer: 0, mask: 0 },
+            // chord!("%%__") => FromOtherPlusMask { layer: 0, mask: 0 },
+            // chord!("__%^") => FromOtherPlusMask { layer: 0, mask: 0 },
+            // chord!("__%v") => FromOtherPlusMask { layer: 0, mask: 0 },
         }
     );
 }
