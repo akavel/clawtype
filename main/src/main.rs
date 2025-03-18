@@ -33,6 +33,8 @@ use clawtype_chords::{
         HACK_MOUSE_RIGHT_CLICK,
         HACK_MOUSE_WHEEL_DOWN,
         HACK_MOUSE_WHEEL_UP,
+        HACK_MOUSE_LEFT_BTN,
+        HACK_MOUSE_RIGHT_BTN,
     },
     SwitchSet,
     UsbOutcome::*
@@ -167,8 +169,16 @@ fn main() -> ! {
         let outcome = cho.handle(SwitchSet(switches));
         match outcome {
             Nothing => (),
-            KeyPress(_) => todo!(),
-            KeyRelease(_) => todo!(),
+            KeyPress(k) => match k {
+                HACK_MOUSE_LEFT_BTN => unsafe { usb_mouse_press(0x1); },
+                HACK_MOUSE_RIGHT_BTN => unsafe { usb_mouse_press(0x2); },
+                _ => (),
+            },
+            KeyRelease(k) => match k {
+                HACK_MOUSE_LEFT_BTN => unsafe { usb_mouse_release(0x1); },
+                HACK_MOUSE_RIGHT_BTN => unsafe { usb_mouse_release(0x2); },
+                _ => (),
+            },
             KeyHit(key_with_flags) => {
                 if key_with_flags & HACK_MOUSE_MARKER == HACK_MOUSE_MARKER {
                     match key_with_flags {
