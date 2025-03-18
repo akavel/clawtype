@@ -28,7 +28,7 @@ pub struct SampleLayers {}
 impl super::Lookup for SampleLayers {
     type KeyWithFlags = keycodes::KeyWithFlags;
 
-    fn lookup(layer: i32, chord: u8) -> Option<LayerOutcome<Self::KeyWithFlags>> {
+    fn lookup(layer: u8, chord: u8) -> Option<LayerOutcome<Self::KeyWithFlags>> {
         let layout: &[_] = match layer {
             1 => &Self::LAYOUT1, // "SHIFT"
             2 => &Self::LAYOUT2, // "TEST"
@@ -37,7 +37,7 @@ impl super::Lookup for SampleLayers {
         crate::lookup_in_slice(chord, layout).copied()
     }
 
-    fn info(layer: i32) -> LayerInfo {
+    fn info(layer: u8) -> LayerInfo {
         let unchorded_mask = SwitchSet(match layer {
             2 => chord!("__^^"),
             _ => 0,
@@ -45,7 +45,7 @@ impl super::Lookup for SampleLayers {
         LayerInfo { unchorded_mask }
     }
 
-    fn unchorded_key(layer: i32, switch: SwitchSet) -> Option<Self::KeyWithFlags> {
+    fn unchorded_key(layer: u8, switch: SwitchSet) -> Option<Self::KeyWithFlags> {
         match (layer, switch.0) {
             (2, chord!("___^")) => Some(HACK_MOUSE_LEFT_BTN),
             (2, chord!("__^_")) => Some(HACK_MOUSE_RIGHT_BTN),

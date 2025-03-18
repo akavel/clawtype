@@ -62,11 +62,11 @@ pub enum LayerOutcome<KeyWithFlags> {
     ClearState,
     Emit(UsbOutcome<KeyWithFlags>),
     LayerSwitchAndEmit {
-        layer: i32,
+        layer: u8,
         emit: UsbOutcome<KeyWithFlags>,
     },
     TemporaryLayerSwitch {
-        layer: i32,
+        layer: u8,
     },
     /// Intended for adding USB flag key, like Alt, Shift, GUI, RAlt, etc.
     TogglePlusMask {
@@ -78,20 +78,20 @@ pub enum LayerOutcome<KeyWithFlags> {
     },
     /// Intended for adding USB flag key, like Alt, Shift, GUI, RAlt, etc.
     FromOtherPlusMask {
-        layer: i32,
+        layer: u8,
         mask: KeyWithFlags,
     },
 }
 
 pub struct Engine<L: Lookup> {
     most: SwitchSet,
-    layer: i32,
-    temporary_layer: Option<i32>,
+    layer: u8,
+    temporary_layer: Option<u8>,
     plus_mask: L::KeyWithFlags,
     temporary_plus_mask: L::KeyWithFlags,
     unchorded_state: SwitchSet,
     unchorded_shunt: SwitchSet, // to be shunted after layer switch
-    unchorded_shunt_layer: i32,
+    unchorded_shunt_layer: u8,
 }
 
 impl<L> Default for Engine<L>
@@ -115,12 +115,12 @@ where
 
 pub trait Lookup {
     type KeyWithFlags;
-    fn lookup(layer: i32, chord: u8) -> Option<LayerOutcome<Self::KeyWithFlags>>;
-    fn info(_layer: i32) -> LayerInfo {
+    fn lookup(layer: u8, chord: u8) -> Option<LayerOutcome<Self::KeyWithFlags>>;
+    fn info(_layer: u8) -> LayerInfo {
         LayerInfo { unchorded_mask: Default::default() }
     }
 
-    fn unchorded_key(_layer: i32, _switch: SwitchSet) -> Option<Self::KeyWithFlags> { None }
+    fn unchorded_key(_layer: u8, _switch: SwitchSet) -> Option<Self::KeyWithFlags> { None }
 }
 
 pub fn lookup_in_slice<K>(chord: u8, layout: &[(u8, LayerOutcome<K>)]) -> Option<&LayerOutcome<K>> {
@@ -190,7 +190,7 @@ where
         self.resolve(layer, most)
     }
 
-    fn resolve(&mut self, layer: i32, chord: u8) -> UsbOutcome<L::KeyWithFlags> {
+    fn resolve(&mut self, layer: u8, chord: u8) -> UsbOutcome<L::KeyWithFlags> {
         let lookup = match L::lookup(layer, chord) {
             Some(v) => v,
             // As a fallback, try if we can find default action on an empty
