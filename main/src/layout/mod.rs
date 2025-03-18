@@ -70,7 +70,10 @@ impl Layout {
             chord!("v_^^") => Emit(Hit(HACK_MOUSE_WHEEL_DOWN)),
             chord!("v^^_") => Emit(Hit(HACK_MOUSE_WHEEL_UP)),
 
-            chord!("v^_v") => LayerSwitch { layer: 2 }, // Mouse layer
+            chord!("v^_v") => LayerSwitchAndEmit {
+                layer: 2, // Mouse layer
+                emit: Hit(HACK_MOUSE_ENABLE_TOGGLE),
+            },
 
             chord!("__^_") => Emit(Hit(RIGHT)),
             chord!("_^__") => Emit(Hit(LEFT)),
@@ -201,7 +204,11 @@ impl Layout {
             // chord!("%%%%") => ClearState,
             chord!("%%vv") => ClearState, // because mask - only this will work
 
-            chord!("v^_v") => ClearState, // quit to base layer
+            chord!("v^_v") => LayerSwitchAndEmit {
+                layer: 0, // quit to base layer
+                emit: Hit(HACK_MOUSE_ENABLE_TOGGLE),
+            },
+
 
             chord!("^^__") => TemporaryPlusMask { mask: CTRL_FLAG }, // CTRL
             chord!("vv__") => TemporaryPlusMask { mask: ALT_FLAG }, // ALT

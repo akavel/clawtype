@@ -61,8 +61,9 @@ pub struct LayerInfo {
 pub enum LayerOutcome<KeyWithFlags> {
     ClearState,
     Emit(UsbOutcome<KeyWithFlags>),
-    LayerSwitch {
+    LayerSwitchAndEmit {
         layer: i32,
+        emit: UsbOutcome<KeyWithFlags>,
     },
     TemporaryLayerSwitch {
         layer: i32,
@@ -212,10 +213,10 @@ where
                 UsbOutcome::Nothing
             }
             Emit(v) => v.map(|k| self.plus_masked(k)),
-            LayerSwitch { layer } => {
+            LayerSwitchAndEmit { layer, emit } => {
                 self.shunt_unchorded();
                 self.layer = layer;
-                UsbOutcome::Nothing
+                emit.map(|k| self.plus_masked(k))
             }
             TemporaryLayerSwitch { layer } => {
                 self.shunt_unchorded();
@@ -376,7 +377,7 @@ mod tests {
 
         // enter TEST layer with some unchorded keys
         assert_eq!(eng.handle(S(chord!("v^_v"))), Nothing);
-        assert_eq!(eng.handle(S(chord!("____"))), Nothing); // layer switched
+        assert_eq!(eng.handle(S(chord!("____"))), Hit(HACK_MOUSE_ENABLE_TOGGLE)); // layer switched
         // immediate press of mouse button, then release (a click)
         assert_eq!(eng.handle(S(chord!("___^"))), Press(HACK_MOUSE_LEFT_BTN));
         assert_eq!(eng.handle(S(chord!("____"))), Release(HACK_MOUSE_LEFT_BTN));
@@ -398,7 +399,7 @@ mod tests {
         // release both in sequence when exiting the layer,
         // ignoring any args until all released
         assert_eq!(eng.handle(S(chord!("v^_v") | chord!("__^^"))), Nothing);
-        assert_eq!(eng.handle(S(chord!("__^^"))), Nothing);
+        assert_eq!(eng.handle(S(chord!("__^^"))), Hit(HACK_MOUSE_ENABLE_TOGGLE));
         assert_eq!(eng.handle(S(0)), Release(HACK_MOUSE_RIGHT_BTN));
         assert_eq!(eng.handle(S(0)), Release(HACK_MOUSE_LEFT_BTN));
         assert_eq!(eng.handle(S(0)), Nothing);

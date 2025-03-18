@@ -122,7 +122,10 @@ impl SampleLayers {
             chord!("^_%_") => Emit(Hit(LEFT_BRACE | SHIFT_FLAG)), // {
             chord!("v_%_") => Emit(Hit(RIGHT_BRACE | SHIFT_FLAG)), // }
 
-            chord!("v^_v") => LayerSwitch { layer: 2 },
+            chord!("v^_v") => LayerSwitchAndEmit {
+                layer: 2,
+                emit: Hit(HACK_MOUSE_ENABLE_TOGGLE),
+            },
         }
     );
 
@@ -175,7 +178,10 @@ impl SampleLayers {
             // 0 => FromOtherPlusMask { layer: 0, mask: SHIFT_FLAG },
             chord!("^^__") => TemporaryPlusMask { mask: CTRL_FLAG }, // CTRL
 
-            chord!("v^_v") => LayerSwitch { layer: 0 },
+            chord!("v^_v") => LayerSwitchAndEmit {
+                layer: 0,
+                emit: Hit(HACK_MOUSE_ENABLE_TOGGLE),
+            },
         }
     );
 }
