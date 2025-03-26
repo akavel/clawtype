@@ -8,7 +8,7 @@ license = "AGPL-3.0-or-later"
 edition = "2021"
 
 [workspace.dependencies]
-embassy-executor = { version = "0.7.0", features = ["task-arena-size-4096", "arch-cortex-m", "executor-thread", "executor-interrupt"] }
+embassy-executor = { version = "0.7.0", features = ["task-arena-size-4096", "arch-cortex-m", "executor-thread"] }
 embassy-time = { version = "0.4.0" }
 embassy-nrf = { version = "0.3.1", features = ["nrf51", "time-driver-rtc1", "time", "rt"] }
 
@@ -20,4 +20,5 @@ panic-halt = { version = "1.0.0" }
 debug = 2
 opt-level = "z"
 lto = true
+codegen-units = 1
 
