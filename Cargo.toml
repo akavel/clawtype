@@ -8,25 +8,13 @@ license = "AGPL-3.0-or-later"
 edition = "2021"
 
 [workspace.dependencies]
-# clawtype-chords = { path = "chords" }
-# clawtype-macros = { path = "macros" }
-# const_map = { git = "https://github.com/akavel/const_map", branch = "master" }
-# debouncr = "0.2.2"
-# embedded-hal = "1.0"
-# mpu6050-dmp = "0.6.0"
-# ufmt = "0.2.0"
-# ufmt-write = "0.1.0"
-
-embassy-executor = { version = "0.7.0", features = ["task-arena-size-4096", "arch-cortex-m", "executor-thread", "executor-interrupt", "defmt"] }
-embassy-time = { version = "0.4.0", features = ["defmt", "defmt-timestamp-uptime"] }
-embassy-nrf = { version = "0.3.1", features = ["defmt", "nrf51", "gpiote", "time-driver-rtc1", "unstable-pac", "time", "rt"] }
-
-defmt = "0.3"
-defmt-rtt = "0.4"
+embassy-executor = { version = "0.7.0", features = ["task-arena-size-4096", "arch-cortex-m", "executor-thread", "executor-interrupt"] }
+embassy-time = { version = "0.4.0" }
+embassy-nrf = { version = "0.3.1", features = ["nrf51", "time-driver-rtc1", "time", "rt"] }
 
 cortex-m = { version = "0.7.6", features = ["inline-asm", "critical-section-single-core"] }
 cortex-m-rt = "0.7"
-panic-probe = { version = "0.3", features = ["print-defmt"] }
+panic-halt = { version = "1.0.0" }
 
 [profile.release]
 debug = 2

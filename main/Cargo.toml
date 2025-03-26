@@ -5,28 +5,12 @@ authors.workspace = true
 edition.workspace = true
 license.workspace = true
 
-# [[bin]]
-# name = "clawtype"
-# test = false
-# bench = false
-
 [dependencies]
-# clawtype-chords.workspace = true
-# clawtype-macros.workspace = true
-# const_map.workspace = true
-# debouncr.workspace = true
-# embedded-hal.workspace = true
-# mpu6050-dmp.workspace = true
-# ufmt.workspace = true
-# ufmt-write.workspace = true
-
 embassy-executor.workspace = true
 embassy-time.workspace = true
 embassy-nrf.workspace = true
 
-defmt.workspace = true
-defmt-rtt.workspace = true
-
 cortex-m.workspace = true
 cortex-m-rt.workspace = true
-panic-probe.workspace = true
+panic-halt.workspace = true
+
