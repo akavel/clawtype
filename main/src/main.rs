@@ -25,7 +25,7 @@ use panic_halt as _;
 #[embassy_executor::main]
 async fn main(_spawner: Spawner) {
     let p = embassy_nrf::init(Default::default());
-    let mut led = Output::new(p.P0_21, Level::Low, OutputDrive::Standard);
+    let mut led = Output::new(p.P0_19, Level::Low, OutputDrive::Standard);
 
     loop {
         cortex_m::asm::nop(); // marker for debugging on chip
