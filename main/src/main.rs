@@ -28,8 +28,10 @@ async fn main(_spawner: Spawner) {
     let mut led = Output::new(p.P0_21, Level::Low, OutputDrive::Standard);
 
     loop {
+        cortex_m::asm::nop(); // marker for debugging on chip
         led.set_high();
         Timer::after_millis(300).await;
+        cortex_m::asm::nop(); // marker for debugging on chip
         led.set_low();
         Timer::after_millis(300).await;
     }
