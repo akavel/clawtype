@@ -85,12 +85,12 @@ async fn main(_spawner: Spawner) {
     // Do stuff with the class!
     let in_fut = async {
         loop {
-            info!("Waiting for HIGH on pin 16");
-            signal_pin.wait_for_high().await;
+            info!("Waiting for HIGH on pin");
+            signal_pin.wait_for_low().await;
             info!("HIGH DETECTED");
-            // Create a report with the A key pressed. (no shift modifier)
+            // Create a report with the C key pressed. (no shift modifier)
             let report = KeyboardReport {
-                keycodes: [4, 0, 0, 0, 0, 0],
+                keycodes: [6, 0, 0, 0, 0, 0],
                 leds: 0,
                 modifier: 0,
                 reserved: 0,
@@ -100,7 +100,7 @@ async fn main(_spawner: Spawner) {
                 Ok(()) => {}
                 Err(e) => warn!("Failed to send report: {:?}", e),
             };
-            signal_pin.wait_for_low().await;
+            signal_pin.wait_for_high().await;
             info!("LOW DETECTED");
             let report = KeyboardReport {
                 keycodes: [0, 0, 0, 0, 0, 0],
