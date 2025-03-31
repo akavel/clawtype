@@ -3,34 +3,45 @@ resolver = "2"
 members = ["main"]
 
 [workspace.dependencies]
-avr-device = { version = "0.7", features = ["rt"] }
+embassy-embedded-hal = { version = "0.3.0", features = ["defmt"] }
+embassy-executor = { version = "0.7.0", features = ["task-arena-size-98304", "arch-cortex-m", "executor-thread", "executor-interrupt", "defmt"] }
+embassy-time = { version = "0.4.0", features = ["defmt", "defmt-timestamp-uptime"] }
+embassy-rp = { version = "0.4.0", features = ["defmt", "unstable-pac", "time-driver", "critical-section-impl", "rp2040"] }
+embassy-usb-logger = { version = "0.4.0" }
+cortex-m = { version = "0.7.6", features = ["inline-asm"] }
+cortex-m-rt = "0.7.0"
+critical-section = "1.1"
+panic-probe = { version = "0.3", features = ["print-defmt"] }
+
 clawtype-chords = { path = "chords" }
 clawtype-macros = { path = "macros" }
 const_map = { git = "https://github.com/akavel/const_map", branch = "master" }
 debouncr = "0.2.2"
-embedded-hal = "1.0"
 mpu6050-dmp = "0.6.0"
-nb = "1.1.0"
-panic-halt = "0.2.0"
-ufmt = "0.2.0"
-ufmt-write = "0.1.0"
+log = "0.4"
+
+# embedded-hal = "1.0"
+# nb = "1.1.0"
+# panic-halt = "0.2.0"
+# ufmt = "0.2.0"
+# ufmt-write = "0.1.0"
 
 [workspace.package]
 authors = ["Mateusz Czapliński <czapkofan@gmail.com>"]
 license = "AGPL-3.0-or-later"
 edition = "2021"
 
-# Configure the build for minimal size - AVRs have very little program memory
 [profile.dev]
-panic = "abort"
+# panic = "abort"
+debug = 2
 lto = true
-opt-level = "s"
+opt-level = "z"
 
 [profile.release]
-panic = "abort"
+# panic = "abort"
 codegen-units = 1
-debug = true
+debug = 2
 lto = true
-opt-level = "s"
+opt-level = "z"
 
 
