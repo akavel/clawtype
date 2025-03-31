@@ -8,27 +8,26 @@ use embassy_futures::join::join;
 use embassy_rp::bind_interrupts;
 use embassy_rp::gpio::{Input, Pull};
 use embassy_rp::peripherals::USB;
-use embassy_rp::usb::{Driver, InterruptHandler};
-use embassy_usb::class::hid::{HidReaderWriter, ReportId, RequestHandler, State};
+use embassy_rp::usb as rp_usb;
+use embassy_usb::class::hid::{self, HidReaderWriter};
 use embassy_usb::control::OutResponse;
-use embassy_usb::{Builder, Config, Handler};
-use usbd_hid::descriptor::{KeyboardReport, SerializedDescriptor};
+use usbd_hid::descriptor::{self as hid_desc, SerializedDescriptor as _};
 use {defmt_rtt as _, panic_probe as _};
 
 
 bind_interrupts!(struct Irqs {
-    USBCTRL_IRQ => InterruptHandler<USB>;
+    USBCTRL_IRQ => rp_usb::InterruptHandler<USB>;
 });
 
 #[embassy_executor::main]
 async fn main(_spawner: Spawner) {
     let p = embassy_rp::init(Default::default());
     // Create the driver, from the HAL.
-    let driver = Driver::new(p.USB, Irqs);
+    let driver = rp_usb::Driver::new(p.USB, Irqs);
 
     // Create embassy-usb Config
     // TODO: why those params in the example?
-    let mut config = Config::new(0xc0de, 0xcafe);
+    let mut config = embassy_usb::Config::new(0xc0de, 0xcafe);
     config.manufacturer = Some("Embassy");
     config.product = Some("HID keyboard example");
     config.serial_number = Some("12345678");
@@ -45,9 +44,9 @@ async fn main(_spawner: Spawner) {
     let mut request_handler = MyRequestHandler {};
     let mut device_handler = MyDeviceHandler::new();
 
-    let mut state = State::new();
+    let mut state = hid::State::new();
 
-    let mut builder = Builder::new(
+    let mut builder = embassy_usb::Builder::new(
         driver,
         config,
         &mut config_descriptor,
@@ -60,7 +59,7 @@ async fn main(_spawner: Spawner) {
 
     // Create classes on the builder.
     let config = embassy_usb::class::hid::Config {
-        report_descriptor: KeyboardReport::desc(),
+        report_descriptor: hid_desc::KeyboardReport::desc(),
         request_handler: None,
         poll_ms: 60,
         max_packet_size: 64,
@@ -89,7 +88,7 @@ async fn main(_spawner: Spawner) {
             signal_pin.wait_for_low().await;
             info!("HIGH DETECTED");
             // Create a report with the C key pressed. (no shift modifier)
-            let report = KeyboardReport {
+            let report = hid_desc::KeyboardReport {
                 keycodes: [6, 0, 0, 0, 0, 0],
                 leds: 0,
                 modifier: 0,
@@ -102,7 +101,7 @@ async fn main(_spawner: Spawner) {
             };
             signal_pin.wait_for_high().await;
             info!("LOW DETECTED");
-            let report = KeyboardReport {
+            let report = hid_desc::KeyboardReport {
                 keycodes: [0, 0, 0, 0, 0, 0],
                 leds: 0,
                 modifier: 0,
@@ -126,22 +125,22 @@ async fn main(_spawner: Spawner) {
 
 struct MyRequestHandler {}
 
-impl RequestHandler for MyRequestHandler {
-    fn get_report(&mut self, id: ReportId, _buf: &mut [u8]) -> Option<usize> {
+impl hid::RequestHandler for MyRequestHandler {
+    fn get_report(&mut self, id: hid::ReportId, _buf: &mut [u8]) -> Option<usize> {
         info!("Get report for {:?}", id);
         None
     }
 
-    fn set_report(&mut self, id: ReportId, data: &[u8]) -> OutResponse {
+    fn set_report(&mut self, id: hid::ReportId, data: &[u8]) -> OutResponse {
         info!("Set report for {:?}: {=[u8]}", id, data);
         OutResponse::Accepted
     }
 
-    fn set_idle_ms(&mut self, id: Option<ReportId>, dur: u32) {
+    fn set_idle_ms(&mut self, id: Option<hid::ReportId>, dur: u32) {
         info!("Set idle rate for {:?} to {:?}", id, dur);
     }
 
-    fn get_idle_ms(&mut self, id: Option<ReportId>) -> Option<u32> {
+    fn get_idle_ms(&mut self, id: Option<hid::ReportId>) -> Option<u32> {
         info!("Get idle rate for {:?}", id);
         None
     }
@@ -159,7 +158,7 @@ impl MyDeviceHandler {
     }
 }
 
-impl Handler for MyDeviceHandler {
+impl embassy_usb::Handler for MyDeviceHandler {
     fn enabled(&mut self, enabled: bool) {
         self.configured.store(false, Ordering::Relaxed);
         if enabled {
