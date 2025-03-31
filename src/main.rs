@@ -1,6 +1,21 @@
 #![no_std]
 #![no_main]
 
+use core::sync::atomic::{AtomicBool, Ordering};
+use defmt::{info, warn};
+use embassy_executor::Spawner;
+use embassy_futures::join::join;
+use embassy_rp::bind_interrupts;
+use embassy_rp::gpio::{Input, Pull};
+use embassy_rp::peripherals::USB;
+use embassy_rp::usb::{Driver, InterruptHandler};
+use embassy_usb::class::hid::{HidReaderWriter, ReportId, RequestHandler, State};
+use embassy_usb::control::OutResponse;
+use embassy_usb::{Builder, Config, Handler};
+use usbd_hid::descriptor::{KeyboardReport, SerializedDescriptor};
+use {defmt_rtt as _, panic_probe as _};
+
+
 bind_interrupts!(struct Irqs {
     USBCTRL_IRQ => InterruptHandler<USB>;
 });
