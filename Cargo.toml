@@ -4,6 +4,8 @@ name = "rp-usb-key"
 version = "0.1.0"
 license = "AGPL-3.0-or-later"
 
+[workspace]
+
 [dependencies]
 embassy-executor = { version = "0.7.0", features = ["task-arena-size-98304", "arch-cortex-m", "executor-thread", "executor-interrupt", "defmt"] }
 embassy-futures = { version = "0.1.0" }
@@ -50,6 +52,8 @@ panic-probe = { version = "0.3", features = ["print-defmt"] }
 # heapless = "0.8"
 usbd-hid = "0.8.1"
 # rand_core = "0.6.4"
+
+usbd-hut = { version = "0.1.0", path = "usbd-hut/" }
 
 # embedded-hal-1 = { package = "embedded-hal", version = "1.0" }
 # embedded-hal-async = "1.0"

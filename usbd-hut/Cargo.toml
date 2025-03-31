@@ -1,0 +1,8 @@
+[package]
+edition = "2021"
+name = "usbd-hut"
+version = "0.1.0"
+description = "USB HID Usage Tables pages"
+
+[dependencies]
+usbd-human-interface-device = "0.5.1"

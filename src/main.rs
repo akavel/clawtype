@@ -87,9 +87,9 @@ async fn main(_spawner: Spawner) {
             info!("Waiting for HIGH on pin");
             signal_pin.wait_for_low().await;
             info!("HIGH DETECTED");
-            // Create a report with the C key pressed. (no shift modifier)
+            // Create a report with the D key pressed. (no shift modifier)
             let report = hid_desc::KeyboardReport {
-                keycodes: [6, 0, 0, 0, 0, 0],
+                keycodes: [usbd_hut::Keyboard::D.into(), 0, 0, 0, 0, 0],
                 leds: 0,
                 modifier: 0,
                 reserved: 0,
