@@ -40,16 +40,17 @@ bind_interrupts!(struct Irqs {
 #[embassy_executor::main]
 async fn main(_spawner: Spawner) {
     let p = embassy_rp::init(Default::default());
-    // Create the driver, from the HAL.
-    let driver = rp_usb::Driver::new(p.USB, Irqs);
 
+    ////
+    //// USB initial setup
+    ////
+
+    let driver = rp_usb::Driver::new(p.USB, Irqs);
     use usb_simpler::buffers as usb_buffers;
     let mut usb_buf_dev = usb_buffers::ForDevice::new();
     let mut usb_buf_hid = usb_buffers::ForHid::new();
-
     let mut usb_dev_builder =
         usb_simpler::new("akavel", "clawtype").into_device_builder(driver, &mut usb_buf_dev);
-
     let hid = usb_dev_builder.add_hid_reader_writer::<1, 8>(
         &mut usb_buf_hid,
         hid::Config {
@@ -59,23 +60,38 @@ async fn main(_spawner: Spawner) {
             max_packet_size: 64,
         },
     );
-
-    // Build & run the device.
     let mut usb = usb_dev_builder.build();
     let usb_fut = usb.run();
-
-    // Set up the signal pin that will be used to trigger the keyboard.
-    let mut signal_pin = Input::new(p.PIN_2, Pull::Up);
-    signal_pin.set_schmitt(true); // Enable the schmitt trigger to slightly debounce.
-
     let (reader, mut writer) = hid.split();
+
+    ////
+    //// INPUT switches initial setup
+    ////
+
+    let mut p0 = Input::new(p.PIN_2, Pull::Up);
+    let mut p1 = Input::new(p.PIN_3, Pull::Up);
+    let mut p2 = Input::new(p.PIN_4, Pull::Up);
+    let mut p3 = Input::new(p.PIN_5, Pull::Up);
+    let mut p4 = Input::new(p.PIN_6, Pull::Up);
+    let mut p5 = Input::new(p.PIN_7, Pull::Up);
+    let mut p6 = Input::new(p.PIN_8, Pull::Up);
+    let mut p7 = Input::new(p.PIN_9, Pull::Up);
+
+    // Enable the schmitt trigger to slightly debounce.
+    for p in [&mut p0, &mut p1, &mut p2, &mut p3, &mut p4, &mut p5, &mut p6, &mut p7] {
+        p.set_schmitt(true);
+    }
+
+    ////
+    //// OTHER
+    ////
 
     let mut kbd_state = usb_kbd::StateReport::default();
 
     // Do stuff with the class!
     let in_fut = async {
         loop {
-            signal_pin.wait_for_low().await;
+            p0.wait_for_low().await;
             // Create a report with the D key pressed. (no shift modifier)
             let _ = kbd_state.press(usbd_hut::Keyboard::D);
             // Send the report.
@@ -83,7 +99,7 @@ async fn main(_spawner: Spawner) {
                 Ok(()) => {}
                 Err(e) => warn!("Failed to send report: {:?}", e),
             };
-            signal_pin.wait_for_high().await;
+            p0.wait_for_high().await;
             kbd_state.clear();
             match writer.write_serialize(&kbd_state).await {
                 Ok(()) => {}
