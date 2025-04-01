@@ -35,7 +35,7 @@ async fn main(_spawner: Spawner) {
 
     let mut state = hid::State::new();
 
-    let mut builder = usb_step1a.next(&mut usb_step1b, driver, &mut device_handler);
+    let mut usb_step2 = usb_step1a.next(&mut usb_step1b, driver, &mut device_handler);
 
     // Create classes on the builder.
     let config = embassy_usb::class::hid::Config {
@@ -44,10 +44,10 @@ async fn main(_spawner: Spawner) {
         poll_ms: 60,
         max_packet_size: 64,
     };
-    let hid = HidReaderWriter::<_, 1, 8>::new(&mut builder, &mut state, config);
+    let hid = HidReaderWriter::<_, 1, 8>::new(&mut usb_step2.builder, &mut state, config);
 
     // Build the builder.
-    let mut usb = builder.build();
+    let mut usb = usb_step2.builder.build();
 
     // Run the USB device.
     let usb_fut = usb.run();

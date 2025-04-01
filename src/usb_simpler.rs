@@ -29,7 +29,7 @@ pub struct Step1b {
 }
 
 impl<'a> Step1a<'a> {
-    pub fn next<D>(self, step1b: &'a mut Step1b, driver: D, handler: &'a mut dyn eusb::Handler) -> eusb::Builder<'a, D>
+    pub fn next<D>(self, step1b: &'a mut Step1b, driver: D, handler: &'a mut dyn eusb::Handler) -> Step2<'a, D>
     where D: eusb::driver::Driver<'a>
     {
         let mut builder = eusb::Builder::new(
@@ -41,6 +41,11 @@ impl<'a> Step1a<'a> {
             &mut step1b.control_buf,
         );
         builder.handler(handler);
-        builder
+        Step2 { builder }
     }
 }
+
+pub struct Step2<'a, D: eusb::driver::Driver<'a>> {
+    pub builder: eusb::Builder<'a, D>,
+}
+
