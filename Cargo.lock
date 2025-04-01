@@ -150,6 +150,9 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 name = "clawtype"
 version = "2.1.0"
 dependencies = [
+ "clawtype-chords",
+ "clawtype-macros",
+ "const_map",
  "cortex-m",
  "cortex-m-rt",
  "critical-section",
@@ -166,6 +169,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "clawtype-chords"
+version = "0.1.0"
+dependencies = [
+ "clawtype-macros",
+ "const_map",
+]
+
+[[package]]
+name = "clawtype-macros"
+version = "0.0.1"
+dependencies = [
+ "proc-macro2",
+]
+
+[[package]]
 name = "codespan-reporting"
 version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -174,6 +192,11 @@ dependencies = [
  "termcolor",
  "unicode-width",
 ]
+
+[[package]]
+name = "const_map"
+version = "0.1.0"
+source = "git+https://github.com/akavel/const_map?branch=master#f7b8b993899a872d432a919826ed332f7a1f16da"
 
 [[package]]
 name = "cortex-m"

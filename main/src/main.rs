@@ -31,6 +31,7 @@ use {defmt_rtt as _, panic_probe as _};
 
 pub mod usb_kbd;
 pub mod usb_simpler;
+mod layout;
 
 bind_interrupts!(struct Irqs {
     USBCTRL_IRQ => rp_usb::InterruptHandler<USB>;
