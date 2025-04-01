@@ -49,10 +49,7 @@ async fn main(_spawner: Spawner) {
 
     // Set up the signal pin that will be used to trigger the keyboard.
     let mut signal_pin = Input::new(p.PIN_2, Pull::Up);
-    // let in0 = gpio::Input::new(p.PIN_2, Pull::Up);
-
-    // Enable the schmitt trigger to slightly debounce.
-    signal_pin.set_schmitt(true);
+    signal_pin.set_schmitt(true); // Enable the schmitt trigger to slightly debounce.
 
     let (reader, mut writer) = hid.split();
 
