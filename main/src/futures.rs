@@ -5,7 +5,7 @@ macro_rules! join {
     ( $future:expr ) => {
         $future
     };
-    ( $fut1:expr, $($futN:expr),+ ) => {
+    ( $fut1:expr, $($futN:expr),+ $(,)? ) => {
         $crate::futures::join2($fut1, $crate::join!( $($futN),+ ))
     };
 }
