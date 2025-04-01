@@ -1,6 +1,7 @@
+use embassy_usb as eusb;
 
 pub fn new<'a>(manufacturer: &'a str, product: &'a str) -> (Step1a<'a>, Step1b) {
-    let mut config = embassy_usb::Config::new(0xc0de, 0xcafe);
+    let mut config = eusb::Config::new(0xc0de, 0xcafe);
     config.manufacturer = Some(manufacturer);
     config.product = Some(product);
     let s1a = Step1a {
@@ -17,7 +18,7 @@ pub fn new<'a>(manufacturer: &'a str, product: &'a str) -> (Step1a<'a>, Step1b) 
 }
 
 pub struct Step1a<'a> {
-    pub config: embassy_usb::Config<'a>,
+    pub config: eusb::Config<'a>,
 }
 
 pub struct Step1b {
@@ -25,4 +26,21 @@ pub struct Step1b {
     pub bos_descriptor: [u8; 256],
     pub msos_descriptor: [u8; 256],
     pub control_buf: [u8; 64],
+}
+
+impl<'a> Step1a<'a> {
+    pub fn next<D>(self, step1b: &'a mut Step1b, driver: D, handler: &'a mut dyn eusb::Handler) -> eusb::Builder<'a, D>
+    where D: eusb::driver::Driver<'a>
+    {
+        let mut builder = eusb::Builder::new(
+            driver,
+            self.config,
+            &mut step1b.config_descriptor,
+            &mut step1b.bos_descriptor,
+            &mut step1b.msos_descriptor,
+            &mut step1b.control_buf,
+        );
+        builder.handler(handler);
+        builder
+    }
 }

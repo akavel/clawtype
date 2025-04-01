@@ -35,16 +35,7 @@ async fn main(_spawner: Spawner) {
 
     let mut state = hid::State::new();
 
-    let mut builder = embassy_usb::Builder::new(
-        driver,
-        usb_step1a.config,
-        &mut usb_step1b.config_descriptor,
-        &mut usb_step1b.bos_descriptor,
-        &mut usb_step1b.msos_descriptor,
-        &mut usb_step1b.control_buf,
-    );
-
-    builder.handler(&mut device_handler);
+    let mut builder = usb_step1a.next(&mut usb_step1b, driver, &mut device_handler);
 
     // Create classes on the builder.
     let config = embassy_usb::class::hid::Config {
