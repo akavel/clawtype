@@ -33,16 +33,13 @@ pub mod buffers {
             }
         }
     }
-
 }
 
 pub fn new<'a>(manufacturer: &'a str, product: &'a str) -> ConfigBuilder<'a> {
     let mut config = eusb::Config::new(0xc0de, 0xcafe);
     config.manufacturer = Some(manufacturer);
     config.product = Some(product);
-    ConfigBuilder {
-        config,
-    }
+    ConfigBuilder { config }
 }
 
 pub struct ConfigBuilder<'a> {
@@ -50,8 +47,13 @@ pub struct ConfigBuilder<'a> {
 }
 
 impl<'a> ConfigBuilder<'a> {
-    pub fn into_device_builder<D>(self, driver: D, buf: &'a mut buffers::ForDevice) -> DeviceBuilder<'a, D>
-    where D: eusb::driver::Driver<'a>
+    pub fn into_device_builder<D>(
+        self,
+        driver: D,
+        buf: &'a mut buffers::ForDevice,
+    ) -> DeviceBuilder<'a, D>
+    where
+        D: eusb::driver::Driver<'a>,
     {
         DeviceBuilder {
             wrapped: eusb::Builder::new(
@@ -67,15 +69,21 @@ impl<'a> ConfigBuilder<'a> {
 }
 
 pub struct DeviceBuilder<'a, D>
-where D: eusb::driver::Driver<'a>
+where
+    D: eusb::driver::Driver<'a>,
 {
     pub wrapped: eusb::Builder<'a, D>,
 }
 
 impl<'a, D> DeviceBuilder<'a, D>
-where D: eusb::driver::Driver<'a>
+where
+    D: eusb::driver::Driver<'a>,
 {
-    pub fn add_hid_reader_writer<const READ_N: usize, const WRITE_N: usize>(&mut self, buf: &'a mut buffers::ForHid<'a>, cfg: hid::Config<'a>) -> hid::HidReaderWriter<'a, D, READ_N, WRITE_N> {
+    pub fn add_hid_reader_writer<const READ_N: usize, const WRITE_N: usize>(
+        &mut self,
+        buf: &'a mut buffers::ForHid<'a>,
+        cfg: hid::Config<'a>,
+    ) -> hid::HidReaderWriter<'a, D, READ_N, WRITE_N> {
         hid::HidReaderWriter::new(&mut self.wrapped, &mut buf.state, cfg)
     }
 
@@ -83,4 +91,3 @@ where D: eusb::driver::Driver<'a>
         self.wrapped.build()
     }
 }
-

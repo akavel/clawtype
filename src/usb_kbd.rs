@@ -8,7 +8,9 @@ pub struct StateReport {
 
 impl Default for StateReport {
     fn default() -> Self {
-        Self { report: hid_desc::KeyboardReport::default() }
+        Self {
+            report: hid_desc::KeyboardReport::default(),
+        }
     }
 }
 
@@ -21,7 +23,7 @@ impl hid_desc::generator_prelude::Serialize for StateReport {
     }
 }
 
-impl hid_desc::AsInputReport for StateReport { }
+impl hid_desc::AsInputReport for StateReport {}
 
 impl hid_desc::SerializedDescriptor for StateReport {
     fn desc() -> &'static [u8] {
@@ -100,4 +102,3 @@ fn as_modifier_mask(key: u8) -> Option<u8> {
 
 const MODIFIERS_START: u8 = 224;
 const MODIFIERS_END: u8 = 231;
-

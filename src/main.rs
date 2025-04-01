@@ -16,7 +16,6 @@ use {defmt_rtt as _, panic_probe as _};
 pub mod usb_kbd;
 pub mod usb_simpler;
 
-
 bind_interrupts!(struct Irqs {
     USBCTRL_IRQ => rp_usb::InterruptHandler<USB>;
 });
@@ -31,15 +30,18 @@ async fn main(_spawner: Spawner) {
     let mut usb_buf_dev = usb_buffers::ForDevice::new();
     let mut usb_buf_hid = usb_buffers::ForHid::new();
 
-    let mut usb_dev_builder = usb_simpler::new("akavel", "clawtype")
-        .into_device_builder(driver, &mut usb_buf_dev);
+    let mut usb_dev_builder =
+        usb_simpler::new("akavel", "clawtype").into_device_builder(driver, &mut usb_buf_dev);
 
-    let hid = usb_dev_builder.add_hid_reader_writer::<1, 8>(&mut usb_buf_hid, hid::Config {
-        report_descriptor: hid_desc::KeyboardReport::desc(),
-        request_handler: None,
-        poll_ms: 60,
-        max_packet_size: 64,
-    });
+    let hid = usb_dev_builder.add_hid_reader_writer::<1, 8>(
+        &mut usb_buf_hid,
+        hid::Config {
+            report_descriptor: hid_desc::KeyboardReport::desc(),
+            request_handler: None,
+            poll_ms: 60,
+            max_packet_size: 64,
+        },
+    );
 
     // Build & run the device.
     let mut usb = usb_dev_builder.build();
@@ -108,4 +110,3 @@ impl hid::RequestHandler for MyRequestHandler {
         None
     }
 }
-
