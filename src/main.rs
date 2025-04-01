@@ -28,14 +28,16 @@ async fn main(_spawner: Spawner) {
     // Create the driver, from the HAL.
     let driver = rp_usb::Driver::new(p.USB, Irqs);
 
-    let (usb_step1a, mut usb_step1b) = usb_simpler::new("akavel", "clawtype");
+    use usb_simpler as usbs;
+    let usb_step1 = usbs::step1::new("akavel", "clawtype");
+    let mut usb_step2buf = usbs::step2::Buffers::new();
 
     let mut request_handler = MyRequestHandler {};
     let mut device_handler = MyDeviceHandler::new();
 
     let mut state = hid::State::new();
 
-    let mut usb_step2 = usb_step1a.next(&mut usb_step1b, driver, &mut device_handler);
+    let mut usb_step2 = usbs::step2::from(usb_step1, &mut usb_step2buf, driver, &mut device_handler);
 
     // Create classes on the builder.
     let config = embassy_usb::class::hid::Config {
