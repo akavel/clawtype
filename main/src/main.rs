@@ -17,7 +17,6 @@
 #![no_std]
 #![no_main]
 
-use defmt::warn;
 use embassy_executor::Spawner;
 use embassy_futures::join::join;
 use embassy_rp::bind_interrupts;
@@ -94,8 +93,6 @@ async fn main(_spawner: Spawner) {
     //// OTHER
     ////
 
-    let mut kbd_state = usb_kbd::StateReport::default();
-
     // Do stuff with the class!
     let in_fut = async {
         loop {
@@ -118,23 +115,6 @@ async fn main(_spawner: Spawner) {
                     usb_send_key_with_flags(&mut writer, key_with_flags).await;
                 }
             }
-
-            /*
-            p0.wait_for_low().await;
-            // Create a report with the D key pressed. (no shift modifier)
-            let _ = kbd_state.press(usbd_hut::Keyboard::D);
-            // Send the report.
-            match writer.write_serialize(&kbd_state).await {
-                Ok(()) => {}
-                Err(e) => warn!("Failed to send report: {:?}", e),
-            };
-            p0.wait_for_high().await;
-            kbd_state.clear();
-            match writer.write_serialize(&kbd_state).await {
-                Ok(()) => {}
-                Err(e) => warn!("Failed to send report: {:?}", e),
-            };
-            */
         }
     };
 
