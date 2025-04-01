@@ -1,6 +1,6 @@
 [target.'cfg(all(target_arch = "arm", target_os = "none"))']
 # runner = "probe-rs run --chip RP2040"
-runner = "elf2uf2-rs --deploy"
+runner = "elf2uf2-rs --deploy --serial --verbose"
 
 [build]
 target = "thumbv6m-none-eabi"        # Cortex-M0 and Cortex-M0+

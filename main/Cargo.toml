@@ -12,6 +12,7 @@ embassy-rp.workspace = true
 embassy-sync.workspace = true
 embassy-time.workspace = true
 embassy-usb.workspace = true
+embassy-usb-logger.workspace = true
 cortex-m.workspace = true
 cortex-m-rt.workspace = true
 critical-section.workspace = true
@@ -23,6 +24,7 @@ usbd-hid.workspace = true
 const_map.workspace = true
 thiserror.workspace = true
 mpu6050-async.workspace = true
+log.workspace = true
 
 usbd-hut.workspace = true
 clawtype-chords.workspace = true

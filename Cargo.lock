@@ -164,6 +164,8 @@ dependencies = [
  "embassy-sync",
  "embassy-time",
  "embassy-usb",
+ "embassy-usb-logger",
+ "log",
  "mpu6050-async",
  "panic-probe",
  "thiserror",
@@ -571,6 +573,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4fc247028eae04174b6635104a35b1ed336aabef4654f5e87a8f32327d231970"
 dependencies = [
  "defmt",
+]
+
+[[package]]
+name = "embassy-usb-logger"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ad40e3ec749d83f4b7ab0c0599c9bef0c51a73ce1c1087d8599ff2448d00c2aa"
+dependencies = [
+ "embassy-futures",
+ "embassy-sync",
+ "embassy-usb",
+ "log",
 ]
 
 [[package]]

@@ -26,6 +26,7 @@ use embassy_sync::mutex::Mutex;
 use embassy_sync::blocking_mutex::raw::*;
 use embassy_time::{Delay, Timer};
 use embassy_usb::class::hid;
+use embassy_usb::class::cdc_acm::{CdcAcmClass, self};
 use usbd_hid::descriptor::{self as hid_desc, SerializedDescriptor as _};
 use {defmt_rtt as _, panic_probe as _};
 use mpu6050_async::Mpu6050;
@@ -70,6 +71,7 @@ async fn main(_spawner: Spawner) {
     use usb_simpler::buffers as usb_buffers;
     let mut usb_buf_dev = usb_buffers::ForDevice::new();
     let mut usb_buf_hid = usb_buffers::ForHid::new();
+    let mut logger_state = cdc_acm::State::new();
     let mut usb_dev_builder =
         usb_simpler::new("akavel", "clawtype").into_device_builder(driver, &mut usb_buf_dev);
     let hid = usb_dev_builder.add_hid_reader_writer::<1, 8>(
@@ -81,6 +83,8 @@ async fn main(_spawner: Spawner) {
             max_packet_size: 64,
         },
     );
+    let logger_class = CdcAcmClass::new(&mut usb_dev_builder.wrapped, &mut logger_state, 64);
+    let log_fut = embassy_usb_logger::with_class!(1024, log::LevelFilter::Info, logger_class);
     let mut usb = usb_dev_builder.build();
     let usb_fut = usb.run();
     let (reader, writer) = hid.split();
@@ -122,15 +126,19 @@ async fn main(_spawner: Spawner) {
     //// OTHER
     ////
 
+    log::info!("Starting clawtype...");
     let gyro_fut = async {
         loop {
+            log::info!("loopsy...");
             Timer::after_millis(20).await;
             let m = { *mouse_enabled.lock().await };
             if m {
+                log::info!("m enabled");
                 let Ok(gyro) = mpu.get_gyro().await else {
                     continue;
                 };
-                let (gx, _gy, gz) = gyro;
+                let (gx, gy, gz) = gyro;
+                log::info!("gyro: {gx} {gy} {gz}");
                 let vx = (gx/250.0) as i8;
                 let vy = (-gz/200.0) as i8;
                 let mut w = writer.lock().await;
@@ -183,9 +191,10 @@ async fn main(_spawner: Spawner) {
     // If we had made everything `'static` above instead, we could do this using separate tasks instead.
     join!(
         usb_fut,
+        log_fut,
         gyro_fut,
-        in_fut,
-        out_fut,
+        // in_fut,
+        // out_fut,
     ).await;
 }
 
