@@ -131,16 +131,18 @@ async fn main(_spawner: Spawner) {
         loop {
             log::info!("loopsy...");
             Timer::after_millis(20).await;
+
+            let Ok(gyro) = mpu.get_gyro().await else {
+                continue;
+            };
+            let (gx, gy, gz) = gyro;
+            log::info!("gyro: {gx} {gy} {gz}");
+            let vx = (gx/250.0) as i8;
+            let vy = (-gz/200.0) as i8;
+
             let m = { *mouse_enabled.lock().await };
             if m {
                 log::info!("m enabled");
-                let Ok(gyro) = mpu.get_gyro().await else {
-                    continue;
-                };
-                let (gx, gy, gz) = gyro;
-                log::info!("gyro: {gx} {gy} {gz}");
-                let vx = (gx/250.0) as i8;
-                let vy = (-gz/200.0) as i8;
                 let mut w = writer.lock().await;
                 let _ = usb_send_mouse_move(&mut *w, vx, vy).await;
             }
