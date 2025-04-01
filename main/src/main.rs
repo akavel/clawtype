@@ -140,16 +140,15 @@ async fn main(_spawner: Spawner) {
     let gyro_fut = async {
         loop {
             log::info!("loopsy...");
-            // Timer::after_millis(20).await;
-            Timer::after_millis(100).await;
+            Timer::after_millis(20).await;
 
             let Ok(gyro) = mpu.get_gyro().await else {
                 continue;
             };
             let (gx, gy, gz) = gyro;
             log::info!("gyro: {gx} {gy} {gz}");
-            let vx = (gx*10.0) as i8;
-            let vy = (-gz*10.0) as i8;
+            let vx = (gx*30.0) as i8;
+            let vy = (-gz*20.0) as i8;
             // let vx = (gx/250.0) as i8;
             // let vy = (-gz/200.0) as i8;
             log::info!("mouse: {vx}\t{vy}");
