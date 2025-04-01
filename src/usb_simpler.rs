@@ -50,7 +50,7 @@ pub struct Step1<'a> {
 }
 
 impl<'a> Step1<'a> {
-    pub fn into_device_builder<D>(self, buf: &'a mut buffers::ForDevice, driver: D, handler: &'a mut dyn eusb::Handler) -> Step2<'a, D>
+    pub fn into_device_builder<D>(self, driver: D, buf: &'a mut buffers::ForDevice, handler: &'a mut dyn eusb::Handler) -> Step2<'a, D>
     where D: eusb::driver::Driver<'a>
     {
         let mut builder = eusb::Builder::new(

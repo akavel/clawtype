@@ -34,7 +34,7 @@ async fn main(_spawner: Spawner) {
 
     let mut device_handler = MyDeviceHandler::new();
     let mut usb_step2 = usbs::new("akavel", "clawtype")
-        .into_device_builder(&mut usb_buf_dev, driver, &mut device_handler);
+        .into_device_builder(driver, &mut usb_buf_dev, &mut device_handler);
 
     let hid = HidReaderWriter::<_, 1, 8>::new(&mut usb_step2.builder, &mut usb_buf_hid.state, hid::Config {
         report_descriptor: hid_desc::KeyboardReport::desc(),
