@@ -28,6 +28,13 @@ use embassy_usb::class::hid;
 use usbd_hid::descriptor::{self as hid_desc, SerializedDescriptor as _};
 use {defmt_rtt as _, panic_probe as _};
 
+use clawtype_chords::{
+    self as chords,
+    keycodes as new_keys,
+    SwitchSet,
+    UsbOutcome::*
+};
+
 pub mod usb_kbd;
 pub mod usb_simpler;
 mod layout;
@@ -81,6 +88,8 @@ async fn main(_spawner: Spawner) {
         p.set_schmitt(true);
     }
 
+    let mut cho = chords::Engine::<layout::Layout>::default();
+
     ////
     //// OTHER
     ////
@@ -90,6 +99,27 @@ async fn main(_spawner: Spawner) {
     // Do stuff with the class!
     let in_fut = async {
         loop {
+            let switches =
+                bit(0b01_00_00_00, p0.is_low()) | // pinky base
+                bit(0b10_00_00_00, p1.is_low()) | // pinky tip
+                bit(0b00_01_00_00, p2.is_low()) | // ring base
+                bit(0b00_10_00_00, p3.is_low()) | // ring tip
+                bit(0b00_00_01_00, p4.is_low()) | // middle base
+                bit(0b00_00_10_00, p5.is_low()) | // middle tip
+                bit(0b00_00_00_01, p6.is_low()) | // index base
+                bit(0b00_00_00_10, p7.is_low());  // index tip
+
+            let outcome = cho.handle(SwitchSet(switches));
+            match outcome {
+                Nothing => (),
+                KeyPress(_) => (),
+                KeyRelease(_) => (),
+                KeyHit(key_with_flags) => {
+                    usb_send_key_with_flags(&mut writer, key_with_flags).await;
+                }
+            }
+
+            /*
             p0.wait_for_low().await;
             // Create a report with the D key pressed. (no shift modifier)
             let _ = kbd_state.press(usbd_hut::Keyboard::D);
@@ -104,6 +134,7 @@ async fn main(_spawner: Spawner) {
                 Ok(()) => {}
                 Err(e) => warn!("Failed to send report: {:?}", e),
             };
+            */
         }
     };
 
@@ -121,3 +152,26 @@ struct MyRequestHandler {}
 
 impl hid::RequestHandler for MyRequestHandler { }
 
+fn bit(mask: u8, apply: bool) -> u8 {
+    if apply { mask } else { 0 }
+}
+
+async fn usb_send_key_with_flags<'d, D, const N: usize>(writer: &mut hid::HidWriter<'d, D, N>, k: new_keys::KeyWithFlags)
+where
+      D: embassy_usb::driver::Driver<'d>,
+{
+    let bytes = k.to_be_bytes();
+    let modifier = bytes[0];
+    let key = bytes[1];
+
+    // press...
+    use usbd_hid::descriptor::KeyboardReport;
+    let mut report = KeyboardReport::default();
+    report.modifier = modifier;
+    report.keycodes[0] = key;
+    let _ = writer.write_serialize(&report).await;
+
+    // ...and release
+    let empty_report = KeyboardReport::default();
+    let _ = writer.write_serialize(&empty_report).await;
+}
