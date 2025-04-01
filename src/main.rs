@@ -32,12 +32,11 @@ async fn main(_spawner: Spawner) {
     let mut usb_buf_drv = usbs::buffers::ForDriver::new();
     let mut usb_buf_hid = usbs::buffers::ForHid::new();
 
-    let usb_step1 = usbs::step1::new("akavel", "clawtype");
-
     let mut request_handler = MyRequestHandler {};
     let mut device_handler = MyDeviceHandler::new();
 
-    let mut usb_step2 = usbs::step2::from(usb_step1, &mut usb_buf_drv, driver, &mut device_handler);
+    let mut usb_step2 = usbs::new("akavel", "clawtype")
+        .into_driver_builder(&mut usb_buf_drv, driver, &mut device_handler);
 
     // Create classes on the builder.
     let config = embassy_usb::class::hid::Config {
