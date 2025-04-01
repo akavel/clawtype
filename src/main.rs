@@ -14,6 +14,8 @@ use embassy_usb::control::OutResponse;
 use usbd_hid::descriptor::{self as hid_desc, SerializedDescriptor as _};
 use {defmt_rtt as _, panic_probe as _};
 
+pub mod usb_kbd;
+
 
 bind_interrupts!(struct Irqs {
     USBCTRL_IRQ => rp_usb::InterruptHandler<USB>;
@@ -81,6 +83,8 @@ async fn main(_spawner: Spawner) {
 
     let (reader, mut writer) = hid.split();
 
+    let mut kbd_state = usb_kbd::StateReport::default();
+
     // Do stuff with the class!
     let in_fut = async {
         loop {
@@ -88,26 +92,16 @@ async fn main(_spawner: Spawner) {
             signal_pin.wait_for_low().await;
             info!("HIGH DETECTED");
             // Create a report with the D key pressed. (no shift modifier)
-            let report = hid_desc::KeyboardReport {
-                keycodes: [usbd_hut::Keyboard::D.into(), 0, 0, 0, 0, 0],
-                leds: 0,
-                modifier: 0,
-                reserved: 0,
-            };
+            let _ = kbd_state.press(usbd_hut::Keyboard::D);
             // Send the report.
-            match writer.write_serialize(&report).await {
+            match writer.write_serialize(&kbd_state).await {
                 Ok(()) => {}
                 Err(e) => warn!("Failed to send report: {:?}", e),
             };
             signal_pin.wait_for_high().await;
             info!("LOW DETECTED");
-            let report = hid_desc::KeyboardReport {
-                keycodes: [0, 0, 0, 0, 0, 0],
-                leds: 0,
-                modifier: 0,
-                reserved: 0,
-            };
-            match writer.write_serialize(&report).await {
+            kbd_state.clear();
+            match writer.write_serialize(&kbd_state).await {
                 Ok(()) => {}
                 Err(e) => warn!("Failed to send report: {:?}", e),
             };

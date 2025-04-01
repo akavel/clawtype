@@ -1231,6 +1231,7 @@ dependencies = [
  "embassy-rp",
  "embassy-usb",
  "panic-probe",
+ "thiserror",
  "usbd-hid",
  "usbd-hut",
 ]

@@ -54,6 +54,7 @@ usbd-hid = "0.8.1"
 # rand_core = "0.6.4"
 
 usbd-hut = { version = "0.1.0", path = "usbd-hut/" }
+thiserror = { version = "2.0.12", default-features = false }
 
 # embedded-hal-1 = { package = "embedded-hal", version = "1.0" }
 # embedded-hal-async = "1.0"
