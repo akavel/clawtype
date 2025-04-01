@@ -1,7 +1,7 @@
 clawtype
 ========
 
-Rust project for the _Teensy 2.0_.
+Rust project for the _SparkFun ProMicro RP2040_ board.
 
 A variant of the [Chordite keyboard](https://web.archive.org/web/20220201061603/http://chordite.com/).
 
