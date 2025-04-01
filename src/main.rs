@@ -30,13 +30,6 @@ async fn main(_spawner: Spawner) {
 
     let mut usb_step1 = usb_simpler::new("akavel", "clawtype");
 
-    // Create embassy-usb DeviceBuilder using the driver and config.
-    // It needs some buffers for building the descriptors.
-    let mut config_descriptor = [0; 256];
-    let mut bos_descriptor = [0; 256];
-    // You can also add a Microsoft OS descriptor.
-    let mut msos_descriptor = [0; 256];
-    let mut control_buf = [0; 64];
     let mut request_handler = MyRequestHandler {};
     let mut device_handler = MyDeviceHandler::new();
 
@@ -45,10 +38,10 @@ async fn main(_spawner: Spawner) {
     let mut builder = embassy_usb::Builder::new(
         driver,
         usb_step1.config,
-        &mut config_descriptor,
-        &mut bos_descriptor,
-        &mut msos_descriptor,
-        &mut control_buf,
+        &mut usb_step1.config_descriptor,
+        &mut usb_step1.bos_descriptor,
+        &mut usb_step1.msos_descriptor,
+        &mut usb_step1.control_buf,
     );
 
     builder.handler(&mut device_handler);
