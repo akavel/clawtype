@@ -1,4 +1,40 @@
-use embassy_usb as eusb;
+use embassy_usb::{self as eusb, class::hid};
+
+pub mod buffers {
+    use super::*;
+
+    pub struct ForDriver {
+        pub config_descriptor: [u8; 256],
+        pub bos_descriptor: [u8; 256],
+        pub msos_descriptor: [u8; 256],
+        pub control_buf: [u8; 64],
+    }
+
+    impl ForDriver {
+        pub fn new() -> Self {
+            Self {
+                // TODO: why below sizes in example? try to understand and adjust
+                config_descriptor: [0; 256],
+                bos_descriptor: [0; 256],
+                msos_descriptor: [0; 256],
+                control_buf: [0; 64],
+            }
+        }
+    }
+
+    pub struct ForHid<'a> {
+        pub state: hid::State<'a>,
+    }
+
+    impl<'a> ForHid<'a> {
+        pub fn new() -> Self {
+            Self {
+                state: hid::State::new(),
+            }
+        }
+    }
+
+}
 
 pub mod step1 {
     use super::*;
@@ -20,26 +56,8 @@ pub mod step1 {
 pub mod step2 {
     use super::*;
 
-    pub struct Buffers {
-        pub config_descriptor: [u8; 256],
-        pub bos_descriptor: [u8; 256],
-        pub msos_descriptor: [u8; 256],
-        pub control_buf: [u8; 64],
-    }
 
-    impl Buffers {
-        pub fn new() -> Buffers {
-            Buffers {
-                // TODO: why below sizes in example? try to understand and adjust
-                config_descriptor: [0; 256],
-                bos_descriptor: [0; 256],
-                msos_descriptor: [0; 256],
-                control_buf: [0; 64],
-            }
-        }
-    }
-
-    pub fn from<'a, D>(step1: step1::Step1<'a>, buf: &'a mut Buffers, driver: D, handler: &'a mut dyn eusb::Handler) -> Step2<'a, D>
+    pub fn from<'a, D>(step1: step1::Step1<'a>, buf: &'a mut buffers::ForDriver, driver: D, handler: &'a mut dyn eusb::Handler) -> Step2<'a, D>
     where D: eusb::driver::Driver<'a>
     {
         let mut builder = eusb::Builder::new(

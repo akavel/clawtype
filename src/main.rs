@@ -29,15 +29,15 @@ async fn main(_spawner: Spawner) {
     let driver = rp_usb::Driver::new(p.USB, Irqs);
 
     use usb_simpler as usbs;
+    let mut usb_buf_drv = usbs::buffers::ForDriver::new();
+    let mut usb_buf_hid = usbs::buffers::ForHid::new();
+
     let usb_step1 = usbs::step1::new("akavel", "clawtype");
-    let mut usb_step2buf = usbs::step2::Buffers::new();
 
     let mut request_handler = MyRequestHandler {};
     let mut device_handler = MyDeviceHandler::new();
 
-    let mut state = hid::State::new();
-
-    let mut usb_step2 = usbs::step2::from(usb_step1, &mut usb_step2buf, driver, &mut device_handler);
+    let mut usb_step2 = usbs::step2::from(usb_step1, &mut usb_buf_drv, driver, &mut device_handler);
 
     // Create classes on the builder.
     let config = embassy_usb::class::hid::Config {
@@ -46,7 +46,7 @@ async fn main(_spawner: Spawner) {
         poll_ms: 60,
         max_packet_size: 64,
     };
-    let hid = HidReaderWriter::<_, 1, 8>::new(&mut usb_step2.builder, &mut state, config);
+    let hid = HidReaderWriter::<_, 1, 8>::new(&mut usb_step2.builder, &mut usb_buf_hid.state, config);
 
     // Build the builder.
     let mut usb = usb_step2.builder.build();
