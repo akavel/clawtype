@@ -18,7 +18,6 @@
 #![no_main]
 
 use embassy_executor::Spawner;
-use embassy_futures::join::join;
 use embassy_rp::bind_interrupts;
 use embassy_rp::gpio::{Input, Pull};
 use embassy_rp::peripherals::USB;
@@ -37,6 +36,7 @@ use clawtype_chords::{
 pub mod usb_kbd;
 pub mod usb_simpler;
 mod layout;
+mod futures;
 
 bind_interrupts!(struct Irqs {
     USBCTRL_IRQ => rp_usb::InterruptHandler<USB>;
@@ -125,7 +125,7 @@ async fn main(_spawner: Spawner) {
 
     // Run everything concurrently.
     // If we had made everything `'static` above instead, we could do this using separate tasks instead.
-    join(usb_fut, join(in_fut, out_fut)).await;
+    join!(usb_fut, in_fut, out_fut).await;
 }
 
 struct MyRequestHandler {}
