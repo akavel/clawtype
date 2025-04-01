@@ -8,7 +8,7 @@ use embassy_rp::bind_interrupts;
 use embassy_rp::gpio::{Input, Pull};
 use embassy_rp::peripherals::USB;
 use embassy_rp::usb as rp_usb;
-use embassy_usb::class::hid::{self, HidReaderWriter};
+use embassy_usb::class::hid;
 use embassy_usb::control::OutResponse;
 use usbd_hid::descriptor::{self as hid_desc, SerializedDescriptor as _};
 use {defmt_rtt as _, panic_probe as _};
@@ -34,7 +34,7 @@ async fn main(_spawner: Spawner) {
     let mut usb_dev_builder = usb_simpler::new("akavel", "clawtype")
         .into_device_builder(driver, &mut usb_buf_dev);
 
-    let hid = HidReaderWriter::<_, 1, 8>::new(&mut usb_dev_builder.builder, &mut usb_buf_hid.state, hid::Config {
+    let hid = usb_dev_builder.add_hid_reader_writer::<1, 8>(&mut usb_buf_hid, hid::Config {
         report_descriptor: hid_desc::KeyboardReport::desc(),
         request_handler: None,
         poll_ms: 60,
