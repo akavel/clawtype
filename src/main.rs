@@ -1,7 +1,6 @@
 #![no_std]
 #![no_main]
 
-use core::sync::atomic::{AtomicBool, Ordering};
 use defmt::{info, warn};
 use embassy_executor::Spawner;
 use embassy_futures::join::join;
@@ -32,9 +31,8 @@ async fn main(_spawner: Spawner) {
     let mut usb_buf_dev = usb_buffers::ForDevice::new();
     let mut usb_buf_hid = usb_buffers::ForHid::new();
 
-    let mut device_handler = MyDeviceHandler::new();
     let mut usb_dev_builder = usb_simpler::new("akavel", "clawtype")
-        .into_device_builder(driver, &mut usb_buf_dev, &mut device_handler);
+        .into_device_builder(driver, &mut usb_buf_dev);
 
     let hid = HidReaderWriter::<_, 1, 8>::new(&mut usb_dev_builder, &mut usb_buf_hid.state, hid::Config {
         report_descriptor: hid_desc::KeyboardReport::desc(),
@@ -108,48 +106,6 @@ impl hid::RequestHandler for MyRequestHandler {
     fn get_idle_ms(&mut self, id: Option<hid::ReportId>) -> Option<u32> {
         info!("Get idle rate for {:?}", id);
         None
-    }
-}
-
-struct MyDeviceHandler {
-    configured: AtomicBool,
-}
-
-impl MyDeviceHandler {
-    fn new() -> Self {
-        MyDeviceHandler {
-            configured: AtomicBool::new(false),
-        }
-    }
-}
-
-impl embassy_usb::Handler for MyDeviceHandler {
-    fn enabled(&mut self, enabled: bool) {
-        self.configured.store(false, Ordering::Relaxed);
-        if enabled {
-            info!("Device enabled");
-        } else {
-            info!("Device disabled");
-        }
-    }
-
-    fn reset(&mut self) {
-        self.configured.store(false, Ordering::Relaxed);
-        info!("Bus reset, the Vbus current limit is 100mA");
-    }
-
-    fn addressed(&mut self, addr: u8) {
-        self.configured.store(false, Ordering::Relaxed);
-        info!("USB address set to: {}", addr);
-    }
-
-    fn configured(&mut self, configured: bool) {
-        self.configured.store(configured, Ordering::Relaxed);
-        if configured {
-            info!("Device configured, it may now draw up to the configured current limit from Vbus.")
-        } else {
-            info!("Device is no longer configured, the Vbus current limit is 100mA.");
-        }
     }
 }
 
