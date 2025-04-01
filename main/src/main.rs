@@ -22,6 +22,8 @@ use embassy_rp::bind_interrupts;
 use embassy_rp::gpio::{Input, Pull};
 use embassy_rp::peripherals::USB;
 use embassy_rp::usb as rp_usb;
+use embassy_sync::mutex::Mutex;
+use embassy_sync::blocking_mutex::raw::*;
 use embassy_usb::class::hid;
 use usbd_hid::descriptor::{self as hid_desc, SerializedDescriptor as _};
 use {defmt_rtt as _, panic_probe as _};
@@ -101,10 +103,25 @@ async fn main(_spawner: Spawner) {
     let mut cho = chords::Engine::<layout::Layout>::default();
 
     ////
+    //// GYRO MOUSE initial setup
+    ////
+
+    let mouse_enabled = Mutex::<ThreadModeRawMutex, _>::new(false);
+
+    ////
     //// OTHER
     ////
 
-    // Do stuff with the class!
+    let gyro_fut = async {
+        use embassy_time::Timer;
+        loop {
+            Timer::after_millis(20).await;
+            let m = { *mouse_enabled.lock().await };
+            if m {
+            }
+        }
+    };
+
     let in_fut = async {
         loop {
             let switches =
@@ -123,7 +140,17 @@ async fn main(_spawner: Spawner) {
                 KeyPress(_) => (),
                 KeyRelease(_) => (),
                 KeyHit(key_with_flags) => {
-                    usb_send_key_with_flags(&mut writer, key_with_flags).await;
+                    if key_with_flags & HACK_MOUSE_MARKER == HACK_MOUSE_MARKER {
+                        match key_with_flags {
+                            HACK_MOUSE_ENABLE_TOGGLE => {
+                                let mut m = mouse_enabled.lock().await;
+                                *m = !*m;
+                            }
+                            _ => (),
+                        }
+                    } else {
+                        usb_send_key_with_flags(&mut writer, key_with_flags).await;
+                    }
                 }
             }
         }
@@ -136,7 +163,12 @@ async fn main(_spawner: Spawner) {
 
     // Run everything concurrently.
     // If we had made everything `'static` above instead, we could do this using separate tasks instead.
-    join!(usb_fut, in_fut, out_fut).await;
+    join!(
+        usb_fut,
+        gyro_fut,
+        in_fut,
+        out_fut,
+    ).await;
 }
 
 struct MyRequestHandler {}

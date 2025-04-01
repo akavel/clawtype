@@ -161,6 +161,8 @@ dependencies = [
  "embassy-executor",
  "embassy-futures",
  "embassy-rp",
+ "embassy-sync",
+ "embassy-time",
  "embassy-usb",
  "mpu6050-async",
  "panic-probe",
@@ -503,6 +505,7 @@ checksum = "8d2c8cdff05a7a51ba0087489ea44b0b1d97a296ca6b1d6d1a33ea7423d34049"
 dependencies = [
  "cfg-if",
  "critical-section",
+ "defmt",
  "embedded-io-async",
  "futures-sink",
  "futures-util",
@@ -517,6 +520,7 @@ checksum = "f820157f198ada183ad62e0a66f554c610cdcd1a9f27d4b316358103ced7a1f8"
 dependencies = [
  "cfg-if",
  "critical-section",
+ "defmt",
  "document-features",
  "embassy-time-driver",
  "embedded-hal 0.2.7",
