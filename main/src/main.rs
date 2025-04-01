@@ -20,13 +20,15 @@
 use embassy_executor::Spawner;
 use embassy_rp::bind_interrupts;
 use embassy_rp::gpio::{Input, Pull};
-use embassy_rp::peripherals::USB;
-use embassy_rp::usb as rp_usb;
+use embassy_rp::peripherals::{I2C0, USB};
+use embassy_rp::{usb as rp_usb, i2c as rp_i2c};
 use embassy_sync::mutex::Mutex;
 use embassy_sync::blocking_mutex::raw::*;
+use embassy_time::{Delay, Timer};
 use embassy_usb::class::hid;
 use usbd_hid::descriptor::{self as hid_desc, SerializedDescriptor as _};
 use {defmt_rtt as _, panic_probe as _};
+use mpu6050_async::Mpu6050;
 
 use clawtype_chords::{
     self as chords,
@@ -53,6 +55,7 @@ mod futures;
 
 bind_interrupts!(struct Irqs {
     USBCTRL_IRQ => rp_usb::InterruptHandler<USB>;
+    I2C0_IRQ => rp_i2c::InterruptHandler<I2C0>;
 });
 
 #[embassy_executor::main]
@@ -80,7 +83,8 @@ async fn main(_spawner: Spawner) {
     );
     let mut usb = usb_dev_builder.build();
     let usb_fut = usb.run();
-    let (reader, mut writer) = hid.split();
+    let (reader, writer) = hid.split();
+    let writer = Mutex::<ThreadModeRawMutex, _>::new(writer);
 
     ////
     //// INPUT switches initial setup
@@ -106,6 +110,12 @@ async fn main(_spawner: Spawner) {
     //// GYRO MOUSE initial setup
     ////
 
+    let mut i2c_cfg = rp_i2c::Config::default();
+    i2c_cfg.frequency = 400_000;
+    let i2c = rp_i2c::I2c::new_async(p.I2C0, p.PIN_29, p.PIN_28, Irqs, i2c_cfg);
+    let mut mpu = Mpu6050::new(i2c);
+    let _ = mpu.init(&mut Delay).await;
+
     let mouse_enabled = Mutex::<ThreadModeRawMutex, _>::new(false);
 
     ////
@@ -113,11 +123,18 @@ async fn main(_spawner: Spawner) {
     ////
 
     let gyro_fut = async {
-        use embassy_time::Timer;
         loop {
             Timer::after_millis(20).await;
             let m = { *mouse_enabled.lock().await };
             if m {
+                let Ok(gyro) = mpu.get_gyro().await else {
+                    continue;
+                };
+                let (gx, _gy, gz) = gyro;
+                let vx = (gx/250.0) as i8;
+                let vy = (-gz/200.0) as i8;
+                let mut w = writer.lock().await;
+                let _ = usb_send_mouse_move(&mut *w, vx, vy).await;
             }
         }
     };
@@ -149,7 +166,8 @@ async fn main(_spawner: Spawner) {
                             _ => (),
                         }
                     } else {
-                        usb_send_key_with_flags(&mut writer, key_with_flags).await;
+                        let mut w = writer.lock().await;
+                        usb_send_key_with_flags(&mut *w, key_with_flags).await;
                     }
                 }
             }
@@ -197,4 +215,19 @@ where
     // ...and release
     let empty_report = KeyboardReport::default();
     let _ = writer.write_serialize(&empty_report).await;
+}
+
+async fn usb_send_mouse_move<'d, D, const N: usize>(writer: &mut hid::HidWriter<'d, D, N>, x: i8, y: i8)
+where
+      D: embassy_usb::driver::Driver<'d>,
+{
+    use usbd_hid::descriptor::MouseReport;
+    let report = MouseReport {
+        x,
+        y,
+        buttons: 0,
+        wheel: 0,
+        pan: 0,
+    };
+    let _ = writer.write_serialize(&report).await;
 }
