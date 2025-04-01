@@ -17,7 +17,7 @@
 #![no_std]
 #![no_main]
 
-use defmt::{info, warn};
+use defmt::warn;
 use embassy_executor::Spawner;
 use embassy_futures::join::join;
 use embassy_rp::bind_interrupts;
@@ -25,7 +25,6 @@ use embassy_rp::gpio::{Input, Pull};
 use embassy_rp::peripherals::USB;
 use embassy_rp::usb as rp_usb;
 use embassy_usb::class::hid;
-use embassy_usb::control::OutResponse;
 use usbd_hid::descriptor::{self as hid_desc, SerializedDescriptor as _};
 use {defmt_rtt as _, panic_probe as _};
 
@@ -120,23 +119,5 @@ async fn main(_spawner: Spawner) {
 
 struct MyRequestHandler {}
 
-impl hid::RequestHandler for MyRequestHandler {
-    fn get_report(&mut self, id: hid::ReportId, _buf: &mut [u8]) -> Option<usize> {
-        info!("Get report for {:?}", id);
-        None
-    }
+impl hid::RequestHandler for MyRequestHandler { }
 
-    fn set_report(&mut self, id: hid::ReportId, data: &[u8]) -> OutResponse {
-        info!("Set report for {:?}: {=[u8]}", id, data);
-        OutResponse::Accepted
-    }
-
-    fn set_idle_ms(&mut self, id: Option<hid::ReportId>, dur: u32) {
-        info!("Set idle rate for {:?} to {:?}", id, dur);
-    }
-
-    fn get_idle_ms(&mut self, id: Option<hid::ReportId>) -> Option<u32> {
-        info!("Get idle rate for {:?}", id);
-        None
-    }
-}
