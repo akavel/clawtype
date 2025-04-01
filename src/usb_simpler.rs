@@ -8,7 +8,6 @@ pub mod buffers {
         pub bos_descriptor: [u8; 256],
         pub msos_descriptor: [u8; 256],
         pub control_buf: [u8; 64],
-        pub dumb_handler: handler::Trivial,
     }
 
     impl ForDevice {
@@ -19,7 +18,6 @@ pub mod buffers {
                 bos_descriptor: [0; 256],
                 msos_descriptor: [0; 256],
                 control_buf: [0; 64],
-                dumb_handler: handler::Trivial { },
             }
         }
     }
@@ -55,22 +53,13 @@ impl<'a> Step1<'a> {
     pub fn into_device_builder<D>(self, driver: D, buf: &'a mut buffers::ForDevice) -> eusb::Builder<'a, D>
     where D: eusb::driver::Driver<'a>
     {
-        let mut builder = eusb::Builder::new(
+        eusb::Builder::new(
             driver,
             self.config,
             &mut buf.config_descriptor,
             &mut buf.bos_descriptor,
             &mut buf.msos_descriptor,
             &mut buf.control_buf,
-        );
-        builder.handler(&mut buf.dumb_handler);
-        builder
+        )
     }
-}
-
-pub mod handler {
-    use super::*;
-
-    pub struct Trivial { }
-    impl eusb::Handler for Trivial { }
 }
