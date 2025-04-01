@@ -70,12 +70,15 @@ async fn main(_spawner: Spawner) {
     let driver = rp_usb::Driver::new(p.USB, Irqs);
     use usb_simpler::buffers as usb_buffers;
     let mut usb_buf_dev = usb_buffers::ForDevice::new();
-    let mut usb_buf_hid = usb_buffers::ForHid::new();
+    let mut usb_buf_hid_kbd = usb_buffers::ForHid::new();
+    let mut usb_buf_hid_mouse = usb_buffers::ForHid::new();
     let mut logger_state = cdc_acm::State::new();
     let mut usb_dev_builder =
         usb_simpler::new("akavel", "clawtype").into_device_builder(driver, &mut usb_buf_dev);
-    let hid = usb_dev_builder.add_hid_reader_writer::<1, 8>(
-        &mut usb_buf_hid,
+    let logger_class = CdcAcmClass::new(&mut usb_dev_builder.wrapped, &mut logger_state, 64);
+    let log_fut = embassy_usb_logger::with_class!(1024, log::LevelFilter::Info, logger_class);
+    let kbd_hid = usb_dev_builder.add_hid_reader_writer::<1, 8>(
+        &mut usb_buf_hid_kbd,
         hid::Config {
             report_descriptor: hid_desc::KeyboardReport::desc(),
             request_handler: None,
@@ -83,12 +86,19 @@ async fn main(_spawner: Spawner) {
             max_packet_size: 64,
         },
     );
-    let logger_class = CdcAcmClass::new(&mut usb_dev_builder.wrapped, &mut logger_state, 64);
-    let log_fut = embassy_usb_logger::with_class!(1024, log::LevelFilter::Info, logger_class);
+    let mouse_hid = usb_dev_builder.add_hid_reader_writer::<1, 8>(
+        &mut usb_buf_hid_mouse,
+        hid::Config {
+            report_descriptor: hid_desc::MouseReport::desc(),
+            request_handler: None,
+            poll_ms: 60,
+            max_packet_size: 64,
+        },
+    );
     let mut usb = usb_dev_builder.build();
     let usb_fut = usb.run();
-    let (reader, writer) = hid.split();
-    let writer = Mutex::<ThreadModeRawMutex, _>::new(writer);
+    let (kbd_reader, mut kbd_writer) = kbd_hid.split();
+    let (mouse_reader, mut mouse_writer) = mouse_hid.split();
 
     ////
     //// INPUT switches initial setup
@@ -147,14 +157,14 @@ async fn main(_spawner: Spawner) {
             let m = { *mouse_enabled.lock().await };
             if m {
                 log::info!("m enabled");
-                let mut w = writer.lock().await;
-                let _ = usb_send_mouse_move(&mut *w, vx, vy).await;
+                let _ = usb_send_mouse_move(&mut mouse_writer, vx, vy).await;
             }
         }
     };
 
     let in_fut = async {
         loop {
+            _ = Timer::after_millis(2).await;
             let switches =
                 bit(0b01_00_00_00, p0.is_low()) | // pinky base
                 bit(0b10_00_00_00, p1.is_low()) | // pinky tip
@@ -180,8 +190,7 @@ async fn main(_spawner: Spawner) {
                             _ => (),
                         }
                     } else {
-                        let mut w = writer.lock().await;
-                        usb_send_key_with_flags(&mut *w, key_with_flags).await;
+                        usb_send_key_with_flags(&mut kbd_writer, key_with_flags).await;
                     }
                 }
             }
@@ -189,8 +198,8 @@ async fn main(_spawner: Spawner) {
     };
 
     let mut request_handler = MyRequestHandler {};
-    let out_fut = async {
-        reader.run(false, &mut request_handler).await;
+    let kbd_out_fut = async {
+        kbd_reader.run(false, &mut request_handler).await;
     };
 
     // Run everything concurrently.
@@ -199,8 +208,8 @@ async fn main(_spawner: Spawner) {
         usb_fut,
         log_fut,
         gyro_fut,
-        // in_fut,
-        // out_fut,
+        in_fut,
+        kbd_out_fut,
     ).await;
 }
 
