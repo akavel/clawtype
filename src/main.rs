@@ -28,15 +28,15 @@ async fn main(_spawner: Spawner) {
     // Create the driver, from the HAL.
     let driver = rp_usb::Driver::new(p.USB, Irqs);
 
-    use usb_simpler as usbs;
-    let mut usb_buf_dev = usbs::buffers::ForDevice::new();
-    let mut usb_buf_hid = usbs::buffers::ForHid::new();
+    use usb_simpler::buffers as usb_buffers;
+    let mut usb_buf_dev = usb_buffers::ForDevice::new();
+    let mut usb_buf_hid = usb_buffers::ForHid::new();
 
     let mut device_handler = MyDeviceHandler::new();
-    let mut usb_step2 = usbs::new("akavel", "clawtype")
+    let mut usb_dev_builder = usb_simpler::new("akavel", "clawtype")
         .into_device_builder(driver, &mut usb_buf_dev, &mut device_handler);
 
-    let hid = HidReaderWriter::<_, 1, 8>::new(&mut usb_step2.builder, &mut usb_buf_hid.state, hid::Config {
+    let hid = HidReaderWriter::<_, 1, 8>::new(&mut usb_dev_builder, &mut usb_buf_hid.state, hid::Config {
         report_descriptor: hid_desc::KeyboardReport::desc(),
         request_handler: None,
         poll_ms: 60,
@@ -44,7 +44,7 @@ async fn main(_spawner: Spawner) {
     });
 
     // Build & run the device.
-    let mut usb = usb_step2.builder.build();
+    let mut usb = usb_dev_builder.build();
     let usb_fut = usb.run();
 
     // Set up the signal pin that will be used to trigger the keyboard.
