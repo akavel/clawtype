@@ -29,6 +29,17 @@ use {defmt_rtt as _, panic_probe as _};
 use clawtype_chords::{
     self as chords,
     keycodes as new_keys,
+    keycodes::{
+        HACK_MOUSE_MARKER,
+        HACK_MOUSE_ENABLE_TOGGLE,
+        HACK_MOUSE_LEFT_DRAG_TOGGLE,
+        HACK_MOUSE_LEFT_CLICK,
+        HACK_MOUSE_RIGHT_CLICK,
+        HACK_MOUSE_WHEEL_DOWN,
+        HACK_MOUSE_WHEEL_UP,
+        HACK_MOUSE_LEFT_BTN,
+        HACK_MOUSE_RIGHT_BTN,
+    },
     SwitchSet,
     UsbOutcome::*
 };

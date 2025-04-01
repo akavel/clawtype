@@ -162,6 +162,7 @@ dependencies = [
  "embassy-futures",
  "embassy-rp",
  "embassy-usb",
+ "mpu6050-async",
  "panic-probe",
  "thiserror",
  "usbd-hid",
@@ -904,6 +905,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c19937216e9d3aa9956d9bb8dfc0b0c8beb6058fc4f7a4dc4d850edf86a237d6"
 
 [[package]]
+name = "libm"
+version = "0.2.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8355be11b20d696c8f18f6cc018c4e372165b1fa8126cef092399c9951984ffa"
+
+[[package]]
 name = "litrs"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -930,6 +937,16 @@ name = "memchr"
 version = "2.7.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "78ca9ab1a0babb1e7d5695e3530886289c18cf2f87ec19a575a0abdce112e3a3"
+
+[[package]]
+name = "mpu6050-async"
+version = "0.0.2"
+source = "git+https://github.com/akavel/mpu6050-async#4861c61f16fb5777b8b12203f6a100ed4c2e4923"
+dependencies = [
+ "embedded-hal 1.0.0",
+ "embedded-hal-async",
+ "libm",
+]
 
 [[package]]
 name = "nb"
