@@ -15,6 +15,7 @@ use usbd_hid::descriptor::{self as hid_desc, SerializedDescriptor as _};
 use {defmt_rtt as _, panic_probe as _};
 
 pub mod usb_kbd;
+pub mod usb_simpler;
 
 
 bind_interrupts!(struct Irqs {
@@ -27,14 +28,7 @@ async fn main(_spawner: Spawner) {
     // Create the driver, from the HAL.
     let driver = rp_usb::Driver::new(p.USB, Irqs);
 
-    // Create embassy-usb Config
-    // TODO: why those params in the example?
-    let mut config = embassy_usb::Config::new(0xc0de, 0xcafe);
-    config.manufacturer = Some("Embassy");
-    config.product = Some("HID keyboard example");
-    config.serial_number = Some("12345678");
-    config.max_power = 100;
-    config.max_packet_size_0 = 64;
+    let mut usb_step1 = usb_simpler::new("akavel", "clawtype");
 
     // Create embassy-usb DeviceBuilder using the driver and config.
     // It needs some buffers for building the descriptors.
@@ -50,7 +44,7 @@ async fn main(_spawner: Spawner) {
 
     let mut builder = embassy_usb::Builder::new(
         driver,
-        config,
+        usb_step1.config,
         &mut config_descriptor,
         &mut bos_descriptor,
         &mut msos_descriptor,
@@ -88,9 +82,7 @@ async fn main(_spawner: Spawner) {
     // Do stuff with the class!
     let in_fut = async {
         loop {
-            info!("Waiting for HIGH on pin");
             signal_pin.wait_for_low().await;
-            info!("HIGH DETECTED");
             // Create a report with the D key pressed. (no shift modifier)
             let _ = kbd_state.press(usbd_hut::Keyboard::D);
             // Send the report.
@@ -99,7 +91,6 @@ async fn main(_spawner: Spawner) {
                 Err(e) => warn!("Failed to send report: {:?}", e),
             };
             signal_pin.wait_for_high().await;
-            info!("LOW DETECTED");
             kbd_state.clear();
             match writer.write_serialize(&kbd_state).await {
                 Ok(()) => {}
