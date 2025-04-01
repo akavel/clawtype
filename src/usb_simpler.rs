@@ -50,16 +50,32 @@ pub struct Step1<'a> {
 }
 
 impl<'a> Step1<'a> {
-    pub fn into_device_builder<D>(self, driver: D, buf: &'a mut buffers::ForDevice) -> eusb::Builder<'a, D>
+    pub fn into_device_builder<D>(self, driver: D, buf: &'a mut buffers::ForDevice) -> Step2<'a, D>
     where D: eusb::driver::Driver<'a>
     {
-        eusb::Builder::new(
+        let builder = eusb::Builder::new(
             driver,
             self.config,
             &mut buf.config_descriptor,
             &mut buf.bos_descriptor,
             &mut buf.msos_descriptor,
             &mut buf.control_buf,
-        )
+        );
+        Step2 { builder }
     }
 }
+
+pub struct Step2<'a, D>
+where D: eusb::driver::Driver<'a>
+{
+    pub builder: eusb::Builder<'a, D>,
+}
+
+impl<'a, D> Step2<'a, D>
+where D: eusb::driver::Driver<'a>
+{
+    pub fn build(self) -> eusb::UsbDevice<'a, D> {
+        self.builder.build()
+    }
+}
+
