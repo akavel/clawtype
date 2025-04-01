@@ -3,14 +3,14 @@ use embassy_usb::{self as eusb, class::hid};
 pub mod buffers {
     use super::*;
 
-    pub struct ForDriver {
+    pub struct ForDevice {
         pub config_descriptor: [u8; 256],
         pub bos_descriptor: [u8; 256],
         pub msos_descriptor: [u8; 256],
         pub control_buf: [u8; 64],
     }
 
-    impl ForDriver {
+    impl ForDevice {
         pub fn new() -> Self {
             Self {
                 // TODO: why below sizes in example? try to understand and adjust
@@ -50,7 +50,7 @@ pub struct Step1<'a> {
 }
 
 impl<'a> Step1<'a> {
-    pub fn into_driver_builder<D>(self, buf: &'a mut buffers::ForDriver, driver: D, handler: &'a mut dyn eusb::Handler) -> Step2<'a, D>
+    pub fn into_device_builder<D>(self, buf: &'a mut buffers::ForDevice, driver: D, handler: &'a mut dyn eusb::Handler) -> Step2<'a, D>
     where D: eusb::driver::Driver<'a>
     {
         let mut builder = eusb::Builder::new(
