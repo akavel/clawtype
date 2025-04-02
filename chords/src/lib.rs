@@ -30,8 +30,7 @@ pub mod sample_layers;
 #[derive(Default)]
 pub struct SwitchSet(pub u8);
 
-#[derive(Copy, Clone)]
-#[cfg_attr(test, derive(Debug, PartialEq))]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum UsbOutcome<KeyWithFlags> {
     Nothing,
     KeyHit(KeyWithFlags),

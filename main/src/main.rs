@@ -97,7 +97,7 @@ async fn main(_spawner: Spawner) {
     let mut usb = usb_dev_builder.build();
     let usb_fut = usb.run();
     let (kbd_reader, mut kbd_writer) = kbd_hid.split();
-    let (mouse_reader, mut mouse_writer) = mouse_hid.split();
+    let (mouse_reader, mouse_writer) = mouse_hid.split();
     let log_fut = embassy_usb_logger::with_class!(1024, log::LevelFilter::Info, logger_class);
 
     ////
@@ -130,7 +130,10 @@ async fn main(_spawner: Spawner) {
     let mut mpu = Mpu6050::new(i2c);
     let _ = mpu.init(&mut Delay).await;
 
+    // WARN: to avoid deadlocks, ALWAYS lock multiple ONLY in order like below
     let mouse_enabled = Mutex::<ThreadModeRawMutex, _>::new(false);
+    let mouse_buttons = Mutex::<ThreadModeRawMutex, _>::new(0u8); // TODO: atomic
+    let mouse_writer = Mutex::<ThreadModeRawMutex, _>::new(mouse_writer);
 
     ////
     //// OTHER
@@ -139,24 +142,26 @@ async fn main(_spawner: Spawner) {
     log::info!("Starting clawtype...");
     let gyro_fut = async {
         loop {
-            log::info!("loopsy...");
+            // log::info!("loopsy...");
             Timer::after_millis(20).await;
 
             let Ok(gyro) = mpu.get_gyro().await else {
                 continue;
             };
             let (gx, gy, gz) = gyro;
-            log::info!("gyro: {gx} {gy} {gz}");
+            // log::info!("gyro: {gx} {gy} {gz}");
             let vx = (gx*30.0) as i8;
             let vy = (-gz*20.0) as i8;
             // let vx = (gx/250.0) as i8;
             // let vy = (-gz/200.0) as i8;
-            log::info!("mouse: {vx}\t{vy}");
+            // log::info!("mouse: {vx}\t{vy}");
 
             let m = { *mouse_enabled.lock().await };
             if m {
-                log::info!("m enabled");
-                let _ = usb_send_mouse_move(&mut mouse_writer, vx, vy).await;
+                // log::info!("m enabled");
+                let b = mouse_buttons.lock().await;
+                let mut mw = mouse_writer.lock().await;
+                let _ = usb_send_mouse_report(&mut *mw, *b, vx, vy, 0).await;
             }
         }
     };
@@ -175,10 +180,25 @@ async fn main(_spawner: Spawner) {
                 bit(0b00_00_00_10, p7.is_low());  // index tip
 
             let outcome = cho.handle(SwitchSet(switches));
+            if outcome != Nothing {
+                log::info!("got: {outcome:?}");
+            }
             match outcome {
                 Nothing => (),
-                KeyPress(_) => (),
-                KeyRelease(_) => (),
+                KeyPress(k) => {
+                    let mask = mouse_mask_from_key_with_flags(k);
+                    let mut b = mouse_buttons.lock().await;
+                    *b |= mask;
+                    let mut mw = mouse_writer.lock().await;
+                    usb_send_mouse_report(&mut *mw, *b, 0, 0, 0).await;
+                },
+                KeyRelease(k) => {
+                    let mask = mouse_mask_from_key_with_flags(k);
+                    let mut b = mouse_buttons.lock().await;
+                    *b &= !mask;
+                    let mut mw = mouse_writer.lock().await;
+                    usb_send_mouse_report(&mut *mw, *b, 0, 0, 0).await;
+                },
                 KeyHit(key_with_flags) => {
                     if key_with_flags & HACK_MOUSE_MARKER == HACK_MOUSE_MARKER {
                         match key_with_flags {
@@ -186,6 +206,16 @@ async fn main(_spawner: Spawner) {
                                 let mut m = mouse_enabled.lock().await;
                                 *m = !*m;
                             }
+                            HACK_MOUSE_WHEEL_DOWN => {
+                                let b = mouse_buttons.lock().await;
+                                let mut mw = mouse_writer.lock().await;
+                                usb_send_mouse_report(&mut *mw, *b, 0, 0, -10).await;
+                            },
+                            HACK_MOUSE_WHEEL_UP => {
+                                let b = mouse_buttons.lock().await;
+                                let mut mw = mouse_writer.lock().await;
+                                usb_send_mouse_report(&mut *mw, *b, 0, 0, 10).await;
+                            },
                             _ => (),
                         }
                     } else {
@@ -240,17 +270,29 @@ where
     let _ = writer.write_serialize(&empty_report).await;
 }
 
-async fn usb_send_mouse_move<'d, D, const N: usize>(writer: &mut hid::HidWriter<'d, D, N>, x: i8, y: i8)
+async fn usb_send_mouse_report<'d, D, const N: usize>(writer: &mut hid::HidWriter<'d, D, N>, buttons: u8, x: i8, y: i8, wheel: i8)
 where
       D: embassy_usb::driver::Driver<'d>,
 {
     use usbd_hid::descriptor::MouseReport;
     let report = MouseReport {
+        buttons,
         x,
         y,
-        buttons: 0,
-        wheel: 0,
+        wheel,
         pan: 0,
     };
     let _ = writer.write_serialize(&report).await;
 }
+
+fn mouse_mask_from_key_with_flags(k: new_keys::KeyWithFlags) -> u8 {
+    match k {
+        HACK_MOUSE_LEFT_BTN => MASK_MOUSE_BTN_LEFT,
+        HACK_MOUSE_RIGHT_BTN => MASK_MOUSE_BTN_RIGHT,
+        _ => 0u8,
+    }
+}
+
+const MASK_MOUSE_BTN_LEFT: u8 = 0x1;
+const MASK_MOUSE_BTN_RIGHT: u8 = 0x2;
+
