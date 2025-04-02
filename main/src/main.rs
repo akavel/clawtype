@@ -26,7 +26,7 @@ use embassy_sync::mutex::Mutex;
 use embassy_sync::blocking_mutex::raw::*;
 use embassy_time::{Delay, Timer};
 use embassy_usb::class::hid;
-use embassy_usb::class::cdc_acm::{CdcAcmClass, self};
+use embassy_usb::class::cdc_acm;
 use usbd_hid::descriptor::{self as hid_desc, SerializedDescriptor as _};
 use {defmt_rtt as _, panic_probe as _};
 use mpu6050_async::Mpu6050;
@@ -75,8 +75,6 @@ async fn main(_spawner: Spawner) {
     let mut logger_state = cdc_acm::State::new();
     let mut usb_dev_builder =
         usb_simpler::new("akavel", "clawtype").into_device_builder(driver, &mut usb_buf_dev);
-    let logger_class = CdcAcmClass::new(&mut usb_dev_builder.wrapped, &mut logger_state, 64);
-    let log_fut = embassy_usb_logger::with_class!(1024, log::LevelFilter::Info, logger_class);
     let kbd_hid = usb_dev_builder.add_hid_reader_writer::<1, 8>(
         &mut usb_buf_hid_kbd,
         hid::Config {
@@ -95,10 +93,12 @@ async fn main(_spawner: Spawner) {
             max_packet_size: 64,
         },
     );
+    let logger_class = usb_dev_builder.add_cdc_acm_class(&mut logger_state, 64);
     let mut usb = usb_dev_builder.build();
     let usb_fut = usb.run();
     let (kbd_reader, mut kbd_writer) = kbd_hid.split();
     let (mouse_reader, mut mouse_writer) = mouse_hid.split();
+    let log_fut = embassy_usb_logger::with_class!(1024, log::LevelFilter::Info, logger_class);
 
     ////
     //// INPUT switches initial setup

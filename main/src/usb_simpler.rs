@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-use embassy_usb::{self as eusb, class::hid};
+use embassy_usb::{self as eusb, class::{hid, cdc_acm}};
 
 pub mod buffers {
     use super::*;
@@ -101,6 +101,10 @@ where
         cfg: hid::Config<'a>,
     ) -> hid::HidReaderWriter<'a, D, READ_N, WRITE_N> {
         hid::HidReaderWriter::new(&mut self.wrapped, &mut buf.state, cfg)
+    }
+
+    pub fn add_cdc_acm_class(&mut self, state: &'a mut cdc_acm::State<'a>, max_packet_size: u16) -> cdc_acm::CdcAcmClass<'a, D> {
+        cdc_acm::CdcAcmClass::new(&mut self.wrapped, state, max_packet_size)
     }
 
     pub fn build(self) -> eusb::UsbDevice<'a, D> {
