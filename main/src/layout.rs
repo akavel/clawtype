@@ -63,10 +63,10 @@ impl Layout {
             // FIXME: add F1-F12 !!!
 
             // TODO: put mouse on cheatsheet
-            chord!("^_^%") => Emit(Hit(HACK_MOUSE_ENABLE_TOGGLE)),
-            chord!("_v_^") => Emit(Hit(HACK_MOUSE_LEFT_CLICK)),
-            chord!("^_v_") => Emit(Hit(HACK_MOUSE_RIGHT_CLICK)),
-            chord!("%%_^") => Emit(Hit(HACK_MOUSE_LEFT_DRAG_TOGGLE)),
+            // chord!("^_^%") => Emit(Hit(HACK_MOUSE_ENABLE_TOGGLE)), // reuse!
+            // chord!("_v_^") => Emit(Hit(HACK_MOUSE_LEFT_CLICK)), // retaken
+            // chord!("^_v_") => Emit(Hit(HACK_MOUSE_RIGHT_CLICK)), // reuse!
+            // chord!("%%_^") => Emit(Hit(HACK_MOUSE_LEFT_DRAG_TOGGLE)), // reuse!
             chord!("v_^^") => Emit(Hit(HACK_MOUSE_WHEEL_DOWN)),
             chord!("v^^_") => Emit(Hit(HACK_MOUSE_WHEEL_UP)),
 
@@ -93,7 +93,8 @@ impl Layout {
             chord!("_v_v") => Emit(Hit(R)),
             chord!("_^_v") => Emit(Hit(D)),
             chord!("_^^^") => Emit(Hit(L)),
-            chord!("_^_%") => Emit(Hit(U)),
+            chord!("_v_^") => Emit(Hit(U)), // better!
+            chord!("_^_%") => Emit(Hit(U)), // old!
             chord!("^__^") => Emit(Hit(C)),
             chord!("v__v") => Emit(Hit(M)),
             chord!("__^^") => Emit(Hit(W)),
