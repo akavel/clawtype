@@ -27,11 +27,14 @@ use embassy_sync::blocking_mutex::raw::*;
 use embassy_time::{Delay, Timer};
 use embassy_usb::class::hid;
 use embassy_usb::class::cdc_acm;
+use embedded_graphics::prelude::*;
+use embedded_graphics::pixelcolor::BinaryColor;
 use embedded_hal_bus::spi as hal_spi;
 use usbd_hid::descriptor::{self as hid_desc, SerializedDescriptor as _};
 use {defmt_rtt as _, panic_probe as _};
 use mpu6050_async::Mpu6050;
 use nokia5110lcd::Pcd8544;
+use u8g2_fonts::{FontRenderer, fonts, types as font_params};
 
 use clawtype_chords::{
     self as chords,
@@ -154,6 +157,20 @@ async fn main(_spawner: Spawner) {
 
     let mut delayer = Delay{};
     let mut lcd = Pcd8544::new(spi_dev, lcd_dc, lcd_rst, &mut delayer).expect("better not fail");
+
+    let mut lcd_buf = nokia5110lcd::Buffer::new();
+    let font = FontRenderer::new::<fonts::u8g2_font_u8glib_4_tr>();
+    let _ = lcd.position(0, 0);
+    let _ = font.render(
+        "Hello, hackerman!",
+        Point::new(0, 0),
+        font_params::VerticalPosition::Top,
+        font_params::FontColor::Transparent(BinaryColor::On),
+        &mut lcd_buf,
+    );
+    let _ = lcd.data(&lcd_buf.bytes);
+
+    /*
     let _ = lcd.clear();
     let _ = lcd.position(0, 0);
     // based on Vault Boy cross-stitch pattern by IFeel_Attacked (https://redd.it/rnt3ou)
@@ -192,6 +209,7 @@ async fn main(_spawner: Spawner) {
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
     ]);
+    */
 
     ////
     //// OTHER

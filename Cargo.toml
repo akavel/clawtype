@@ -21,6 +21,7 @@ cortex-m-rt = "0.7.0"
 critical-section = "1.1"
 defmt = "0.3"
 defmt-rtt = "0.4"
+embedded-graphics = "0.8.1"
 embedded-hal-bus = { version = "0.1", features = ["async"] }
 panic-probe = { version = "0.3", features = ["print-defmt"] }
 usbd-hid = "0.8.1"
@@ -30,6 +31,7 @@ thiserror = { version = "2.0.12", default-features = false }
 mpu6050-async = { git = "https://github.com/akavel/mpu6050-async" }
 log = "0.4"
 nokia5110lcd = { path = "../nokia" } #, git = "https://github.com/akavel/nokia5110lcd" }
+u8g2-fonts = "0.6.0"
 
 usbd-hut = { path = "usbd-hut/" }
 clawtype-chords = { path = "chords/" }
