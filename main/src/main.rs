@@ -195,7 +195,7 @@ async fn main(_spawner: Spawner) {
     for (i, s) in rows.iter().enumerate() {
         let _ = font.render(
             *s,
-            pt(0, i as i32 * 8),
+            pt(0, i as i32 * 8 + 1),
             top, fcol,
             &mut lcd_buf,
         );
