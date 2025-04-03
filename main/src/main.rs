@@ -162,18 +162,31 @@ async fn main(_spawner: Spawner) {
     let mut lcd_buf = nokia5110lcd::Buffer::new();
 
     let raw_img = ImageRaw::<BinaryColor>::new(VAULT_BOY, nokia5110lcd::WIDTH.into());
-    let img = Image::new(&raw_img, Point::zero());
+    let img = Image::new(&raw_img, Point::new(5, 0));
     let _ = img.draw(&mut lcd_buf);
 
     // let font = FontRenderer::new::<fonts::u8g2_font_u8glib_4_tr>();
-    let font = FontRenderer::new::<fonts::u8g2_font_tinyunicode_tf>();
-    let _ = font.render(
-        "Hello,\nhackerman!",
-        Point::zero(),
-        font_params::VerticalPosition::Top,
-        font_params::FontColor::Transparent(BinaryColor::On),
-        &mut lcd_buf,
-    );
+    // let font = FontRenderer::new::<fonts::u8g2_font_tinyunicode_tf>();
+    // let font = FontRenderer::new::<fonts::u8g2_font_boutique_bitmap_7x7_t_all>();
+    // let font = FontRenderer::new::<fonts::u8g2_font_pxplustandynewtv_t_all>();
+    let font = FontRenderer::new::<fonts::u8g2_font_tiny5_t_all>();
+    let top = font_params::VerticalPosition::Top;
+    let fcol = font_params::FontColor::Transparent(BinaryColor::On);
+    let pt = |x, y| Point::new(x, y);
+    // let _ = font.render(
+    //     "Hello,\nhackerman!\nCześć\nCiao\nПривіт!",
+    //     Point::zero(),
+    //     top, fcol,
+    //     &mut lcd_buf,
+    // );
+    for (i, s) in ["Hello,", "hackerman!", "", "Cześć,", "Ciao,", "Привіт!"].iter().enumerate() {
+        let _ = font.render(
+            *s,
+            pt(0, i as i32 * 8),
+            top, fcol,
+            &mut lcd_buf,
+        );
+    }
 
     let _ = lcd.position(0, 0);
     let _ = lcd.data(&lcd_buf.bytes);
