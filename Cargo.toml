@@ -1,7 +1,7 @@
 [workspace.package]
 authors = ["Mateusz Czapliński <czapkofan@gmail.com>"]
 license = "AGPL-3.0-or-later"
-edition = "2021"
+edition = "2024"
 
 [workspace]
 resolver = "2"
@@ -21,6 +21,7 @@ cortex-m-rt = "0.7.0"
 critical-section = "1.1"
 defmt = "0.3"
 defmt-rtt = "0.4"
+embedded-hal-bus = { version = "0.1", features = ["async"] }
 panic-probe = { version = "0.3", features = ["print-defmt"] }
 usbd-hid = "0.8.1"
 
@@ -28,6 +29,7 @@ const_map = { git = "https://github.com/akavel/const_map", branch = "master" }
 thiserror = { version = "2.0.12", default-features = false }
 mpu6050-async = { git = "https://github.com/akavel/mpu6050-async" }
 log = "0.4"
+nokia5110lcd = { path = "../nokia" } #, git = "https://github.com/akavel/nokia5110lcd" }
 
 usbd-hut = { path = "usbd-hut/" }
 clawtype-chords = { path = "chords/" }
