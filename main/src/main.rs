@@ -190,7 +190,8 @@ async fn main(_spawner: Spawner) {
         let _ = lcd.data(&lcd_buf.bytes);
 
         // Then, wait a short while...
-        Timer::after_millis(1200).await;
+        // Timer::after_millis(1200).await;
+        Timer::after_millis(2000).await;
 
         // And switch to the cheatsheet.
         let _ = lcd_buf.clear(BinaryColor::Off);
@@ -224,13 +225,16 @@ async fn main(_spawner: Spawner) {
     let gyro_fut = async {
         loop {
             // log::info!("loopsy...");
-            Timer::after_millis(20).await;
+            // Timer::after_millis(20).await;
+            Timer::after_millis(5).await;
 
             let Ok(gyro) = mpu.get_gyro().await else {
                 continue;
             };
             let (gx, gy, gz) = gyro;
             // log::info!("gyro: {gx} {gy} {gz}");
+            // let vx = (gx*30.0) as i8;
+            // let vy = (-gz*20.0) as i8;
             let vx = (gx*30.0) as i8;
             let vy = (-gz*20.0) as i8;
             // let vx = (gx/250.0) as i8;
