@@ -22,3 +22,9 @@ Licensed under AGPL v3 or later.
 Unless you explicitly state otherwise, any contribution intentionally submitted
 for inclusion in the work by you, as defined in the AGPL-3.0 license, shall
 be licensed as above, without any additional terms or conditions.
+
+## More
+
+3d design: [Clawtype by Cunfusu](https://www.printables.com/model/1231156-clawtype).
+
+[💬 Discuss](https://merveilles.town/@akavel/114278656676862031)
