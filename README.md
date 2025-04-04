@@ -5,6 +5,10 @@ Rust project for the _SparkFun ProMicro RP2040_ board.
 
 A variant of the [Chordite keyboard](https://web.archive.org/web/20220201061603/http://chordite.com/).
 
+For the structural design
+and 3d-printed parts, see:
+[Clawtype by Cunfusu](https://www.printables.com/model/1231156-clawtype).
+
 ## License
 Licensed under AGPL v3 or later.
 
