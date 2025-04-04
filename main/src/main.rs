@@ -163,46 +163,58 @@ async fn main(_spawner: Spawner) {
 
     let raw_img = ImageRaw::<BinaryColor>::new(VAULT_BOY, nokia5110lcd::WIDTH.into());
     let img = Image::new(&raw_img, Point::new(11, 0));
-    let _ = img.draw(&mut lcd_buf);
 
     // let font = FontRenderer::new::<fonts::u8g2_font_u8glib_4_tr>();
-    let font = FontRenderer::new::<fonts::u8g2_font_3x5im_te>();
     // let font = FontRenderer::new::<fonts::u8g2_font_tinyunicode_tf>();
     // let font = FontRenderer::new::<fonts::u8g2_font_boutique_bitmap_7x7_t_all>();
     // let font = FontRenderer::new::<fonts::u8g2_font_pxplustandynewtv_t_all>();
-    // let font = FontRenderer::new::<fonts::u8g2_font_tiny5_t_all>();
+    let font_mini = FontRenderer::new::<fonts::u8g2_font_3x5im_te>();
+    let font_unicode = FontRenderer::new::<fonts::u8g2_font_tiny5_t_all>();
     let top = font_params::VerticalPosition::Top;
     let fcol = font_params::FontColor::Transparent(BinaryColor::On);
     let pt = |x, y| Point::new(x, y);
-    // let _ = font.render(
-    //     "^_^v GUI %_%v % \n_%%v & _^^v = \n_^^% + ^^_% ? \nvvvv | \n%_^^ Caps v_vv ( ^^_v <",
-    //     Point::zero(),
-    //     top, fcol,
-    //     &mut lcd_buf,
-    // );
-    // let rows = ["Hello,", "hackerman!", "", "Cześć,", "Ciao,", "Привіт!"];
-    // let dy = 8;
-    // let rows = ["^_^v GUI %_%v % ", "_%%v & _^^v = ", "_^^% +", "^^_% ? ", "vvvv | ", "%_^^ Caps v_vv ( ^^_v <"];
-    let rows = [
-        "v_vv ( ^_^vGUI",
-        "^^_v < %_%v %",
-        "%_^^ Cap",
-        "_^^% +",
-        "_^^v =",
-        "%%v_ ` ^^_% ?",
-    ];
-    let dy = 8;
-    for (i, s) in rows.iter().enumerate() {
-        let _ = font.render(
-            *s,
-            pt(0, i as i32 * 8 + 1),
-            top, fcol,
-            &mut lcd_buf,
-        );
-    }
+    let lcd_fut = async {
+        // First, draw a welcome screen
+        let _ = img.draw(&mut lcd_buf);
+        let rows = ["Hello,", "hackerman!", "", "Cześć,", "Ciao,", "Привіт!"];
+        let dy = 8;
+        for (i, s) in rows.iter().enumerate() {
+            let _ = font_unicode.render(
+                *s,
+                pt(0, i as i32 * 8 + 1),
+                top, fcol,
+                &mut lcd_buf,
+            );
+        }
+        let _ = lcd.position(0, 0);
+        let _ = lcd.data(&lcd_buf.bytes);
 
-    let _ = lcd.position(0, 0);
-    let _ = lcd.data(&lcd_buf.bytes);
+        // Then, wait a short while...
+        Timer::after_millis(1200).await;
+
+        // And switch to the cheatsheet.
+        let _ = lcd_buf.clear(BinaryColor::Off);
+        let _ = img.draw(&mut lcd_buf);
+        let rows = [
+            "v_vv ( ^_^vGUI",
+            "^^_v < %_%v %",
+            "%_^^ Cap",
+            "_^^% +",
+            "_^^v =",
+            "%%v_ ` ^^_% ?",
+        ];
+        let dy = 8;
+        for (i, s) in rows.iter().enumerate() {
+            let _ = font_mini.render(
+                *s,
+                pt(0, i as i32 * 8 + 1),
+                top, fcol,
+                &mut lcd_buf,
+            );
+        }
+        let _ = lcd.position(0, 0);
+        let _ = lcd.data(&lcd_buf.bytes);
+    };
 
     ////
     //// OTHER
@@ -303,6 +315,7 @@ async fn main(_spawner: Spawner) {
     // Run everything concurrently.
     // If we had made everything `'static` above instead, we could do this using separate tasks instead.
     join!(
+        lcd_fut,
         usb_fut,
         log_fut,
         gyro_fut,
