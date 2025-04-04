@@ -1,9 +1,13 @@
 clawtype
 ========
 
+![](https://github.com/user-attachments/assets/8e868814-3449-4e38-8927-7e8b05381b22)
+
 Rust project for the _SparkFun ProMicro RP2040_ board.
 
 A variant of the [Chordite keyboard](https://web.archive.org/web/20220201061603/http://chordite.com/).
+
+![(a gif animation showing the use of the device as a keyboard and a mouse)](https://github.com/user-attachments/assets/ef62bd9f-f82f-442e-a858-8d50a09204aa)
 
 For the structural design
 and 3d-printed parts, see:
