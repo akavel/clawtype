@@ -3,7 +3,7 @@ clawtype
 
 ![](https://github.com/user-attachments/assets/8e868814-3449-4e38-8927-7e8b05381b22)
 
-<sup>_(art by IFeel_Attacked: https://redd.it/rnt3ou)_</sup>
+<sup>_(pixel art based on a design by IFeel_Attacked: https://redd.it/rnt3ou)_</sup>
 
 A Rust-embedded project for (currently) the _SparkFun ProMicro RP2040_ board.
 
