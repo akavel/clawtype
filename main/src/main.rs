@@ -33,7 +33,7 @@ use embedded_graphics::pixelcolor::BinaryColor;
 use embedded_hal_bus::spi as hal_spi;
 use usbd_hid::descriptor::{self as hid_desc, SerializedDescriptor as _};
 use {defmt_rtt as _, panic_probe as _};
-use mpu6050_async::Mpu6050;
+use mpu6050_dmp::sensor::Mpu6050;
 use nokia5110lcd::Pcd8544;
 use u8g2_fonts::{FontRenderer, fonts, types as font_params};
 
@@ -133,8 +133,15 @@ async fn main(_spawner: Spawner) {
     let mut i2c_cfg = rp_i2c::Config::default();
     i2c_cfg.frequency = 400_000;
     let i2c = rp_i2c::I2c::new_async(p.I2C0, p.PIN_29, p.PIN_28, Irqs, i2c_cfg);
-    let mut mpu = Mpu6050::new(i2c);
-    let _ = mpu.init(&mut Delay).await;
+    let mut gy521 = Mpu6050::new(i2c, mpu6050_dmp::address::Address::default());
+    if let Ok(ref mut sensor) = gy521 {
+        use mpu6050_dmp::config::DigitalLowPassFilter::*;
+        let _ = sensor.set_digital_lowpass_filter(Filter6);
+        let _ = sensor.enable_dmp();
+        // Calibration values obtained once by running sensor.calibrate().
+        let calibr = mpu6050_dmp::gyro::Gyro::new(61, -30, -15);
+        let _ = sensor.set_gyro_calibration(&calibr);
+    }
 
     // WARN: to avoid deadlocks, ALWAYS lock multiple ONLY in order like below
     let mouse_enabled = Mutex::<ThreadModeRawMutex, _>::new(false);
@@ -228,18 +235,14 @@ async fn main(_spawner: Spawner) {
             // Timer::after_millis(20).await;
             Timer::after_millis(5).await;
 
-            let Ok(gyro) = mpu.get_gyro().await else {
+            let Ok(ref mut sensor) = gy521 else {
                 continue;
             };
-            let (gx, gy, gz) = gyro;
-            // log::info!("gyro: {gx} {gy} {gz}");
-            // let vx = (gx*30.0) as i8;
-            // let vy = (-gz*20.0) as i8;
-            let vx = (gx*30.0) as i8;
-            let vy = (-gz*20.0) as i8;
-            // let vx = (gx/250.0) as i8;
-            // let vy = (-gz/200.0) as i8;
-            // log::info!("mouse: {vx}\t{vy}");
+            let Ok(gyro) = sensor.gyro() else {
+                continue;
+            };
+            let vx = (gyro.x()/250) as i8;
+            let vy = (-gyro.z()/200) as i8;
 
             let m = { *mouse_enabled.lock().await };
             if m {

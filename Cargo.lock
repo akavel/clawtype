@@ -168,7 +168,7 @@ dependencies = [
  "embedded-graphics",
  "embedded-hal-bus",
  "log",
- "mpu6050-async",
+ "mpu6050-dmp",
  "nokia5110lcd",
  "panic-probe",
  "thiserror",
@@ -1015,12 +1015,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c3c8dda44ff03a2f238717214da50f65d5a53b45cd213a7370424ffdb6fae815"
 
 [[package]]
-name = "mpu6050-async"
-version = "0.0.2"
-source = "git+https://github.com/akavel/mpu6050-async#4861c61f16fb5777b8b12203f6a100ed4c2e4923"
+name = "mpu6050-dmp"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6bc6140a2853ffebdcfe2c408d7e37ee7f3f5689d7d3e25302f6bb1ac4f3fccc"
 dependencies = [
  "embedded-hal 1.0.0",
- "embedded-hal-async",
  "libm",
 ]
 

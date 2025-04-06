@@ -25,7 +25,7 @@ usbd-hid.workspace = true
 
 const_map.workspace = true
 thiserror.workspace = true
-mpu6050-async.workspace = true
+mpu6050-dmp.workspace = true
 log.workspace = true
 nokia5110lcd.workspace = true
 u8g2-fonts.workspace = true
