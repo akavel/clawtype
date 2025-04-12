@@ -29,4 +29,14 @@ be licensed as above, without any additional terms or conditions.
 
 3d design: [Clawtype by Cunfusu](https://www.printables.com/model/1231156-clawtype).
 
+~2025-04-04 small publicity & discussions:
+[HN](https://news.ycombinator.com/item?id=43588420) ([daily #14](https://news.ycombinator.com/front?day=2025-04-04)),
+[lobste.rs](https://lobste.rs/s/o0xmgd/clawtype_custom_wearable_chorded),
+[r/ErgoMechKeyboards](https://redd.it/1jrg5ul),
+[r/cyberdeck](https://redd.it/1jwrnkv),
+[r/Xreal](https://redd.it/1jrfupe),
+[r/ErgoMobileComputers](https://redd.it/1jrg6ti),
+[r/PeripheralDesign](https://redd.it/1jsx7p9),
+[mastodon](https://merveilles.town/@akavel/114278656676862031)
+
 [💬 Discuss](https://merveilles.town/@akavel/114278656676862031)
