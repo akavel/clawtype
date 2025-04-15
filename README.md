@@ -37,6 +37,8 @@ be licensed as above, without any additional terms or conditions.
 [r/Xreal](https://redd.it/1jrfupe),
 [r/ErgoMobileComputers](https://redd.it/1jrg6ti),
 [r/PeripheralDesign](https://redd.it/1jsx7p9),
-[mastodon](https://merveilles.town/@akavel/114278656676862031)
+[mastodon](https://merveilles.town/@akavel/114278656676862031);
+~2025-04-14
+[hackaday](https://hackaday.com/2025/04/15/keebin-with-kristina-the-one-with-john-lennons-typewriter/)
 
 [💬 Discuss](https://merveilles.town/@akavel/114278656676862031)
