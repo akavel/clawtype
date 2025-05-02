@@ -64,8 +64,6 @@ impl Layout {
 
             // TODO: put mouse on cheatsheet
             // chord!("^_^%") => Emit(Hit(HACK_MOUSE_ENABLE_TOGGLE)), // reuse!
-            // chord!("_v_^") => Emit(Hit(HACK_MOUSE_LEFT_CLICK)), // retaken
-            // chord!("^_v_") => Emit(Hit(HACK_MOUSE_RIGHT_CLICK)), // reuse!
             // chord!("%%_^") => Emit(Hit(HACK_MOUSE_LEFT_DRAG_TOGGLE)), // reuse!
             chord!("v_^^") => Emit(Hit(HACK_MOUSE_WHEEL_DOWN)),
             chord!("v^^_") => Emit(Hit(HACK_MOUSE_WHEEL_UP)),
@@ -89,17 +87,18 @@ impl Layout {
             chord!("_^^_") => Emit(Hit(I)),
             chord!("__^v") => Emit(Hit(N)),
             chord!("___%") => Emit(Hit(S)),
-            chord!("__^%") => Emit(Hit(H)),
-            chord!("_v_v") => Emit(Hit(R)),
-            chord!("_^_v") => Emit(Hit(D)),
+            chord!("^_v_") => Emit(Hit(H)), // better!
+            chord!("__^%") => Emit(Hit(H)), // old!
+            chord!("__vv") => Emit(Hit(R)), // note: swapped with old F
+            chord!("_^_^") => Emit(Hit(D)), // note: swapped with old G
             chord!("_^^^") => Emit(Hit(L)),
-            chord!("_v_^") => Emit(Hit(U)), // better!
-            chord!("_^_%") => Emit(Hit(U)), // old!
+            chord!("_v_^") => Emit(Hit(U)),
+            // chord!("_^_%") => Emit(Hit(U)), // reuse!
             chord!("^__^") => Emit(Hit(C)),
             chord!("v__v") => Emit(Hit(M)),
             chord!("__^^") => Emit(Hit(W)),
-            chord!("__vv") => Emit(Hit(F)),
-            chord!("_^_^") => Emit(Hit(G)),
+            chord!("_v_v") => Emit(Hit(F)), // note: swapped with old R
+            chord!("_^_v") => Emit(Hit(G)), // note: swapped with old D
             chord!("^_^_") => Emit(Hit(Y)),
             chord!("v_v_") => Emit(Hit(P)),
             chord!("_vv_") => Emit(Hit(B)),
@@ -111,17 +110,17 @@ impl Layout {
             chord!("vv__") => Emit(Hit(Q)),
 
             chord!("%__%") => TemporaryLayerSwitch { layer: 1 }, // SHIFT
-            // chord!("%_%_") => TemporaryPlusMask { mask: CTRL_FLAG }, // CTRL
+            // chord!("%_%_") => TemporaryPlusMask { mask: CTRL_FLAG }, // reuse!
             chord!("^^__") => TemporaryPlusMask { mask: CTRL_FLAG }, // CTRL (new easier version)
             chord!("%%%_") => TemporaryPlusMask { mask: ALT_FLAG }, // ALT
             chord!("_%%%") => TemporaryPlusMask { mask: RIGHT_ALT_FLAG }, // R-ALT
             chord!("^_^v") => TemporaryPlusMask { mask: GUI_FLAG }, // GUI
             // candidate "mouse layer"
-            chord!("%%_%") => TemporaryPlusMask { mask: GUI_FLAG }, // GUI (old!)
+            // chord!("%%_%") => TemporaryPlusMask { mask: GUI_FLAG }, // reuse!
             // candidate "mouse layer"
-            chord!("v%_%") => TemporaryPlusMask { mask: GUI_FLAG }, // GUI (old!)
+            // chord!("v%_%") => TemporaryPlusMask { mask: GUI_FLAG }, // reuse!
             // candidate "mouse layer"
-            chord!("vv_%") => TemporaryPlusMask { mask: GUI_FLAG }, // GUI (old!)
+            // chord!("vv_%") => TemporaryPlusMask { mask: GUI_FLAG }, // reuse!
             chord!("%_%%") => TemporaryPlusMask { mask: RIGHT_GUI_FLAG }, // R_GUI
 
             chord!("_%_%") => Emit(Hit(ENTER)),
@@ -142,11 +141,13 @@ impl Layout {
             chord!("^^_%") => Emit(Hit(SLASH | SHIFT_FLAG)), // ?
 
             chord!("vvv_") => Emit(Hit(SLASH)), // /
+            chord!("%vv_") => Emit(Hit(BACKSLASH)), // \
             chord!("_%%v") => Emit(Hit(KEY_7 | SHIFT_FLAG)), // &
             chord!("_vvv") => Emit(Hit(KEY_8 | SHIFT_FLAG)), // *
             chord!("_^^v") => Emit(Hit(EQUAL)), // =
             chord!("_^^%") => Emit(Hit(EQUAL | SHIFT_FLAG)), // +
             chord!("%%v_") => Emit(Hit(TILDE)), // `
+            chord!("%%_v") => Emit(Hit(TILDE | SHIFT_FLAG)), // ~
             chord!("%^^_") => Emit(Hit(MINUS)), // -
             chord!("%^^^") => Emit(Hit(MINUS | SHIFT_FLAG)), // _
             chord!("_v^_") => Emit(Hit(QUOTE)), // '
@@ -178,7 +179,6 @@ impl Layout {
             chord!("_%_v") => Emit(Hit(KEY_8)),
             chord!("_%_^") => Emit(Hit(KEY_9)),
 
-            // chord!("%%_v") => LayerSwitch { layer: 2 }, // "Nav / Fn" layer
             chord!("%_^^") => Emit(Hit(CAPS_LOCK)),
         }
     );
