@@ -88,7 +88,6 @@ impl Layout {
             chord!("__^v") => Emit(Hit(N)),
             chord!("__%_") => Emit(Hit(S)), // note: swapped from old K!
             chord!("^_v_") => Emit(Hit(H)), // better!
-            chord!("__^%") => Emit(Hit(H)), // old! (move to Shift, maybe)
             chord!("__vv") => Emit(Hit(R)), // note: swapped with old F
             chord!("_^_^") => Emit(Hit(D)), // note: swapped with old G
             chord!("_^^^") => Emit(Hit(L)),
@@ -110,6 +109,7 @@ impl Layout {
             chord!("vv__") => Emit(Hit(Q)),
 
             chord!("%__%") => TemporaryLayerSwitch { layer: 1 }, // SHIFT
+            chord!("__^%") => TemporaryLayerSwitch { layer: 1 }, // SHIFT; note: moved from old H
             // chord!("%_%_") => TemporaryPlusMask { mask: CTRL_FLAG }, // reuse!
             chord!("^^__") => TemporaryPlusMask { mask: CTRL_FLAG }, // CTRL (new easier version)
             chord!("%%%_") => TemporaryPlusMask { mask: ALT_FLAG }, // ALT
