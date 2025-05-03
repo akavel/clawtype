@@ -87,7 +87,7 @@ impl Layout {
             chord!("_^^_") => Emit(Hit(I)),
             chord!("__^v") => Emit(Hit(N)),
             chord!("__%_") => Emit(Hit(S)), // note: swapped from old K!
-            chord!("^_v_") => Emit(Hit(H)), // better!
+            chord!("_v^_") => Emit(Hit(H)), // note: swapped from old '
             chord!("__vv") => Emit(Hit(R)), // note: swapped with old F
             chord!("_^_^") => Emit(Hit(D)), // note: swapped with old G
             chord!("_^^^") => Emit(Hit(L)),
@@ -150,7 +150,7 @@ impl Layout {
             chord!("%%_v") => Emit(Hit(TILDE | SHIFT_FLAG)), // ~
             chord!("%^^_") => Emit(Hit(MINUS)), // -
             chord!("%^^^") => Emit(Hit(MINUS | SHIFT_FLAG)), // _
-            chord!("_v^_") => Emit(Hit(QUOTE)), // '
+            chord!("^_v_") => Emit(Hit(QUOTE)), // '  note: swapped with H new
             chord!("__v%") => Emit(Hit(QUOTE | SHIFT_FLAG)), // "
             chord!("v^__") => Emit(Hit(KEY_4 | SHIFT_FLAG)), // $
             chord!("^^^%") => Emit(Hit(KEY_6 | SHIFT_FLAG)), // ^

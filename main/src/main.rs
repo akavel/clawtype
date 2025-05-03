@@ -207,7 +207,7 @@ async fn main(_spawner: Spawner) {
             "v_vv ( ^_^vGUI",
             "^^_v < %_%v %",
             "%_^^ Cap",
-            "_^^% +",
+            "^_v_ '",
             "_^^v =",
             "%%v_ ` ^^_% ?",
         ];
