@@ -346,17 +346,31 @@ where
     let bytes = k.to_be_bytes();
     let modifier = bytes[0];
     let key = bytes[1];
+    use usbd_hid::descriptor::KeyboardReport;
+
+    if modifier != 0u8 {
+        // press just the modifier first
+        let mut report = KeyboardReport::default();
+        report.modifier = modifier;
+        let _ = writer.write_serialize(&report).await;
+    }
 
     // press...
-    use usbd_hid::descriptor::KeyboardReport;
     let mut report = KeyboardReport::default();
     report.modifier = modifier;
     report.keycodes[0] = key;
     let _ = writer.write_serialize(&report).await;
 
-    // ...and release
+    // ...and release the key
     let empty_report = KeyboardReport::default();
+    report.modifier = modifier;
     let _ = writer.write_serialize(&empty_report).await;
+
+    if modifier != 0u8 {
+        // also release the modifier
+        let mut report = KeyboardReport::default();
+        let _ = writer.write_serialize(&report).await;
+    }
 }
 
 async fn usb_send_mouse_report<'d, D, const N: usize>(writer: &mut hid::HidWriter<'d, D, N>, buttons: u8, x: i8, y: i8, wheel: i8)
