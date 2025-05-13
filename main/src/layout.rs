@@ -110,10 +110,10 @@ impl Layout {
 
             chord!("%__%") => TemporaryLayerSwitch { layer: 1 }, // SHIFT
             chord!("__^%") => TemporaryLayerSwitch { layer: 1 }, // SHIFT; note: moved from old H
-            // chord!("%_%_") => TemporaryPlusMask { mask: CTRL_FLAG }, // reuse!
             chord!("^^__") => TemporaryPlusMask { mask: CTRL_FLAG }, // CTRL (new easier version)
             chord!("%%%_") => TemporaryPlusMask { mask: ALT_FLAG }, // ALT
-            chord!("_%%%") => TemporaryPlusMask { mask: RIGHT_ALT_FLAG }, // R-ALT
+            chord!("%_%_") => TemporaryPlusMask { mask: RIGHT_ALT_FLAG }, // R-ALT (new easier version)
+            chord!("_%%%") => TemporaryPlusMask { mask: RIGHT_ALT_FLAG }, // R-ALT (old)
             chord!("^_^v") => TemporaryPlusMask { mask: GUI_FLAG }, // GUI
             // candidate "mouse layer"
             // chord!("%%_%") => TemporaryPlusMask { mask: GUI_FLAG }, // reuse!
